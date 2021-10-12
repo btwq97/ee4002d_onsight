@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:on_sight/constants.dart';
+import 'package:on_sight/components/reusablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
 enum Choice {
@@ -9,9 +11,9 @@ enum Choice {
 /*class Vegetarianism extends StatefulWidget {
   @override
   _VegetarianState createState() => _VegetarianState();
-}
+}*/
 
-class _VegetarianState extends State<Vegetarianism> {
+/*class _VegetarianState extends State<Vegetarianism> {
 
   @override
   Widget build(BuildContext context) {
@@ -225,3 +227,46 @@ class _VegetarianState extends State<Vegetarianism> {
   }
 }*/
 
+class ResultsPage extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('VEGETARIAN?'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(15.0),
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'YES',
+                style: kTitleTextStyle,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(15.0),
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                'NO',
+                style: kTitleTextStyle,
+              ),
+            ),
+          ),
+          BottomButton(
+            buttonTitle: 'NEXT',
+            onTap: () {
+              Navigator.pop(context);
+            },
+          )
+        ],
+      ),
+    );
+  }
+}

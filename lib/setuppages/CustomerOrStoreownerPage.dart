@@ -103,7 +103,7 @@ class CustomerOrStoreownerPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: ListTile(
                     title: Text(
-                      'Go Back',
+                      'NEXT',
                       style: TextStyle(
                         color: Color(0xFFFFFF00),
                         fontFamily: 'HKGrotesk',
