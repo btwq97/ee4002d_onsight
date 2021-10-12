@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/reusablecard.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
 enum Choice {
@@ -227,7 +228,7 @@ enum Choice {
   }
 }*/
 
-class ResultsPage extends StatelessWidget {
+class Vegetarianism extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -240,23 +241,49 @@ class ResultsPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
-            child: Container(
-              padding: EdgeInsets.all(15.0),
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                'YES',
-                style: kTitleTextStyle,
-              ),
+            child: ReusableCard(
+              cardChild: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget> [
+                  Icon(
+                    FontAwesomeIcons.thumbsUp,
+                    size: 80.0,
+                  ),
+                  SizedBox(
+                    height: 15.0,
+                  ),
+                  Text(
+                    'YES',
+                    style: TextStyle(
+                    fontSize: 18.0,
+                    color: Color(0xFFFFFF00),
+                    ),
+                  ),
+                ],
+      )
             ),
           ),
           Expanded(
-            child: Container(
-              padding: EdgeInsets.all(15.0),
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                'NO',
-                style: kTitleTextStyle,
-              ),
+            child: ReusableCard(
+                cardChild: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget> [
+                    Icon(
+                      FontAwesomeIcons.thumbsDown,
+                      size: 80.0,
+                    ),
+                    SizedBox(
+                      height: 15.0,
+                    ),
+                    Text(
+                      'NO',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: Color(0xFFFFFF00),
+                      ),
+                    ),
+                  ],
+                )
             ),
           ),
           BottomButton(
@@ -270,3 +297,4 @@ class ResultsPage extends StatelessWidget {
     );
   }
 }
+
