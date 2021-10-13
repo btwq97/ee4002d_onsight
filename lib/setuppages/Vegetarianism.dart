@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
+import 'package:on_sight/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
-enum Choice {
-  vegetarian,
-  non_vegetarian,
-}
+
 
 /*class Vegetarianism extends StatefulWidget {
   @override
@@ -242,59 +240,31 @@ class Vegetarianism extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-              cardChild: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget> [
-                  Icon(
-                    FontAwesomeIcons.thumbsUp,
-                    size: 80.0,
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  Text(
-                    'YES',
-                    style: TextStyle(
-                    fontSize: 18.0,
-                    color: Color(0xFFFFFF00),
-                    ),
-                  ),
-                ],
-      )
+              cardChild: IconContent(
+                icon: FontAwesomeIcons.thumbsUp,
+                label: 'YES',
+              )
             ),
           ),
           Expanded(
             child: ReusableCard(
-                cardChild: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget> [
-                    Icon(
-                      FontAwesomeIcons.thumbsDown,
-                      size: 80.0,
-                    ),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    Text(
-                      'NO',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Color(0xFFFFFF00),
-                      ),
-                    ),
-                  ],
+                cardChild: IconContent(
+                  icon: FontAwesomeIcons.thumbsDown,
+                  label: 'NO',
                 )
             ),
           ),
-          BottomButton(
+          /*BottomButton(
             buttonTitle: 'NEXT',
             onTap: () {
               Navigator.pop(context);
             },
-          )
+          )*/
         ],
       ),
     );
   }
 }
+
+
 
