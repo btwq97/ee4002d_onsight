@@ -133,7 +133,7 @@ class CustomerOrStoreownerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ONSIGHT'),
+        title: Text('CUSTOMER OR STOREOWNER?'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
