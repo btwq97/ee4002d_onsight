@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
+import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
-import 'package:on_sight/setuppages/CustomerOrStoreownerPage.dart';
 
 class CuisinePage extends StatefulWidget {
   @override
@@ -86,8 +86,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: chineseCardColour,
-                  cardChild: IconContent(
-                    icon: Icons.rice_bowl,
+                  cardChild: IconContentTwo(
                     label: 'CHINESE',
                   )
               ),
@@ -102,8 +101,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: malayCardColour,
-                  cardChild: IconContent(
-                    icon: Icons.rice_bowl_sharp,
+                  cardChild: IconContentTwo(
                     label: 'MALAY',
                   )
               ),
@@ -118,8 +116,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: indianCardColour,
-                  cardChild: IconContent(
-                    icon: Icons.rice_bowl_outlined,
+                  cardChild: IconContentTwo(
                     label: 'INDIAN',
                   )
               ),
@@ -134,8 +131,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: westernCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.pizzaSlice,
+                  cardChild: IconContentTwo(
                     label: 'WESTERN',
                   )
               ),
@@ -150,8 +146,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: japaneseCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.drumstickBite,
+                  cardChild: IconContentTwo(
                     label: 'JAPANESE',
                   )
               ),
@@ -166,8 +161,7 @@ class _CuisinePageState extends State<CuisinePage> {
               },
               child: ReusableCard(
                   colour: koreanCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.bacon,
+                  cardChild: IconContentTwo(
                     label: 'KOREAN',
                   )
               ),

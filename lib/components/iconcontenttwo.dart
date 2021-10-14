@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-//use for widgets WITH icon
+//use for widgets WITHOUT icon
 
-class IconContent extends StatelessWidget {
+class IconContentTwo extends StatelessWidget {
 
-  IconContent({this.icon, this.label});
+  IconContentTwo ({this.label});
 
-  final IconData? icon;
   final String? label;
 
   @override
@@ -14,12 +13,8 @@ class IconContent extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget> [
-        Icon(
-          icon,
-          size: 80.0,
-        ),
         SizedBox(
-          height: 15.0,
+          height: 10.0,
         ),
         Text(
           label!,

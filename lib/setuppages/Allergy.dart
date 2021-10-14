@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
+import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
@@ -70,8 +71,7 @@ class _AllergyPageState extends State<AllergyPage> {
               },
               child: ReusableCard(
                   colour: eggCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.egg,
+                  cardChild: IconContentTwo(
                     label: 'EGGS',
                   )
               ),
@@ -86,8 +86,7 @@ class _AllergyPageState extends State<AllergyPage> {
               },
               child: ReusableCard(
                   colour: nutsCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.nutritionix,
+                  cardChild: IconContentTwo(
                     label: 'NUTS',
                   )
               ),
@@ -102,8 +101,7 @@ class _AllergyPageState extends State<AllergyPage> {
               },
               child: ReusableCard(
                   colour: milkCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.hatCowboy,
+                  cardChild: IconContentTwo(
                     label: 'MILK',
                   )
               ),
@@ -118,8 +116,7 @@ class _AllergyPageState extends State<AllergyPage> {
               },
               child: ReusableCard(
                   colour: soyCardColour,
-                  cardChild: IconContent(
-                    icon: FontAwesomeIcons.bandcamp,
+                  cardChild: IconContentTwo(
                     label: 'SOY',
                   )
               ),
@@ -154,58 +151,3 @@ class _AllergyPageState extends State<AllergyPage> {
 
 
 
-/*class Allergy extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('LIST YOUR ALLERGIES'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.egg,
-                  label: 'EGGS',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.nutritionix,
-                  label: 'NUTS',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.hatCowboy,
-                  label: 'MILK',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.bandcamp,
-                  label: 'SOY',
-                )
-            ),
-          ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          )*/
-        ],
-      ),
-    );
-  }
-}*/
