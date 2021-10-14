@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/iconcontent.dart';
+import 'package:on_sight/components/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
-import 'package:on_sight/setuppages/Allergy.dart';
+import 'package:on_sight/setuppages/Vegetarianism.dart';
+
 
 
 enum Role {
@@ -59,12 +59,25 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                 )
             ),
           ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VegetarianPage()));
             },
-          )*/
+            child: Container(
+              child: Center(
+                child: Text (
+                  'NEXT',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
         ],
       ),
     );

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/iconcontent.dart';
+import 'package:on_sight/components/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
+import 'package:on_sight/keypages/customerhomepage.dart';
+import 'package:on_sight/setuppages/CustomerOrStoreownerPage.dart';
 
 class CuisinePage extends StatefulWidget {
   @override
@@ -171,12 +173,25 @@ class _CuisinePageState extends State<CuisinePage> {
               ),
             ),
           ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CustomerHomePage()));
             },
-          )*/
+            child: Container(
+              child: Center(
+                child: Text (
+                  'GO TO HOME PAGE',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
         ],
       ),
     );
