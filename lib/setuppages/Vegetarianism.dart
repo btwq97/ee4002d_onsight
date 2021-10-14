@@ -6,6 +6,45 @@ import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
 
+/*class Vegetarianism extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('VEGETARIAN?'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: ReusableCard(
+              cardChild: IconContent(
+                icon: FontAwesomeIcons.thumbsUp,
+                label: 'YES',
+              )
+            ),
+          ),
+          Expanded(
+            child: ReusableCard(
+                cardChild: IconContent(
+                  icon: FontAwesomeIcons.thumbsDown,
+                  label: 'NO',
+                )
+            ),
+          ),
+          /*BottomButton(
+            buttonTitle: 'NEXT',
+            onTap: () {
+              Navigator.pop(context);
+            },
+          )*/
+        ],
+      ),
+    );
+  }
+}*/
 
 /*class Vegetarianism extends StatefulWidget {
   @override
@@ -226,45 +265,6 @@ import 'package:on_sight/setuppages/Allergy.dart';
   }
 }*/
 
-class Vegetarianism extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('VEGETARIAN?'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: ReusableCard(
-              cardChild: IconContent(
-                icon: FontAwesomeIcons.thumbsUp,
-                label: 'YES',
-              )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.thumbsDown,
-                  label: 'NO',
-                )
-            ),
-          ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          )*/
-        ],
-      ),
-    );
-  }
-}
 
 
 

@@ -6,6 +6,89 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
+class CustomerOrStoreOwnerPage extends StatefulWidget {
+  @override
+  _CustomerOrStoreownerPageState createState() => _CustomerOrStoreownerPageState();
+}
+
+class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
+
+  Color customerCardColour = kInactiveCardColour;
+  Color storeownerCardColour = kInactiveCardColour;
+
+  //1 = customer card chosen, 2 = storeowner card chosen
+  void updateColour (int chosen){
+    if (chosen == 1){
+      if (customerCardColour == kInactiveCardColour){
+        customerCardColour = kActiveCardColour;
+      }else{
+        customerCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 2){
+      if (storeownerCardColour == kInactiveCardColour){
+        storeownerCardColour = kActiveCardColour;
+      }else{
+        storeownerCardColour = kInactiveCardColour;
+      }
+    }
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('CUSTOMER OR STOREOWNER?'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(1);
+                });
+              },
+              child: ReusableCard(
+                  colour: customerCardColour,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.userFriends,
+                    label: 'CUSTOMER',
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(2);
+                });
+              },
+              child: ReusableCard(
+                  colour: storeownerCardColour,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.store,
+                    label: 'STOREOWNER',
+                  )
+              ),
+            ),
+          ),
+          /*BottomButton(
+            buttonTitle: 'NEXT',
+            onTap: () {
+              Navigator.pop(context);
+            },
+          )*/
+        ],
+      ),
+    );
+  }
+}
+
 
 /*class CustomerOrStoreownerPage extends StatelessWidget {
   //const MyApp({Key? key}) : super(key: key);
@@ -126,43 +209,3 @@ import 'package:on_sight/setuppages/Allergy.dart';
     );
   }
 }*/
-
-class CustomerOrStoreownerPage extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('CUSTOMER OR STOREOWNER?'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.userFriends,
-                  label: 'CUSTOMER',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.store,
-                  label: 'STOREOWNER',
-                )
-            ),
-          ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          )*/
-        ],
-      ),
-    );
-  }
-}

@@ -16,7 +16,7 @@ class OnSight extends StatelessWidget {
         primaryColor: Color(0xFF301934),
         scaffoldBackgroundColor: Color(0xFF301934),
       ),
-      home: CustomerOrStoreownerPage(),
+      home: CustomerOrStoreOwnerPage(),
     );
   }
 }

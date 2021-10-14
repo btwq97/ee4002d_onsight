@@ -4,41 +4,171 @@ import 'package:on_sight/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 
+class CuisinePage extends StatefulWidget {
+  @override
+  _CuisinePageState createState() => _CuisinePageState();
+}
 
-class Spiciness extends StatelessWidget {
+class _CuisinePageState extends State<CuisinePage> {
+
+  Color chineseCardColour = kInactiveCardColour;
+  Color malayCardColour = kInactiveCardColour;
+  Color indianCardColour = kInactiveCardColour;
+  Color westernCardColour = kInactiveCardColour;
+  Color japaneseCardColour = kInactiveCardColour;
+  Color koreanCardColour = kInactiveCardColour;
+
+  //1 = chinese, 2 = malay, 3 = indian, 4 = western, 5 = japanese, 6 = korean
+  void updateColour (int chosen){
+    if (chosen == 1){
+      if (chineseCardColour == kInactiveCardColour){
+        chineseCardColour = kActiveCardColour;
+      }else{
+        chineseCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 2){
+      if (malayCardColour == kInactiveCardColour){
+        malayCardColour = kActiveCardColour;
+      }else{
+        malayCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 3){
+      if (indianCardColour == kInactiveCardColour){
+        indianCardColour = kActiveCardColour;
+      }else{
+        indianCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 4){
+      if (westernCardColour == kInactiveCardColour){
+        westernCardColour = kActiveCardColour;
+      }else{
+        westernCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 5){
+      if (japaneseCardColour == kInactiveCardColour){
+        japaneseCardColour = kActiveCardColour;
+      }else{
+        japaneseCardColour = kInactiveCardColour;
+      }
+    }
+    if (chosen == 6){
+      if (koreanCardColour == kInactiveCardColour){
+        koreanCardColour = kActiveCardColour;
+      }else{
+        koreanCardColour = kInactiveCardColour;
+      }
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('LIST YOUR SPICE TOLERANCE'),
+        title: Text('SELECT PREFERRED CUISINES'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.fireExtinguisher,
-                  label: 'NONE',
-                )
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(1);
+                });
+              },
+              child: ReusableCard(
+                  colour: chineseCardColour,
+                  cardChild: IconContent(
+                    icon: Icons.rice_bowl,
+                    label: 'CHINESE',
+                  )
+              ),
             ),
           ),
           Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.pepperHot,
-                  label: 'MILD',
-                )
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(2);
+                });
+              },
+              child: ReusableCard(
+                  colour: malayCardColour,
+                  cardChild: IconContent(
+                    icon: Icons.rice_bowl_sharp,
+                    label: 'MALAY',
+                  )
+              ),
             ),
           ),
           Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.dragon,
-                  label: 'VERY SPICY',
-                )
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(3);
+                });
+              },
+              child: ReusableCard(
+                  colour: indianCardColour,
+                  cardChild: IconContent(
+                    icon: Icons.rice_bowl_outlined,
+                    label: 'INDIAN',
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(4);
+                });
+              },
+              child: ReusableCard(
+                  colour: westernCardColour,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.pizzaSlice,
+                    label: 'WESTERN',
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(5);
+                });
+              },
+              child: ReusableCard(
+                  colour: japaneseCardColour,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.drumstickBite,
+                    label: 'JAPANESE',
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  updateColour(6);
+                });
+              },
+              child: ReusableCard(
+                  colour: koreanCardColour,
+                  cardChild: IconContent(
+                    icon: FontAwesomeIcons.bacon,
+                    label: 'KOREAN',
+                  )
+              ),
             ),
           ),
           /*BottomButton(
@@ -52,3 +182,14 @@ class Spiciness extends StatelessWidget {
     );
   }
 }
+
+
+
+/*
+Chinese
+Malay
+Indian
+Western
+Japanese
+Korean
+*/
