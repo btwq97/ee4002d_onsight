@@ -21,7 +21,7 @@ class Spiciness extends StatelessWidget {
             child: ReusableCard(
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.fireExtinguisher,
-                  label: 'NO SPICE',
+                  label: 'NONE',
                 )
             ),
           ),
@@ -29,7 +29,7 @@ class Spiciness extends StatelessWidget {
             child: ReusableCard(
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.pepperHot,
-                  label: 'MILD SPICE',
+                  label: 'MILD',
                 )
             ),
           ),
