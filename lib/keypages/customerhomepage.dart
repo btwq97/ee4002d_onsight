@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:on_sight/components/reuseablecard.dart';
+import 'package:on_sight/setuppages/Vegetarianism.dart';
+import 'package:on_sight/setuppages/HalalOrNot.dart';
+import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
+import 'package:on_sight/setuppages/Cuisine.dart';
+
 
 
 class CustomerHomePage extends StatefulWidget {
@@ -19,85 +25,124 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
       appBar: AppBar(
         title: Text('HOME PAGE'),
       ),
-      body: SafeArea(
-      child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-      CircleAvatar(
-      radius: 50.0,
-      backgroundImage: AssetImage('images/imtiaz.jpg'),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VegetarianPage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text (
+                  'VEGETARIAN PAGE',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => HalalPage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text (
+                  'HALAL OPTION PAGE',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => AllergyPage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text (
+                  'ALLERGY PAGE',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => SpiceLevelPage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text (
+                  'SPICINESS PAGE',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CuisinePage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text (
+                  'CUISINE CHOICES',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+          // GestureDetector(
+          //   onTap: (){
+          //     Navigator.popUntil(context, ModalRoute.withName('/Halal Page'));
+          //         //MaterialPageRoute(builder: (context) => HalalPage()));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text (
+          //         'HALAL/NON-HALAL',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kActiveCardColour,
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ),
+        ],
       ),
-      Text(
-      'Imtiaz Bin Yazdany',
-      style: TextStyle(
-      fontFamily: 'Pacifico',
-      fontSize: 40.0,
-      color: Colors.white,
-      fontWeight: FontWeight.bold
-      ),
-      ),
-      Text(
-      'STUDENT',
-      style: TextStyle(
-      fontFamily: 'SourceSansPro',
-      fontSize: 20.0,
-      color: Colors.lightBlue.shade50,
-    fontWeight: FontWeight.bold,
-    letterSpacing: 2.5,
-    ),
-    ),
-    SizedBox(
-    height: 20.0,
-    width: 150.0,
-    child: Divider(
-    color: Colors.lightBlue.shade100
-    ),
-    ),
-    Card(
-    color: Colors.black12,
-    margin: EdgeInsets.symmetric (vertical: 10.0, horizontal: 25.0),
-    child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: ListTile(
-    leading:Icon(
-    Icons.phone_iphone_rounded,
-    color: Colors.lightBlue.shade50
-    ),
-    title: Text(
-    '(+65) 8228 0284',
-    style: TextStyle(
-    color: Colors.lightBlue.shade50,
-    fontFamily: 'SourceSansPro',
-    fontSize: 18.0,
-    ),
-    ),
-    ),
-    ),
-    ),
-    Card(
-    color: Colors.black12,
-    margin: EdgeInsets.symmetric (vertical: 10.0, horizontal: 25.0),
-    //padding: EdgeInsets.all(10.0),
-    child: Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: ListTile(
-    leading:Icon(
-    Icons.email_outlined,
-    color: Colors.lightBlue.shade50
-    ),
-    title: Text(
-    'yazdanyimtiaz23@hotmail.com',
-    style: TextStyle(
-    color: Colors.lightBlue.shade50,
-    fontFamily: 'SourceSansPro',
-    fontSize: 18.0,
-    ),
-    ),
-    ),
-    ),
-    ),
-    ],
-    ),
-    ));
+    );
   }
 }
