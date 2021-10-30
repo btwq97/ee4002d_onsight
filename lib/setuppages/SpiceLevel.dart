@@ -24,7 +24,7 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SPICINESS LEVEL?'),
+        title: Text('SPICE LEVEL?', style: TextStyle(fontSize: 40),),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -53,7 +53,7 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
                 },
                 colour: level == SpicePreference.Mild ? kActiveCardColour : kInactiveCardColour,
                 cardChild: IconContent(
-                  icon: FontAwesomeIcons.hotdog,
+                  icon: FontAwesomeIcons.pepperHot,
                   label: 'MILD',
                 )
             ),
@@ -67,7 +67,7 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
                 },
                 colour: level == SpicePreference.Full ? kActiveCardColour : kInactiveCardColour,
                 cardChild: IconContent(
-                  icon: FontAwesomeIcons.pepperHot,
+                  icon: FontAwesomeIcons.hotjar,
                   label: 'FULL',
                 )
             ),

@@ -23,7 +23,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('HOME PAGE'),
+        title: Text(
+            'HOME PAGE',
+            style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -37,7 +40,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text (
-                  'VEGETARIAN PAGE',
+                  'PREFERENCES',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -56,7 +59,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text (
-                  'HALAL OPTION PAGE',
+                  'CONNECT TO BEACON',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -75,7 +78,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text (
-                  'ALLERGY PAGE',
+                  'CONNECT TO CANE MODULE',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -86,44 +89,44 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               height: kBottomContainerHeight,
             ),
           ),
-          GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SpiceLevelPage()));
-            },
-            child: Container(
-              child: Center(
-                child: Text (
-                  'SPICINESS PAGE',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              //padding: EdgeInsets.only(bottom: 20.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
-          GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CuisinePage()));
-            },
-            child: Container(
-              child: Center(
-                child: Text (
-                  'CUISINE CHOICES',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              //padding: EdgeInsets.only(bottom: 20.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: (){
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (context) => SpiceLevelPage()));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text (
+          //         'SPICINESS PAGE',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kBottomContainerColour,
+          //     margin: EdgeInsets.only(top: 10.0),
+          //     //padding: EdgeInsets.only(bottom: 20.0),
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ),
+          // GestureDetector(
+          //   onTap: (){
+          //     Navigator.push(context,
+          //         MaterialPageRoute(builder: (context) => CuisinePage()));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text (
+          //         'CUISINE CHOICES',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kBottomContainerColour,
+          //     margin: EdgeInsets.only(top: 10.0),
+          //     //padding: EdgeInsets.only(bottom: 20.0),
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ),
           // GestureDetector(
           //   onTap: (){
           //     Navigator.popUntil(context, ModalRoute.withName('/Halal Page'));

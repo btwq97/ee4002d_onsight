@@ -23,7 +23,7 @@ class _VegetarianPageState extends State<VegetarianPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('VEGETARIAN OPTION?'),
+        title: Text('VEGETARIAN?', style: TextStyle(fontSize: 40),),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

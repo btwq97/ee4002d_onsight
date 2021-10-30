@@ -25,7 +25,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('CUSTOMER OR STOREOWNER?'),
+        title: Text('ROLE?', style: TextStyle(fontSize: 40),),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
