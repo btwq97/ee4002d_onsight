@@ -23,7 +23,7 @@ class _HalalPageState extends State<HalalPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('HALAL OPTION NEEDED?'),
+        title: Text('HALAL?', style: TextStyle(fontSize: 40),),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

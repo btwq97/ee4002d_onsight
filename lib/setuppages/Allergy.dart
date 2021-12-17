@@ -56,7 +56,7 @@ class _AllergyPageState extends State<AllergyPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SELECT YOUR ALLERGIES'),
+        title: Text('ALLERGIES', style: TextStyle(fontSize: 40),),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -71,7 +71,10 @@ class _CuisinePageState extends State<CuisinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SELECT PREFERRED CUISINES'),
+        title: Text(
+            'CUISINE?',
+            style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -175,7 +178,7 @@ class _CuisinePageState extends State<CuisinePage> {
             child: Container(
               child: Center(
                 child: Text (
-                  'GO TO HOME PAGE',
+                  'SAVE',
                   style: kBottomButtonTextStyle,
                 ),
               ),
