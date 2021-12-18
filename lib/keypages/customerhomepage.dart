@@ -9,6 +9,7 @@ import 'package:on_sight/setuppages/HalalOrNot.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 import 'package:on_sight/setuppages/Cuisine.dart';
+import 'package:on_sight/connectivity/bluetooth_main.dart';
 
 
 
@@ -54,7 +55,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           GestureDetector(
             onTap: (){
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HalalPage()));
+                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
             },
             child: Container(
               child: Center(
