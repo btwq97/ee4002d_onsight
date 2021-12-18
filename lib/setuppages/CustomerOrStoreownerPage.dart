@@ -41,7 +41,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                 colour: chosen == Role.customer ? kActiveCardColour : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.userFriends,
-                  label: 'CUSTOMER',
+                  label: 'KAREN',
                 )
             ),
           ),
