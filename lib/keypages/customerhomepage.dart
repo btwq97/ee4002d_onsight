@@ -13,6 +13,7 @@ import 'package:on_sight/connectivity/bluetooth_main.dart';
 
 
 
+
 class CustomerHomePage extends StatefulWidget {
   @override
   _CustomerHomePageState createState() => _CustomerHomePageState();
@@ -74,7 +75,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           GestureDetector(
             onTap: (){
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AllergyPage()));
+                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
             },
             child: Container(
               child: Center(
