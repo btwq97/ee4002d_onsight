@@ -21,8 +21,15 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
   List<double>? _accelerometerValues;
   List<double>? _magnetometerValues;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
-  List<String>? knownUuid = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5'];
-  List<double>? _rssiValues;
+  //List<String>? knownUuid = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5'];
+  //List<double>? _rssiValues;
+  Map<String, int> knownUuid = {
+    "60:C0:BF:26:E0:DE": 0,
+    "60:C0:BF:26:E0:00": 0,
+    "60:C0:BF:26:E0:8A": 0,
+    "60:C0:BF:26:DF:63": 0,
+    "60:C0:BF:26:E0:A5": 0,
+  };
 
 
 
@@ -32,8 +39,6 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
     _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
     final magnetometer =
     _magnetometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-    final rssi =
-    _rssiValues?.map((double v) => v.toStringAsFixed(1)).toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Localisation'),
