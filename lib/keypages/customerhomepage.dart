@@ -10,8 +10,8 @@ import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 import 'package:on_sight/setuppages/Cuisine.dart';
 import 'package:on_sight/connectivity/bluetooth_main.dart';
-
-
+import 'package:on_sight/localisation/localisation_bluetooth.dart';
+import 'package:on_sight/localisation/localisation_app.dart';
 
 
 class CustomerHomePage extends StatefulWidget {
@@ -75,7 +75,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           GestureDetector(
             onTap: (){
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
+                  MaterialPageRoute(builder: (context) => LocalisationAppPage()));
             },
             child: Container(
               child: Center(

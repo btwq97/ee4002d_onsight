@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'localisation_dynamodb.dart';
 import 'localisation_localisation.dart';
 import 'localisation_mqtt.dart';
@@ -5,10 +7,103 @@ import 'localisation_mqtt.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:async';
+import 'dart:math' as math;
 
 // TODO:
-// 1) add in functionalities to retrieve magnetometer here.
+// 1) add in functionalities to retrieve magnetometer and accelerometer here.
+class LocalisationAppPage extends StatefulWidget {
+  @override
+  _LocalisationAppPageState createState() => _LocalisationAppPageState();
+}
+
+class _LocalisationAppPageState extends State<LocalisationAppPage> {
+  List<double>? _accelerometerValues;
+  List<double>? _magnetometerValues;
+  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  List<String>? knownUuid = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5'];
+  List<double>? _rssiValues;
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final accelerometer =
+    _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
+    final magnetometer =
+    _magnetometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
+    final rssi =
+    _rssiValues?.map((double v) => v.toStringAsFixed(1)).toList();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Localisation'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text('Accelerometer: $accelerometer'),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text('Magnetometer: $magnetometer'),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+  }
+
+  @override
+
+  @override
+  void initState() {
+    super.initState();
+    _streamSubscriptions.add(
+      accelerometerEvents.listen(
+            (AccelerometerEvent event) {
+          setState(() {
+            _accelerometerValues = <double>[event.x];
+            print(_accelerometerValues);
+          });
+        },
+      ),
+    );
+    _streamSubscriptions.add(
+      magnetometerEvents.listen(
+            (MagnetometerEvent event) {
+          setState(() {
+            _magnetometerValues = <double>[event.x, event.y];
+            print(_magnetometerValues);
+          });
+        },
+      ),
+    );
+  }
+}
+
 // 2) add in functionalities to retrieve uuid and rssi here.
+
+
+// 3) AppEngine
 class AppEngine {
   late WrapperDynamoDB _db;
   late Localisation _lc;
@@ -88,3 +183,4 @@ class AppEngine {
     _mq.publish(rawData, mode, topic: topic);
   }
 }
+

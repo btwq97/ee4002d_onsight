@@ -78,7 +78,7 @@ class FindDevicesScreen extends StatelessWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () =>
-            FlutterBlue.instance.startScan(timeout: Duration(seconds: 4)),
+            FlutterBlue.instance.startScan(timeout: Duration(days: 4)),
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
@@ -127,7 +127,7 @@ class FindDevicesScreen extends StatelessWidget {
                       })),
                     ),
                   )
-                      .toList(),
+                      .toList()..sort((a,b)=>b.result.rssi.compareTo(a.result.rssi)),
                 ),
               ),
             ],
@@ -148,7 +148,7 @@ class FindDevicesScreen extends StatelessWidget {
             return FloatingActionButton(
                 child: Icon(Icons.search),
                 onPressed: () => FlutterBlue.instance
-                    .startScan(timeout: Duration(seconds: 4)));
+                    .startScan(timeout: Duration(days: 4)));
           }
         },
       ),
@@ -204,6 +204,7 @@ class DeviceScreen extends StatelessWidget {
       ),
     )
         .toList();
+    //..sort((a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
   }
 
   @override
