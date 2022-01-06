@@ -21,7 +21,8 @@ class Mqtt {
     _username = username;
     _password = password;
     _attempt = 0;
-    _client = MqttServerClient(host, 'Flutter-Client');
+    _client = MqttServerClient(host, 'client-01');
+    _client.port = 1883;
   }
 
   /// Converts input map to json payload.
@@ -51,7 +52,7 @@ class Mqtt {
   String _mapToString(Map<String, dynamic> map, String mode) {
     String result = '';
     if (mode == 'rssi') {
-      Map<String, double> temp = map["rssi"];
+      Map<dynamic, dynamic> temp = map["rssi"];
       result = '{"mode":"$mode","attempt":$_attempt,"rssi":{';
       int count = 0; // counter to track key items
       temp.forEach((uuid, rssi) {
@@ -96,7 +97,7 @@ class Mqtt {
   /// 1) None.
   Future init() async {
     try {
-      await _client.connect(_username, _password);
+      await _client.connect();
     } on NoConnectionException catch (e) {
       // Raised by the client when connection fails.
       print('EXAMPLE::client exception - $e');

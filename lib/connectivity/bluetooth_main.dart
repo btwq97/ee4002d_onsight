@@ -31,7 +31,7 @@ class _BluetoothMainPageState extends State<BluetoothMainPage> {
             if (state == BluetoothState.on) {
               return FindDevicesScreen();
             }
-            return BluetoothOffScreen(state: state);
+            return FindDevicesScreen();//BluetoothOffScreen(state: state);
           }),
     );
   }
@@ -83,7 +83,7 @@ class FindDevicesScreen extends StatelessWidget {
           child: Column(
             children: <Widget>[
               StreamBuilder<List<BluetoothDevice>>(
-                stream: Stream.periodic(Duration(seconds: 2))
+                stream: Stream.periodic(Duration(days: 2))
                     .asyncMap((_) => FlutterBlue.instance.connectedDevices),
                 initialData: [],
                 builder: (c, snapshot) => Column(
@@ -127,7 +127,7 @@ class FindDevicesScreen extends StatelessWidget {
                       })),
                     ),
                   )
-                      .toList()..sort((a,b)=>b.result.rssi.compareTo(a.result.rssi)),
+                      .toList()..sort((a,b)=>b.result.rssi.compareTo(a.result.rssi)), //used to sort and list the bluetooth devices as a string
                 ),
               ),
             ],
@@ -204,7 +204,6 @@ class DeviceScreen extends StatelessWidget {
       ),
     )
         .toList();
-    //..sort((a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
   }
 
   @override

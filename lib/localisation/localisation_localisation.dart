@@ -22,12 +22,18 @@ class Localisation {
 
   /// Known locations of beacons
   /// key: uuid, value: [x_coordinate, y_coordinate]
-  Map<String, List<double>> _knownBeacons = {};
+  Map<String, List<double>> _knownBeacons = {
+    '60:C0:BF:26:E0:DE' : [-482.5, 287.5],
+    '60:C0:BF:26:E0:8A' : [482.5, 487.5],
+    '60:C0:BF:26:DF:63' : [0.0, 0.0],
+    '60:C0:BF:26:E0:A5' : [482.5, -487.5]
+  };
 
   // ==== Private Methods ====
-  Localisation(WrapperDynamoDB dbObj) {
+  // Localisation(WrapperDynamoDB dbObj) {
+  Localisation() {
     _nd = MyNumDart();
-    _knownBeacons = dbObj.getKnownBeaconsPositions();
+    // _knownBeacons = dbObj.getKnownBeaconsPositions();
     _circleConditions = {
       'TANGENTIAL': 1,
       'OVERLAP': 2,

@@ -5,6 +5,8 @@ import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
+import 'package:on_sight/localisation/localisation_app.dart';
+import 'package:on_sight/setuppages/Vegetarianism.dart';
 
 class CuisinePage extends StatefulWidget {
   @override
@@ -173,7 +175,9 @@ class _CuisinePageState extends State<CuisinePage> {
           GestureDetector(
             onTap: (){
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CustomerHomePage()));
+                  // MaterialPageRoute(builder: (context) => CustomerHomePage()));
+                  MaterialPageRoute(builder: (context) => VegetarianPage()));
+
             },
             child: Container(
               child: Center(

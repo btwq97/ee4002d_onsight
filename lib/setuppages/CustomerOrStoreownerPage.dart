@@ -4,6 +4,7 @@ import 'package:on_sight/components/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
+import 'package:on_sight/localisation/localisation_app.dart';
 
 
 
@@ -41,7 +42,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                 colour: chosen == Role.customer ? kActiveCardColour : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.userFriends,
-                  label: 'KAREN',
+                  label: 'CUSTOMER',
                 )
             ),
           ),

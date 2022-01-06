@@ -10,8 +10,8 @@ class WrapperDynamoDB {
   String _tableName = '';
   String _primaryKey = '';
   String _venue = '';
-  List<String> _knownUuid = ['FDD1BB34-B18E-5F7A-7019-3A5F3FD15957', '73F07E64-901F-7A5C-BDF3-A30752F5A05F', '641508E6-7E97-1BCE-0317-652200C4DD86', '438ED97B-C158-71D4-D5E6-B10136FDCE75', '3B55A5F1-FD5D-8198-63C9-B7D91E8BBE0D ']; //2nd and 5th beacon are the spoilt ones
-  List<String> _knownMACAddress = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5']; //2nd and 5th beacon are the spoilt ones
+  List<String> _knownUuid = []; //2nd and 5th beacon are the spoilt ones
+  //List<String> _knownMACAddress = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5']; //2nd and 5th beacon are the spoilt ones
   Map<String, List<double>> _knownBeacons = {};
 
   // Private Methods

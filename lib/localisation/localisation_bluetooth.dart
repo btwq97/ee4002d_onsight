@@ -64,7 +64,7 @@ class BluetoothOffScreen extends StatelessWidget {
 class Bluetooth {
   late FlutterBlue _fb;
 
-  List<String> knownUuid = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5'];
+  List<String> knownUuid = ['60:C0:BF:26:E0:DE', '60:C0:BF:26:E0:00', '60:C0:BF:26:E0:8A', '60:C0:BF:26:DF:63', '60:C0:BF:26:E0:A5']; //"60:C0:BF:26:E0:00" stuck at -17dbm
 
   Bluetooth(WrapperDynamoDB dbObj) {
     _fb = FlutterBlue.instance;
