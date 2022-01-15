@@ -40,10 +40,12 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
     '60:C0:BF:26:E0:DE',
     '60:C0:BF:26:E0:8A',
     '60:C0:BF:26:DF:63',
-    '60:C0:BF:26:E0:A5'
+    '60:C0:BF:26:E0:A5',
+    '60:C0:BF:26:E0:00'
   ];
   Map<String, int> topFour = {};
-  Map<String, dynamic> resultsLocalisation = {};//   "60:C0:BF:26:E0:00" stuck at -17dBm
+  Map<String, dynamic> resultsLocalisation =
+      {}; //   "60:C0:BF:26:E0:00" stuck at -17dBm
   //List<String> knownUuid = ['FDD1BB34-B18E-5F7A-7019-3A5F3FD15957', '641508E6-7E97-1BCE-0317-652200C4DD86', '438ED97B-C158-71D4-D5E6-B10136FDCE75', '3B55A5F1-FD5D-8198-63C9-B7D91E8BBE0D']; //   "60:C0:BF:26:E0:00" stuck at -17dBm
   //List<double>? _rssiValues;
   // Map<String, int> knownUuid = {
@@ -205,7 +207,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
           .sort((a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
 
       for (ScanResult r in results) {
-        if (topFour.length == 4) {
+        if (topFour.length == 5) {
           //print(topFour);
           // flutterBlue.stopScan();
           break;
@@ -229,6 +231,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
 class AppEngine {
   // late WrapperDynamoDB _db;
   late Localisation _lc;
+
   // late Mqtt _mq;
 
   // ==== Private Methods ====

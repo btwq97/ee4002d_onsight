@@ -11,11 +11,18 @@ enum FoodPreference {
 }
 
 class VegetarianPage extends StatefulWidget {
+  final appEngine;
+
+  VegetarianPage(this.appEngine);
+
   @override
-  _VegetarianPageState createState() => _VegetarianPageState();
+  _VegetarianPageState createState() => _VegetarianPageState(this.appEngine);
 }
 
 class _VegetarianPageState extends State<VegetarianPage> {
+  final appEngine;
+
+  _VegetarianPageState(this.appEngine);
 
   FoodPreference? preferred;
 
@@ -23,7 +30,10 @@ class _VegetarianPageState extends State<VegetarianPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('VEGETARIAN?', style: TextStyle(fontSize: 40),),
+        title: Text(
+          'VEGETARIAN?',
+          style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -31,57 +41,60 @@ class _VegetarianPageState extends State<VegetarianPage> {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     preferred = FoodPreference.Yes;
                   });
                 },
-                colour: preferred == FoodPreference.Yes ? kActiveCardColour : kInactiveCardColour,
+                colour: preferred == FoodPreference.Yes
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.thumbsUp,
                   label: 'YES',
-                )
-            ),
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     preferred = FoodPreference.No;
                   });
                 },
-                colour:  preferred == FoodPreference.No ? kActiveCardColour : kInactiveCardColour,
+                colour: preferred == FoodPreference.No
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.thumbsDown,
                   label: 'NO',
-                )
-            ),
+                )),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-              MaterialPageRoute(builder: (context) => HalalPage()));
-              },
-              child: Container(
-                child: Center(
-                  child: Text (
-                    'NEXT',
-                    style: kBottomButtonTextStyle,
-                  ),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HalalPage(this.appEngine)));
+            },
+            child: Container(
+              child: Center(
+                child: Text(
+                  'NEXT',
+                  style: kBottomButtonTextStyle,
                 ),
-                color: kBottomContainerColour,
-                margin: EdgeInsets.only(top: 10.0),
-                padding: EdgeInsets.only(bottom: 20.0),
-                width: double.infinity,
-                height: kBottomContainerHeight,
               ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
           ),
         ],
       ),
     );
   }
 }
-
 
 /*class Vegetarianism extends StatelessWidget {
 
@@ -341,7 +354,3 @@ class _VegetarianPageState extends State<VegetarianPage> {
     );
   }
 }*/
-
-
-
-

@@ -12,11 +12,18 @@ enum SpicePreference {
 }
 
 class SpiceLevelPage extends StatefulWidget {
+  final appEngine;
+
+  SpiceLevelPage(this.appEngine);
+
   @override
-  _SpiceLevelPageState createState() => _SpiceLevelPageState();
+  _SpiceLevelPageState createState() => _SpiceLevelPageState(this.appEngine);
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
+  final appEngine;
+
+  _SpiceLevelPageState(this.appEngine);
 
   SpicePreference? level;
 
@@ -24,7 +31,10 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SPICE LEVEL?', style: TextStyle(fontSize: 40),),
+        title: Text(
+          'SPICE LEVEL?',
+          style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -32,54 +42,59 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.None;
                   });
                 },
-                colour: level == SpicePreference.None ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.None
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: Icons.highlight_off,
                   label: 'NONE',
-                )
-            ),
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.Mild;
                   });
                 },
-                colour: level == SpicePreference.Mild ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.Mild
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.pepperHot,
                   label: 'MILD',
-                )
-            ),
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.Full;
                   });
                 },
-                colour: level == SpicePreference.Full ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.Full
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.hotjar,
                   label: 'FULL',
-                )
-            ),
+                )),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CuisinePage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CuisinePage(appEngine)));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'NEXT',
                   style: kBottomButtonTextStyle,
                 ),
@@ -96,12 +111,6 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
     );
   }
 }
-
-
-
-
-
-
 
 // class SpicinessPage extends StatefulWidget {
 //   @override
@@ -233,12 +242,6 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
 //     );
 //   }
 // }
-
-
-
-
-
-
 
 /*class Spiciness extends StatelessWidget {
 

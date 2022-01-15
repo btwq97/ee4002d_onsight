@@ -6,13 +6,19 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 
-
 class AllergyPage extends StatefulWidget {
+  final appEngine;
+
+  AllergyPage(this.appEngine);
+
   @override
-  _AllergyPageState createState() => _AllergyPageState();
+  _AllergyPageState createState() => _AllergyPageState(this.appEngine);
 }
 
 class _AllergyPageState extends State<AllergyPage> {
+  final appEngine;
+
+  _AllergyPageState(this.appEngine);
 
   Color eggCardColour = kInactiveCardColour;
   Color nutsCardColour = kInactiveCardColour;
@@ -20,43 +26,45 @@ class _AllergyPageState extends State<AllergyPage> {
   Color soyCardColour = kInactiveCardColour;
 
   //1 = egg, 2 = nuts, 3 = milk, 4 = soy
-  void updateColour (int chosen){
-    if (chosen == 1){
-      if (eggCardColour == kInactiveCardColour){
+  void updateColour(int chosen) {
+    if (chosen == 1) {
+      if (eggCardColour == kInactiveCardColour) {
         eggCardColour = kActiveCardColour;
-      }else{
+      } else {
         eggCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 2){
-      if (nutsCardColour == kInactiveCardColour){
+    if (chosen == 2) {
+      if (nutsCardColour == kInactiveCardColour) {
         nutsCardColour = kActiveCardColour;
-      }else{
+      } else {
         nutsCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 3){
-      if (milkCardColour == kInactiveCardColour){
+    if (chosen == 3) {
+      if (milkCardColour == kInactiveCardColour) {
         milkCardColour = kActiveCardColour;
-      }else{
+      } else {
         milkCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 4){
-      if (soyCardColour == kInactiveCardColour){
+    if (chosen == 4) {
+      if (soyCardColour == kInactiveCardColour) {
         soyCardColour = kActiveCardColour;
-      }else{
+      } else {
         soyCardColour = kInactiveCardColour;
       }
     }
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ALLERGIES', style: TextStyle(fontSize: 40),),
+        title: Text(
+          'ALLERGIES',
+          style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -73,8 +81,7 @@ class _AllergyPageState extends State<AllergyPage> {
                   colour: eggCardColour,
                   cardChild: IconContentTwo(
                     label: 'EGGS',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -88,8 +95,7 @@ class _AllergyPageState extends State<AllergyPage> {
                   colour: nutsCardColour,
                   cardChild: IconContentTwo(
                     label: 'NUTS',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -103,8 +109,7 @@ class _AllergyPageState extends State<AllergyPage> {
                   colour: milkCardColour,
                   cardChild: IconContentTwo(
                     label: 'MILK',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -118,18 +123,19 @@ class _AllergyPageState extends State<AllergyPage> {
                   colour: soyCardColour,
                   cardChild: IconContentTwo(
                     label: 'SOY',
-                  )
-              ),
+                  )),
             ),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SpiceLevelPage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SpiceLevelPage(this.appEngine)));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'NEXT',
                   style: kBottomButtonTextStyle,
                 ),
@@ -146,8 +152,3 @@ class _AllergyPageState extends State<AllergyPage> {
     );
   }
 }
-
-
-
-
-

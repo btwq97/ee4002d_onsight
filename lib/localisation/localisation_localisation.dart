@@ -23,10 +23,11 @@ class Localisation {
   /// Known locations of beacons
   /// key: uuid, value: [x_coordinate, y_coordinate]
   Map<String, List<double>> _knownBeacons = {
-    '60:C0:BF:26:E0:DE' : [-482.5, 287.5],
-    '60:C0:BF:26:E0:8A' : [482.5, 487.5],
-    '60:C0:BF:26:DF:63' : [0.0, 0.0],
-    '60:C0:BF:26:E0:A5' : [482.5, -487.5]
+    '60:C0:BF:26:E0:DE' : [300.0, 300.0],
+    '60:C0:BF:26:E0:8A' : [0.0, 0.0],
+    '60:C0:BF:26:DF:63' : [-225.0, -225.0],
+    '60:C0:BF:26:E0:A5' : [-300.0, 300.0],
+    '60:C0:BF:26:E0:00' : [225.0, -225.0],
   };
 
   // ==== Private Methods ====
@@ -536,10 +537,10 @@ class Localisation {
   /// Returns:
   /// 1) estDistance [double] - estimated diatances converted from RSSI in meters.
   double _rssiToDistance(double rssi) {
-    double RSSId0 = (-62.2).abs(); // #TODO: maybe can modify this in RUNTIME.
+    double RSSId0 = (-84.0).abs(); // #TODO: maybe can modify this in RUNTIME.
     int n = 3;
     int d0 = 1;
-    int x = -10;
+    int x = 0;
     double exponent = (rssi.abs() - RSSId0 - x) / (10 * n);
     double distance = (d0 * (pow(10, exponent))).toDouble();
 
@@ -567,10 +568,10 @@ class Localisation {
   /// Returns:
   /// 1) estRssi [double] - estimated diatances converted from RSSI.
   double _distanceToRssi(double distance) {
-    double RSSId0 = (-62.2).abs(); // #TODO: maybe can modify this in RUNTIME.
+    double RSSId0 = (-84.0).abs(); // #TODO: maybe can modify this in RUNTIME.
     int n = 3;
     int d0 = 1;
-    int x = -10;
+    int x = 0;
 
     // Note: log10(0) = undefined
     double estRssi = -(RSSId0 + 10 * n * _nd.logBase(distance / d0, 10) + x);

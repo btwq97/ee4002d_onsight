@@ -43,8 +43,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
         children: <Widget>[
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VegetarianPage()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VegetarianPage(this.appEngine)));
             },
             child: Container(
               child: Center(

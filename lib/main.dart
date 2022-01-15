@@ -16,9 +16,9 @@ void main() async {
 
 class OnSight extends StatelessWidget {
   final appEngine;
+
   OnSight(this.appEngine);
 
-  //const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,18 +26,16 @@ class OnSight extends StatelessWidget {
           primaryColor: Color(0xFF301934),
           scaffoldBackgroundColor: Color(0xFF301934),
         ),
-        initialRoute: '/Customer Home Page',
+        initialRoute: '/Customer or Storeowner Page',
         routes: {
           '/Customer or Storeowner Page': (context) =>
-              CustomerOrStoreOwnerPage(),
+              CustomerOrStoreOwnerPage(this.appEngine),
           '/Customer Home Page': (context) => CustomerHomePage(this.appEngine),
-          '/Vegetarian Page': (context) => VegetarianPage(),
-          '/Halal Page': (context) => HalalPage(),
-          '/Allergy': (context) => AllergyPage(),
-          '/Spice Level': (context) => SpiceLevelPage(),
-          '/Cuisine': (context) => CuisinePage(),
-        }
-        //home: CustomerOrStoreOwnerPage(),
-        );
+          '/Vegetarian Page': (context) => VegetarianPage(this.appEngine),
+          '/Halal Page': (context) => HalalPage(this.appEngine),
+          '/Allergy': (context) => AllergyPage(this.appEngine),
+          '/Spice Level': (context) => SpiceLevelPage(this.appEngine),
+          '/Cuisine': (context) => CuisinePage(appEngine),
+        });
   }
 }
