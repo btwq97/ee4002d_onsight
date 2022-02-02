@@ -65,7 +65,9 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           GestureDetector(
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
+                  //MaterialPageRoute(builder: (context) => BluetoothMainPage()));
+                  MaterialPageRoute(
+                      builder: (context) => BluetoothMainPage()));
             },
             child: Container(
               child: Center(
@@ -125,61 +127,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               height: kBottomContainerHeight,
             ),
           ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.push(context,
-          //         MaterialPageRoute(builder: (context) => SpiceLevelPage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'SPICINESS PAGE',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     //padding: EdgeInsets.only(bottom: 20.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.push(context,
-          //         MaterialPageRoute(builder: (context) => CuisinePage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'CUISINE CHOICES',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     //padding: EdgeInsets.only(bottom: 20.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.popUntil(context, ModalRoute.withName('/Halal Page'));
-          //         //MaterialPageRoute(builder: (context) => HalalPage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'HALAL/NON-HALAL',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kActiveCardColour,
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
         ],
       ),
     );

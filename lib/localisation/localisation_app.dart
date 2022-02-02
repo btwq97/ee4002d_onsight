@@ -7,13 +7,30 @@ import 'localisation_mqtt.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:isolate';
 import 'package:on_sight/connectivity/bluetooth_main.dart';
 import 'package:on_sight/connectivity/bluetooth_widgets.dart';
+
+//import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
+Isolate? isolate;
+
 // TODO:
+
+List<String> knownUuid = [
+  '60:C0:BF:26:E0:DE',
+  '60:C0:BF:26:E0:8A',
+  '60:C0:BF:26:DF:63',
+  '60:C0:BF:26:E0:A5',
+  '60:C0:BF:26:E0:00'
+];
+Map<String, int> topFour = {};
+Map<String, dynamic> resultsLocalisation =
+{}; //   "60:C0:BF:26:E0:00" stuck at -17dBm
+
 // 1) add in functionalities to retrieve magnetometer and accelerometer here.
 class LocalisationAppPage extends StatefulWidget {
   final appEngine;
@@ -36,34 +53,17 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
   List<double>? _magnetometerValuesY;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
   FlutterBlue flutterBlue = FlutterBlue.instance;
-  List<String> knownUuid = [
-    '60:C0:BF:26:E0:DE',
-    '60:C0:BF:26:E0:8A',
-    '60:C0:BF:26:DF:63',
-    '60:C0:BF:26:E0:A5',
-    '60:C0:BF:26:E0:00'
-  ];
-  Map<String, int> topFour = {};
-  Map<String, dynamic> resultsLocalisation =
-      {}; //   "60:C0:BF:26:E0:00" stuck at -17dBm
-  //List<String> knownUuid = ['FDD1BB34-B18E-5F7A-7019-3A5F3FD15957', '641508E6-7E97-1BCE-0317-652200C4DD86', '438ED97B-C158-71D4-D5E6-B10136FDCE75', '3B55A5F1-FD5D-8198-63C9-B7D91E8BBE0D']; //   "60:C0:BF:26:E0:00" stuck at -17dBm
-  //List<double>? _rssiValues;
-  // Map<String, int> knownUuid = {
-  //   "60:C0:BF:26:E0:DE": 0,
-  //   "60:C0:BF:26:E0:00": 0, //stuck at -17dBm
-  //   "60:C0:BF:26:E0:8A": 0,
-  //   "60:C0:BF:26:DF:63": 0,
-  //   "60:C0:BF:26:E0:A5": 0,
-  // };
+
+
 
   @override
+  //This whole widget component to be removed in final run
   Widget build(BuildContext context) {
     final accelerometer =
         _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
     final magnetometer =
         _magnetometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-    // final topthreerssi =
-    // _rssiValues?.map((int v) => v.toStringAsFixed(1)).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Localisation'),
@@ -162,7 +162,6 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
         (AccelerometerEvent event) {
           setState(() {
             _accelerometerValues = <double>[event.x, event.y, event.z];
-            //print('Accelerometer: $_accelerometerValues');
           });
         },
       ),
@@ -176,44 +175,47 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
         },
       ),
     );
-    // _streamSubscriptions.add(
-    //   magnetometerEvents.listen(
-    //         (MagnetometerEvent event) {
-    //       setState(() {
-    //         _magnetometerValuesX = <double>[event.x];
-    //         //print('Magnetometer X: $_magnetometerValuesX');
-    //       });
-    //     },
-    //   ),
-    // );
-    // _streamSubscriptions.add(
-    //   magnetometerEvents.listen(
-    //         (MagnetometerEvent event) {
-    //       setState(() {
-    //         _magnetometerValuesY = <double>[event.y];
-    //         // print('Magnetometer Y: $_magnetometerValuesY');
-    //       });
-    //     },
-    //   ),
-    // );
 
     // Start scanning
-    flutterBlue.startScan(timeout: Duration(seconds: 4));
-    // while (true) {
+    // flutterBlue.startScan(timeout: Duration(seconds: 4));
+    // // Listen to scan results
+    // var subscription = flutterBlue.scanResults.listen((results) {
+    //   // sort results from least negative to most negative
+    //   for (ScanResult r in results) {
+    //     if (topFour.length == 5) {
+    //       //print(topFour);
+    //       // flutterBlue.stopScan();
+    //       break;
+    //     }
+    //     for (String uuid in knownUuid) {
+    //       // print('uuid = $uuid, scanned = ${r.device.id}');
+    //       if (uuid == r.device.id.toString()) {
+    //         topFour[uuid] = r.rssi;
+    //         results.sort(
+    //             (a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
+    //       }
+    //     }
+    //   }
+    // });
+    //
+    // flutterBlue.stopScan();
+
+    /// Start background task
+    _asyncInit();
+    super.initState();
+    flutterBlue.startScan(timeout: Duration(days: 4));
     // Listen to scan results
     var subscription = flutterBlue.scanResults.listen((results) {
       // sort results from least negative to most negative
-      results
-          .sort((a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
-
       for (ScanResult r in results) {
-        if (topFour.length == 5) {
-          //print(topFour);
-          // flutterBlue.stopScan();
+        results.sort(
+            (a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
+        if (topFour.length == 3) {
+          print(topFour);
           break;
         }
         for (String uuid in knownUuid) {
-          // print('uuid = $uuid, scanned = ${r.device.id}');
+          //print('uuid = $uuid, scanned = ${r.device.id}');
           if (uuid == r.device.id.toString()) {
             topFour[uuid] = r.rssi;
             //print(topFour);
@@ -221,10 +223,52 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
         }
       }
     });
-    // }
 
-    flutterBlue.stopScan();
+    //flutterBlue.stopScan();
   }
+
+  _asyncInit() async {
+    ReceivePort receivePort = ReceivePort();
+    isolate = await Isolate.spawn(_isolateEntry, receivePort.sendPort);
+
+    receivePort.listen((dynamic data) {
+      if (data is SendPort) {
+        if (mounted) {
+          data.send({
+            /// Map data using key-value pair
+            /// i.e. 'key' : String
+            //knownUuid : r.rssi;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            /// Update data here as needed
+          });
+        }
+      }
+    });
+  }
+
+  static _isolateEntry(dynamic d) async {
+    final ReceivePort receivePort = ReceivePort();
+    d.send(receivePort.sendPort);
+
+    /// config contains the key-value pair from _asyncInit()
+    final config = await receivePort.first;
+
+    /// send bluetooth data you received
+    d.send(topFour);
+  }
+
+//@override
+// void dispose() {
+//   /// Determine when to terminate the Isolate
+//   if (isolate != null) {
+//     isolate?.kill();
+//   }
+//   super.dispose();
+// }
 }
 
 // 3) AppEngine
