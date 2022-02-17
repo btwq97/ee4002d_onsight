@@ -12,8 +12,7 @@ class CustomerHomePage extends StatefulWidget {
   CustomerHomePage(this._onSight);
 
   @override
-  _CustomerHomePageState createState() =>
-      _CustomerHomePageState(this._onSight);
+  _CustomerHomePageState createState() => _CustomerHomePageState(this._onSight);
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
@@ -82,8 +81,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          LocalisationAppPage(this._onSight))); // TODO: resolve issue
+                      builder: (context) => LocalisationAppPage(
+                          this._onSight))); // TODO: resolve issue
             },
             child: Container(
               child: Center(

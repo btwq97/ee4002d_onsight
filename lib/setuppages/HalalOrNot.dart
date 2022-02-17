@@ -95,4 +95,3 @@ class _HalalPageState extends State<HalalPage> {
     );
   }
 }
-

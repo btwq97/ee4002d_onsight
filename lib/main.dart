@@ -11,13 +11,10 @@ import 'package:on_sight/setuppages/Cuisine.dart';
 import 'package:on_sight/localisation/localisation_app.dart';
 
 void main() async {
-
   OnSight onSight = OnSight();
   await onSight.start();
 
-  runApp(HomePage(
-    onSight: onSight
-  ));
+  runApp(HomePage(onSight: onSight));
 
   return;
 }
@@ -25,8 +22,7 @@ void main() async {
 class HomePage extends StatelessWidget {
   final OnSight onSight;
 
-  const HomePage({Key? key, required this.onSight})
-      : super(key: key);
+  const HomePage({Key? key, required this.onSight}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +35,11 @@ class HomePage extends StatelessWidget {
         routes: {
           '/Customer or Storeowner Page': (context) =>
               CustomerOrStoreOwnerPage(this.onSight),
-          '/Customer Home Page': (context) =>
-              CustomerHomePage(this.onSight),
-          '/Vegetarian Page': (context) =>
-              VegetarianPage(this.onSight),
+          '/Customer Home Page': (context) => CustomerHomePage(this.onSight),
+          '/Vegetarian Page': (context) => VegetarianPage(this.onSight),
           '/Halal Page': (context) => HalalPage(this.onSight),
           '/Allergy': (context) => AllergyPage(this.onSight),
-          '/Spice Level': (context) =>
-              SpiceLevelPage(this.onSight),
+          '/Spice Level': (context) => SpiceLevelPage(this.onSight),
           '/Cuisine': (context) => CuisinePage(this.onSight),
         });
   }

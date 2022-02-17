@@ -95,5 +95,3 @@ class _VegetarianPageState extends State<VegetarianPage> {
     );
   }
 }
-
-
