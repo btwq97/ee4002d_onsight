@@ -35,6 +35,8 @@ flutter clean && flutter run
 
 If the clean build does not work, then remedy with the steps below:
 
+### Remedies:
+
 1. For iOS: Please take note of the following steps:
    1a: If you are using an Apple Silicon Mac (M1, M1 Pro, M1 Max or any other device that uses an ARM architecture chip), please do the following steps first as the bluetooth package only supports iOS devices from an x86 architecture:
    1a.1: Go to your Applications Folder
