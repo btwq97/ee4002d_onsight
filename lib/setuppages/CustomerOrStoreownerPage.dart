@@ -4,7 +4,6 @@ import 'package:on_sight/components/iconcontent.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
-import 'package:on_sight/localisation/localisation_app.dart';
 
 enum Role {
   customer,
@@ -12,19 +11,19 @@ enum Role {
 }
 
 class CustomerOrStoreOwnerPage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  CustomerOrStoreOwnerPage(this.appEngine);
+  CustomerOrStoreOwnerPage(this._onSight);
 
   @override
   _CustomerOrStoreownerPageState createState() =>
-      _CustomerOrStoreownerPageState(this.appEngine);
+      _CustomerOrStoreownerPageState(this._onSight);
 }
 
 class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
-  final appEngine;
+  final _onSight;
 
-  _CustomerOrStoreownerPageState(this.appEngine);
+  _CustomerOrStoreownerPageState(this._onSight);
 
   Role? chosen;
 
@@ -76,7 +75,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(this.appEngine)));
+                      builder: (context) => VegetarianPage(this._onSight)));
             },
             child: Container(
               child: Center(

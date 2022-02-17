@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
+
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:on_sight/components/iconcontenttwo.dart';
-import 'package:on_sight/components/reuseablecard.dart';
-import 'package:on_sight/setuppages/Vegetarianism.dart';
-import 'package:on_sight/setuppages/HalalOrNot.dart';
-import 'package:on_sight/setuppages/Allergy.dart';
-import 'package:on_sight/setuppages/SpiceLevel.dart';
-import 'package:on_sight/setuppages/Cuisine.dart';
 import 'package:on_sight/connectivity/bluetooth_main.dart';
-import 'package:on_sight/localisation/localisation_bluetooth.dart';
+import 'package:on_sight/connectivity/canemodule_main.dart';
 import 'package:on_sight/localisation/localisation_app.dart';
+import 'package:on_sight/uipagecustomer/canteen_map.dart';
 
 class CustomerHomePage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  CustomerHomePage(this.appEngine);
+  CustomerHomePage(this._onSight);
 
   @override
   _CustomerHomePageState createState() =>
-      _CustomerHomePageState(this.appEngine);
+      _CustomerHomePageState(this._onSight);
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
-  final appEngine;
+  final _onSight;
 
-  _CustomerHomePageState(this.appEngine);
+  _CustomerHomePageState(this._onSight);
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +39,13 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(this.appEngine)));
+                      // builder: (context) => VegetarianPage(this._onSight)
+                      builder: (context) => CanteenTestPage()));
             },
             child: Container(
               child: Center(
                 child: Text(
-                  'PREFERENCES',
+                  'LOCATION MAP',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -64,10 +58,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
+              Navigator.push(
+                  context,
                   //MaterialPageRoute(builder: (context) => BluetoothMainPage()));
-                  MaterialPageRoute(
-                      builder: (context) => BluetoothMainPage()));
+                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
             },
             child: Container(
               child: Center(
@@ -89,7 +83,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) =>
-                          LocalisationAppPage(this.appEngine)));
+                          LocalisationAppPage(this._onSight))); // TODO: resolve issue
             },
             child: Container(
               child: Center(
@@ -107,11 +101,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          LocalisationAppPage(this.appEngine)));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CaneModulePage()));
             },
             child: Container(
               child: Center(

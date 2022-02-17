@@ -9,9 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:on_sight/connectivity/bluetooth_widgets.dart';
 
-/*void main() {
-  runApp(FlutterBlueApp());
-}*/
+// This page is used to determine whether the bluetooth page is running. Source code can be found in:
+//https://github.com/pauldemarco/flutter_blue
 
 class BluetoothMainPage extends StatefulWidget {
   @override

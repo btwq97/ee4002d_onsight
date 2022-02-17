@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
-import 'package:on_sight/localisation/localisation_app.dart';
-import 'package:on_sight/setuppages/Vegetarianism.dart';
 
 class CuisinePage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  CuisinePage(this.appEngine);
+  CuisinePage(this._onSight);
 
   @override
-  _CuisinePageState createState() => _CuisinePageState(this.appEngine);
+  _CuisinePageState createState() => _CuisinePageState(this._onSight);
 }
 
 class _CuisinePageState extends State<CuisinePage> {
-  final appEngine;
+  final _onSight;
 
-  _CuisinePageState(this.appEngine);
+  _CuisinePageState(this._onSight);
 
   Color chineseCardColour = kInactiveCardColour;
   Color malayCardColour = kInactiveCardColour;
@@ -177,7 +174,7 @@ class _CuisinePageState extends State<CuisinePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CustomerHomePage(this.appEngine)));
+                      builder: (context) => CustomerHomePage(this._onSight)));
               //MaterialPageRoute(builder: (context) => VegetarianPage()));
             },
             child: Container(

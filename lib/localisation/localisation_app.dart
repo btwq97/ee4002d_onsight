@@ -1,60 +1,50 @@
+import 'dart:isolate';
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../constants.dart';
-import 'localisation_dynamodb.dart';
-import 'localisation_localisation.dart';
-import 'localisation_mqtt.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:isolate';
-import 'package:on_sight/connectivity/bluetooth_main.dart';
-import 'package:on_sight/connectivity/bluetooth_widgets.dart';
 
-//import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'dart:async';
-import 'dart:io';
-import 'dart:math' as math;
-
-Isolate? isolate;
-
-// TODO:
-
-List<String> knownUuid = [
-  '60:C0:BF:26:E0:DE',
-  '60:C0:BF:26:E0:8A',
-  '60:C0:BF:26:DF:63',
-  '60:C0:BF:26:E0:A5',
-  '60:C0:BF:26:E0:00'
-];
-Map<String, int> topFour = {};
-Map<String, dynamic> resultsLocalisation =
-{}; //   "60:C0:BF:26:E0:00" stuck at -17dBm
+import 'package:on_sight/constants.dart';
+import 'package:on_sight/backend/backend_database.dart';
+import 'package:on_sight/localisation/localisation_localisation.dart';
+import 'package:on_sight/navigations/navigations_navigations.dart';
+import 'package:on_sight/mqtt/mqtt_mqtt.dart';
 
 // 1) add in functionalities to retrieve magnetometer and accelerometer here.
 class LocalisationAppPage extends StatefulWidget {
-  final appEngine;
+  final OnSight;
 
-  LocalisationAppPage(this.appEngine);
+  LocalisationAppPage(this.OnSight);
 
   @override
   _LocalisationAppPageState createState() =>
-      _LocalisationAppPageState(this.appEngine);
+      _LocalisationAppPageState(this.OnSight);
 }
 
 class _LocalisationAppPageState extends State<LocalisationAppPage> {
-  final appEngine;
+  final OnSight;
+  Isolate? isolate;
 
-  _LocalisationAppPageState(this.appEngine);
+  // TODO: call from backend instead of hardcoding
+  List<String> knownUuid = [
+    '60:C0:BF:26:E0:DE',
+    '60:C0:BF:26:E0:8A',
+    '60:C0:BF:26:DF:63',
+    '60:C0:BF:26:E0:A5',
+    '60:C0:BF:26:E0:00'
+  ]; // TO be changed once finalised with Zac
 
+  Map<String, int> topFour = {};
+  Map<String, dynamic> resultsLocalisation = {};
   List<double>? _accelerometerValues;
   List<double>? _magnetometerValues;
-  List<double>? _magnetometerValuesX;
-  List<double>? _magnetometerValuesY;
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
-  FlutterBlue flutterBlue = FlutterBlue.instance;
 
-
+  // constructor
+  _LocalisationAppPageState(this.OnSight);
 
   @override
   //This whole widget component to be removed in final run
@@ -122,8 +112,8 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
               rawData['accelerometer'] = _accelerometerValues;
               rawData['magnetometer'] = _magnetometerValues;
               print(rawData);
-              // this.appEngine.mqttPublish(rawData, 'rssi');
-              resultsLocalisation = appEngine.localisation(rawData);
+              // this.OnSight.mqttPublish(rawData, 'rssi');
+              resultsLocalisation = OnSight.localisation(rawData);
               print(resultsLocalisation);
             },
             child: Container(
@@ -176,55 +166,39 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
       ),
     );
 
-    // Start scanning
-    // flutterBlue.startScan(timeout: Duration(seconds: 4));
-    // // Listen to scan results
-    // var subscription = flutterBlue.scanResults.listen((results) {
-    //   // sort results from least negative to most negative
-    //   for (ScanResult r in results) {
-    //     if (topFour.length == 5) {
-    //       //print(topFour);
-    //       // flutterBlue.stopScan();
-    //       break;
-    //     }
-    //     for (String uuid in knownUuid) {
-    //       // print('uuid = $uuid, scanned = ${r.device.id}');
-    //       if (uuid == r.device.id.toString()) {
-    //         topFour[uuid] = r.rssi;
-    //         results.sort(
-    //             (a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
-    //       }
-    //     }
-    //   }
-    // });
-    //
-    // flutterBlue.stopScan();
-
     /// Start background task
     _asyncInit();
     super.initState();
-    flutterBlue.startScan(timeout: Duration(days: 4));
+
+    FlutterBlue.instance.startScan(timeout: Duration(days: 4));
     // Listen to scan results
-    var subscription = flutterBlue.scanResults.listen((results) {
+    var subscription = FlutterBlue.instance.scanResults.listen((results) {
       // sort results from least negative to most negative
       for (ScanResult r in results) {
         results.sort(
             (a, b) => ((b.rssi).toDouble()).compareTo((a.rssi).toDouble()));
-        if (topFour.length == 3) {
-          print(topFour);
+        if (topFour.length == 6) {
+          //print('scanned = ${r.device.id}');
+          //print(topFour);
+          print("Loop break");
           break;
         }
+        print("Loop start");
+        print('scanned = ${r.device.id}, RSSI = ${r.rssi}');
+
         for (String uuid in knownUuid) {
           //print('uuid = $uuid, scanned = ${r.device.id}');
+          //print('uuid = $uuid, scanned = ${r.device.id}, RSSI = ${r.rssi}');
           if (uuid == r.device.id.toString()) {
             topFour[uuid] = r.rssi;
             //print(topFour);
           }
         }
+        print("Loop end");
       }
     });
 
-    //flutterBlue.stopScan();
+    //FlutterBlue.instance.stopScan();
   }
 
   _asyncInit() async {
@@ -237,7 +211,6 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
           data.send({
             /// Map data using key-value pair
             /// i.e. 'key' : String
-            //knownUuid : r.rssi;
           });
         }
       } else {
@@ -250,7 +223,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
     });
   }
 
-  static _isolateEntry(dynamic d) async {
+  _isolateEntry(dynamic d) async {
     final ReceivePort receivePort = ReceivePort();
     d.send(receivePort.sendPort);
 
@@ -260,26 +233,19 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
     /// send bluetooth data you received
     d.send(topFour);
   }
-
-//@override
-// void dispose() {
-//   /// Determine when to terminate the Isolate
-//   if (isolate != null) {
-//     isolate?.kill();
-//   }
-//   super.dispose();
-// }
 }
 
-// 3) AppEngine
-class AppEngine {
-  // late WrapperDynamoDB _db;
+// TODO:
+// 1) add in functionalities to retrieve magnetometer here.
+// 2) add in functionalities to retrieve uuid and rssi here.
+class OnSight {
+  late MyDatabase _db;
   late Localisation _lc;
-
   // late Mqtt _mq;
+  late MyShortestPath _sp;
 
   // ==== Private Methods ====
-  AppEngine();
+  OnSight();
 
   // ==== Public Methods ====
   /// Runs the localisation algorithm
@@ -294,17 +260,11 @@ class AppEngine {
     await dotenv.load(fileName: './lib/assets/.env');
 
     // DynamoDB
-    // _db = WrapperDynamoDB(
-    //     dotenv.env['awsRegion'].toString(),
-    //     dotenv.env['awsEndPoint'].toString(),
-    //     dotenv.env['awsTableName'].toString(),
-    //     dotenv.env['awsPrimaryKey'].toString(),
-    //     dotenv.env['awsVenue'].toString()); // Only instance of db
-    // await _db.init(); // must await for data to be pulled successfully
+    _db = MyDatabase(dotenv.env['awsRegion'].toString(),
+        dotenv.env['awsEndPoint'].toString()); // Only instance of db
+    await _db.init(); // must await for data to be pulled successfully
 
-    // print('${dotenv.env['mqttHost'].toString()}');
-    //
-    // // MQTT
+    // MQTT
     // _mq = Mqtt(
     //     dotenv.env['mqttHost'].toString(),
     //     dotenv.env['mqttUsername'].toString(),
@@ -312,8 +272,18 @@ class AppEngine {
     // await _mq.init();
 
     // Localisation
-    // _lc = Localisation(_db);
-    _lc = Localisation();
+    _lc = Localisation(_db);
+
+    // Shortest Path
+    _sp = MyShortestPath(_db); // TODO: edit start and goal
+    _testShortestPath([400.0, 0.0], [1500.0, 1200.0]);
+  }
+
+  /// TODO: TO delete in production code
+  /// To test if shortest path algorithm runs properly
+  void _testShortestPath(List<double> start, List<double> goal) {
+    _sp.setup(start, goal);
+    print(_sp.determineShortestPath());
   }
 
   /// Wrapper function for localisation.
@@ -326,8 +296,8 @@ class AppEngine {
   ///           '87ccf436-0f86-4dfe-80f9-9ff731033620': -65.25,
   ///           '9d9214f8-8870-43dd-a496-401765bf7866': -65.75
   ///         },
-  ///         'accelerometer': $_accelerometerValues,
-  ///         'magnetometer': [$_magnetometerValuesX, $_magnetometerValuesY]
+  ///         'accelerometer': 5,
+  ///         'magnetometer': [-33.57, 86.31]
   ///      }
   ///
   /// Returns:
@@ -341,8 +311,8 @@ class AppEngine {
   /// Inputs:
   /// 1) rawData [Map<String, dynamic>] -
   /// e.g. {
-  ///         'x_coordinate': $_magnetometerValuesX,
-  ///         'y_coordinate': $_magnetometerValuesY,
+  ///         'x_coordinate': X,
+  ///         'y_coordinate': Y,
   ///         'direction':direction
   ///      }
   /// 2) mode [String] - either 'rssi' or 'result'.
@@ -350,8 +320,8 @@ class AppEngine {
   ///
   /// Returns:
   /// 1) None.
-  void mqttPublish(Map<String, dynamic> rawData, String mode,
-      {String topic = 'test/pub'}) {
-    // _mq.publish(rawData, mode, topic: topic);
-  }
+  // void mqttPublish(Map<String, dynamic> rawData, String mode,
+  //     {String topic = 'test/pub'}) {
+  //   _mq.publish(rawData, mode, topic: topic);
+  // }
 }

@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 
 class AllergyPage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  AllergyPage(this.appEngine);
+  AllergyPage(this._onSight);
 
   @override
-  _AllergyPageState createState() => _AllergyPageState(this.appEngine);
+  _AllergyPageState createState() => _AllergyPageState(this._onSight);
 }
 
 class _AllergyPageState extends State<AllergyPage> {
-  final appEngine;
+  final _onSight;
 
-  _AllergyPageState(this.appEngine);
+  _AllergyPageState(this._onSight);
 
   Color eggCardColour = kInactiveCardColour;
   Color nutsCardColour = kInactiveCardColour;
@@ -131,7 +130,7 @@ class _AllergyPageState extends State<AllergyPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => SpiceLevelPage(this.appEngine)));
+                      builder: (context) => SpiceLevelPage(this._onSight)));
             },
             child: Container(
               child: Center(

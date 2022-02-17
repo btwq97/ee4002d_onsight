@@ -11,18 +11,18 @@ enum FoodPreference {
 }
 
 class HalalPage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  HalalPage(this.appEngine);
+  HalalPage(this._onSight);
 
   @override
-  _HalalPageState createState() => _HalalPageState(this.appEngine);
+  _HalalPageState createState() => _HalalPageState(this._onSight);
 }
 
 class _HalalPageState extends State<HalalPage> {
-  final appEngine;
+  final _onSight;
 
-  _HalalPageState(this.appEngine);
+  _HalalPageState(this._onSight);
 
   FoodPreference? preferred;
 
@@ -74,7 +74,7 @@ class _HalalPageState extends State<HalalPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AllergyPage(this.appEngine)));
+                      builder: (context) => AllergyPage(this._onSight)));
             },
             child: Container(
               child: Center(

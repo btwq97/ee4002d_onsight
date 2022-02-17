@@ -39,3 +39,12 @@ Please take note of the following AFTER you have installed the package on flutte
     2e: under protobuf->protoc->artifact, change it to "com.google.protobuf:protoc:3.17.3" Only the numbers need to be changed to 3.17.3
     2f: under dependencies, make the same changes "com.google.protobuf:protoc:3.17.3"
    
+
+Bluetooth points to take note of: 
+1) iOS uses UUID and Android uses MACaddress. For security reasons, they are always randomised.
+2) For Android: 
+    2a: the  is randomised unless it is labelled explicitly on the sending side to be shared
+    2b: Whatever changes that are made are only for the local device
+3) For iOS  
+    3a: the UUIDs are rand
+   

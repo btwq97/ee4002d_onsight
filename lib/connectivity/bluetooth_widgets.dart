@@ -97,22 +97,6 @@ class ScanResultTile extends StatelessWidget {
         textColor: Colors.white,
         onPressed: (result.advertisementData.connectable) ? onTap : null,
       ),
-      // children: <Widget>[
-      //   _buildAdvRow(
-      //       context, 'Complete Local Name', result.advertisementData.localName),
-      //   _buildAdvRow(context, 'Tx Power Level',
-      //       '${result.advertisementData.txPowerLevel ?? 'N/A'}'),
-      //   _buildAdvRow(context, 'Manufacturer Data',
-      //       getNiceManufacturerData(result.advertisementData.manufacturerData)),
-      //   _buildAdvRow(
-      //       context,
-      //       'Service UUIDs',
-      //       (result.advertisementData.serviceUuids.isNotEmpty)
-      //           ? result.advertisementData.serviceUuids.join(', ').toUpperCase()
-      //           : 'N/A'),
-      //   _buildAdvRow(context, 'Service Data',
-      //       getNiceServiceData(result.advertisementData.serviceData)),
-      // ],
     );
   }
 }

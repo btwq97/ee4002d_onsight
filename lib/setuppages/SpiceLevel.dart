@@ -12,18 +12,18 @@ enum SpicePreference {
 }
 
 class SpiceLevelPage extends StatefulWidget {
-  final appEngine;
+  final _onSight;
 
-  SpiceLevelPage(this.appEngine);
+  SpiceLevelPage(this._onSight);
 
   @override
-  _SpiceLevelPageState createState() => _SpiceLevelPageState(this.appEngine);
+  _SpiceLevelPageState createState() => _SpiceLevelPageState(this._onSight);
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
-  final appEngine;
+  final _onSight;
 
-  _SpiceLevelPageState(this.appEngine);
+  _SpiceLevelPageState(this._onSight);
 
   SpicePreference? level;
 
@@ -90,7 +90,7 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CuisinePage(appEngine)));
+                      builder: (context) => CuisinePage(this._onSight)));
             },
             child: Container(
               child: Center(
