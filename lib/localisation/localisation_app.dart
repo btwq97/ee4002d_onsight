@@ -1,7 +1,6 @@
 import 'dart:isolate';
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:sensors_plus/sensors_plus.dart';
@@ -241,7 +240,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
 class OnSight {
   late MyDatabase _db;
   late Localisation _lc;
-  // late Mqtt _mq;
+  late Mqtt _mq;
   late MyShortestPath _sp;
 
   // ==== Private Methods ====
@@ -265,11 +264,11 @@ class OnSight {
     await _db.init(); // must await for data to be pulled successfully
 
     // MQTT
-    // _mq = Mqtt(
-    //     dotenv.env['mqttHost'].toString(),
-    //     dotenv.env['mqttUsername'].toString(),
-    //     dotenv.env['mqttPassword'].toString());
-    // await _mq.init();
+    _mq = Mqtt(
+        dotenv.env['mqttHost'].toString(),
+        dotenv.env['mqttUsername'].toString(),
+        dotenv.env['mqttPassword'].toString());
+    await _mq.init();
 
     // Localisation
     _lc = Localisation(_db);
@@ -320,8 +319,8 @@ class OnSight {
   ///
   /// Returns:
   /// 1) None.
-  // void mqttPublish(Map<String, dynamic> rawData, String mode,
-  //     {String topic = 'test/pub'}) {
-  //   _mq.publish(rawData, mode, topic: topic);
-  // }
+  void mqttPublish(Map<String, dynamic> rawData, String mode,
+      {String topic = 'test/pub'}) {
+    _mq.publish(rawData, mode, topic: topic);
+  }
 }

@@ -23,7 +23,7 @@ Please take note of the following AFTER you have installed the package on flutte
 2. For Android, please take the following steps:
    2a: Go to the Android File in Flutter --> app-->src-->build.gradle
    2b: change the minSdkVersion to 19
-   2c: go to the Tools menu bar, click on Flutter and select "Open for Editing in Android Studio"
+   2c: go to the Tools menu bar, click on Flutter and select "Open for Editing in Android Studio" (Note: in Windows, selection is "Open Android Module in Android Studio")
    2d: go to Gradle scripts, and select the android.flutter_blue gradle file
    2e: under protobuf->protoc->artifact, change it to "com.google.protobuf:protoc:3.17.3" Only the numbers need to be changed to 3.17.3
    2f: under dependencies, make the same changes "com.google.protobuf:protoc:3.17.3"
