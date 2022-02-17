@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 
 import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/CustomerOrStoreownerPage.dart';
