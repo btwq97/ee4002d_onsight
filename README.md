@@ -30,7 +30,8 @@ Please take note of the following AFTER you have installed the package on flutte
 Before performing any of the tasks below, ensure that you have a clean build.
 
 ```
-flutter clean && flutter run
+flutter clean
+flutter run
 ```
 
 If the clean build does not work, then remedy with the steps below:
