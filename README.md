@@ -2,11 +2,37 @@
 
 EE4002D App Component
 
+# Configuring the application
+
+1. Clone repository. cd into repository.
+2. Ensure you are at <Master> branch.
+3. Run command
+
+```
+flutter create .
+```
+
+4. Run application
+
+```
+flutter run
+```
+
 # Setup for FlutterBlue
 
 In order to implement bluetooth into the application, flutter_blue 0.8.0 (https://pub.dev/packages/flutter_blue/example) version was used.
 
 Please take note of the following AFTER you have installed the package on flutter
+
+### Note:
+
+Before performing any of the tasks below, ensure that you have a clean build.
+
+```
+flutter clean && flutter run
+```
+
+If the clean build does not work, then remedy with the steps below:
 
 1. For iOS: Please take note of the following steps:
    1a: If you are using an Apple Silicon Mac (M1, M1 Pro, M1 Max or any other device that uses an ARM architecture chip), please do the following steps first as the bluetooth package only supports iOS devices from an x86 architecture:
