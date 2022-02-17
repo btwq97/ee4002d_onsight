@@ -4,15 +4,16 @@ EE4002D App Component
 
 # Configuring the application
 
-1. Clone repository. cd into repository.
-2. Ensure you are at <Master> branch.
-3. Run command
+1. Clone repository.
+2. cd into repository.
+3. Ensure you are at "Master" branch.
+4. Run command
 
 ```
 flutter create .
 ```
 
-4. Run application
+5. Run application
 
 ```
 flutter run
