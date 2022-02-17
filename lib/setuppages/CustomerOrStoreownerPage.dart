@@ -5,19 +5,25 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
 
-
-
 enum Role {
   customer,
   storeowner,
 }
 
 class CustomerOrStoreOwnerPage extends StatefulWidget {
+  final _onSight;
+
+  CustomerOrStoreOwnerPage(this._onSight);
+
   @override
-  _CustomerOrStoreownerPageState createState() => _CustomerOrStoreownerPageState();
+  _CustomerOrStoreownerPageState createState() =>
+      _CustomerOrStoreownerPageState(this._onSight);
 }
 
 class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
+  final _onSight;
+
+  _CustomerOrStoreownerPageState(this._onSight);
 
   Role? chosen;
 
@@ -25,7 +31,10 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ROLE?', style: TextStyle(fontSize: 40),),
+        title: Text(
+          'ROLE?',
+          style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -33,40 +42,44 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     chosen = Role.customer;
                   });
-    },
-                colour: chosen == Role.customer ? kActiveCardColour : kInactiveCardColour,
+                },
+                colour: chosen == Role.customer
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.userFriends,
-                  label: 'KAREN',
-                )
-            ),
+                  label: 'CUSTOMER',
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     chosen = Role.storeowner;
                   });
                 },
-                colour:  chosen == Role.storeowner ? kActiveCardColour : kInactiveCardColour,
+                colour: chosen == Role.storeowner
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.store,
                   label: 'STOREOWNER',
-                )
-            ),
+                )),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VegetarianPage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => VegetarianPage(this._onSight)));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'NEXT',
                   style: kBottomButtonTextStyle,
                 ),

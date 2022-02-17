@@ -12,11 +12,18 @@ enum SpicePreference {
 }
 
 class SpiceLevelPage extends StatefulWidget {
+  final _onSight;
+
+  SpiceLevelPage(this._onSight);
+
   @override
-  _SpiceLevelPageState createState() => _SpiceLevelPageState();
+  _SpiceLevelPageState createState() => _SpiceLevelPageState(this._onSight);
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
+  final _onSight;
+
+  _SpiceLevelPageState(this._onSight);
 
   SpicePreference? level;
 
@@ -24,7 +31,10 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('SPICE LEVEL?', style: TextStyle(fontSize: 40),),
+        title: Text(
+          'SPICE LEVEL?',
+          style: TextStyle(fontSize: 40),
+        ),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -32,54 +42,59 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
         children: <Widget>[
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.None;
                   });
                 },
-                colour: level == SpicePreference.None ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.None
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: Icons.highlight_off,
                   label: 'NONE',
-                )
-            ),
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.Mild;
                   });
                 },
-                colour: level == SpicePreference.Mild ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.Mild
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.pepperHot,
                   label: 'MILD',
-                )
-            ),
+                )),
           ),
           Expanded(
             child: ReusableCard(
-                onPress: (){
+                onPress: () {
                   setState(() {
                     level = SpicePreference.Full;
                   });
                 },
-                colour: level == SpicePreference.Full ? kActiveCardColour : kInactiveCardColour,
+                colour: level == SpicePreference.Full
+                    ? kActiveCardColour
+                    : kInactiveCardColour,
                 cardChild: IconContent(
                   icon: FontAwesomeIcons.hotjar,
                   label: 'FULL',
-                )
-            ),
+                )),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CuisinePage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CuisinePage(this._onSight)));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'NEXT',
                   style: kBottomButtonTextStyle,
                 ),
@@ -96,194 +111,3 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
     );
   }
 }
-
-
-
-
-
-
-
-// class SpicinessPage extends StatefulWidget {
-//   @override
-//   _SpicinessPageState createState() => _SpicinessPageState();
-// }
-//
-// class _SpicinessPageState extends State<SpicinessPage> {
-//
-//   Color eggCardColour = kInactiveCardColour;
-//   Color nutsCardColour = kInactiveCardColour;
-//   Color milkCardColour = kInactiveCardColour;
-//   Color soyCardColour = kInactiveCardColour;
-//
-//   //1 = egg, 2 = nuts, 3 = milk, 4 = soy
-//   void updateColour (int chosen){
-//     if (chosen == 1){
-//       if (eggCardColour == kInactiveCardColour){
-//         eggCardColour = kActiveCardColour;
-//       }else{
-//         eggCardColour = kInactiveCardColour;
-//       }
-//     }
-//     if (chosen == 2){
-//       if (nutsCardColour == kInactiveCardColour){
-//         nutsCardColour = kActiveCardColour;
-//       }else{
-//         nutsCardColour = kInactiveCardColour;
-//       }
-//     }
-//     if (chosen == 3){
-//       if (milkCardColour == kInactiveCardColour){
-//         milkCardColour = kActiveCardColour;
-//       }else{
-//         milkCardColour = kInactiveCardColour;
-//       }
-//     }
-//     if (chosen == 4){
-//       if (soyCardColour == kInactiveCardColour){
-//         soyCardColour = kActiveCardColour;
-//       }else{
-//         soyCardColour = kInactiveCardColour;
-//       }
-//     }
-//
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('LIST YOUR SPICE TOLERANCE'),
-//       ),
-//       body: Column(
-//         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: <Widget>[
-//           Expanded(
-//             child: GestureDetector(
-//               onTap: () {
-//                 setState(() {
-//                   updateColour(1);
-//                 });
-//               },
-//               child: ReusableCard(
-//                   colour: eggCardColour,
-//                   cardChild: IconContent(
-//                     icon: FontAwesomeIcons.egg,
-//                     label: 'EGGS',
-//                   )
-//               ),
-//             ),
-//           ),
-//           Expanded(
-//             child: GestureDetector(
-//               onTap: () {
-//                 setState(() {
-//                   updateColour(2);
-//                 });
-//               },
-//               child: ReusableCard(
-//                   colour: nutsCardColour,
-//                   cardChild: IconContent(
-//                     icon: FontAwesomeIcons.nutritionix,
-//                     label: 'NUTS',
-//                   )
-//               ),
-//             ),
-//           ),
-//           Expanded(
-//             child: GestureDetector(
-//               onTap: () {
-//                 setState(() {
-//                   updateColour(3);
-//                 });
-//               },
-//               child: ReusableCard(
-//                   colour: milkCardColour,
-//                   cardChild: IconContent(
-//                     icon: FontAwesomeIcons.hatCowboy,
-//                     label: 'MILK',
-//                   )
-//               ),
-//             ),
-//           ),
-//           Expanded(
-//             child: GestureDetector(
-//               onTap: () {
-//                 setState(() {
-//                   updateColour(4);
-//                 });
-//               },
-//               child: ReusableCard(
-//                   colour: soyCardColour,
-//                   cardChild: IconContent(
-//                     icon: FontAwesomeIcons.bandcamp,
-//                     label: 'SOY',
-//                   )
-//               ),
-//             ),
-//           ),
-//           /*BottomButton(
-//             buttonTitle: 'NEXT',
-//             onTap: () {
-//               Navigator.pop(context);
-//             },
-//           )*/
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-/*class Spiciness extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('LIST YOUR SPICE TOLERANCE'),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.fireExtinguisher,
-                  label: 'NO SPICE',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.pepperHot,
-                  label: 'MILD SPICE',
-                )
-            ),
-          ),
-          Expanded(
-            child: ReusableCard(
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.dragon,
-                  label: 'VERY SPICY',
-                )
-            ),
-          ),
-          /*BottomButton(
-            buttonTitle: 'NEXT',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          )*/
-        ],
-      ),
-    );
-  }
-}*/

@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
 
 class CuisinePage extends StatefulWidget {
+  final _onSight;
+
+  CuisinePage(this._onSight);
+
   @override
-  _CuisinePageState createState() => _CuisinePageState();
+  _CuisinePageState createState() => _CuisinePageState(this._onSight);
 }
 
 class _CuisinePageState extends State<CuisinePage> {
+  final _onSight;
+
+  _CuisinePageState(this._onSight);
 
   Color chineseCardColour = kInactiveCardColour;
   Color malayCardColour = kInactiveCardColour;
@@ -21,50 +27,49 @@ class _CuisinePageState extends State<CuisinePage> {
   Color koreanCardColour = kInactiveCardColour;
 
   //1 = chinese, 2 = malay, 3 = indian, 4 = western, 5 = japanese, 6 = korean
-  void updateColour (int chosen){
-    if (chosen == 1){
-      if (chineseCardColour == kInactiveCardColour){
+  void updateColour(int chosen) {
+    if (chosen == 1) {
+      if (chineseCardColour == kInactiveCardColour) {
         chineseCardColour = kActiveCardColour;
-      }else{
+      } else {
         chineseCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 2){
-      if (malayCardColour == kInactiveCardColour){
+    if (chosen == 2) {
+      if (malayCardColour == kInactiveCardColour) {
         malayCardColour = kActiveCardColour;
-      }else{
+      } else {
         malayCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 3){
-      if (indianCardColour == kInactiveCardColour){
+    if (chosen == 3) {
+      if (indianCardColour == kInactiveCardColour) {
         indianCardColour = kActiveCardColour;
-      }else{
+      } else {
         indianCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 4){
-      if (westernCardColour == kInactiveCardColour){
+    if (chosen == 4) {
+      if (westernCardColour == kInactiveCardColour) {
         westernCardColour = kActiveCardColour;
-      }else{
+      } else {
         westernCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 5){
-      if (japaneseCardColour == kInactiveCardColour){
+    if (chosen == 5) {
+      if (japaneseCardColour == kInactiveCardColour) {
         japaneseCardColour = kActiveCardColour;
-      }else{
+      } else {
         japaneseCardColour = kInactiveCardColour;
       }
     }
-    if (chosen == 6){
-      if (koreanCardColour == kInactiveCardColour){
+    if (chosen == 6) {
+      if (koreanCardColour == kInactiveCardColour) {
         koreanCardColour = kActiveCardColour;
-      }else{
+      } else {
         koreanCardColour = kInactiveCardColour;
       }
     }
-
   }
 
   @override
@@ -72,8 +77,8 @@ class _CuisinePageState extends State<CuisinePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'CUISINE?',
-            style: TextStyle(fontSize: 40),
+          'CUISINE?',
+          style: TextStyle(fontSize: 40),
         ),
       ),
       body: Column(
@@ -91,8 +96,7 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: chineseCardColour,
                   cardChild: IconContentTwo(
                     label: 'CHINESE',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -106,8 +110,7 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: malayCardColour,
                   cardChild: IconContentTwo(
                     label: 'MALAY',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -121,8 +124,7 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: indianCardColour,
                   cardChild: IconContentTwo(
                     label: 'INDIAN',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -136,8 +138,7 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: westernCardColour,
                   cardChild: IconContentTwo(
                     label: 'WESTERN',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -151,8 +152,7 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: japaneseCardColour,
                   cardChild: IconContentTwo(
                     label: 'JAPANESE',
-                  )
-              ),
+                  )),
             ),
           ),
           Expanded(
@@ -166,18 +166,20 @@ class _CuisinePageState extends State<CuisinePage> {
                   colour: koreanCardColour,
                   cardChild: IconContentTwo(
                     label: 'KOREAN',
-                  )
-              ),
+                  )),
             ),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CustomerHomePage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CustomerHomePage(this._onSight)));
+              //MaterialPageRoute(builder: (context) => VegetarianPage()));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'SAVE',
                   style: kBottomButtonTextStyle,
                 ),
@@ -194,8 +196,6 @@ class _CuisinePageState extends State<CuisinePage> {
     );
   }
 }
-
-
 
 /*
 Chinese

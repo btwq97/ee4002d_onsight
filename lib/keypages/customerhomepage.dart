@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
+
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:on_sight/components/iconcontenttwo.dart';
-import 'package:on_sight/components/reuseablecard.dart';
-import 'package:on_sight/setuppages/Vegetarianism.dart';
-import 'package:on_sight/setuppages/HalalOrNot.dart';
-import 'package:on_sight/setuppages/Allergy.dart';
-import 'package:on_sight/setuppages/SpiceLevel.dart';
-import 'package:on_sight/setuppages/Cuisine.dart';
-
-
+import 'package:on_sight/connectivity/bluetooth_main.dart';
+import 'package:on_sight/connectivity/canemodule_main.dart';
+import 'package:on_sight/localisation/localisation_app.dart';
+import 'package:on_sight/uipagecustomer/canteen_map.dart';
 
 class CustomerHomePage extends StatefulWidget {
+  final _onSight;
+
+  CustomerHomePage(this._onSight);
+
   @override
-  _CustomerHomePageState createState() => _CustomerHomePageState();
+  _CustomerHomePageState createState() => _CustomerHomePageState(this._onSight);
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
+  final _onSight;
+
+  _CustomerHomePageState(this._onSight);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'HOME PAGE',
-            style: TextStyle(fontSize: 40),
+          'HOME PAGE',
+          style: TextStyle(fontSize: 40),
         ),
       ),
       body: Column(
@@ -33,14 +34,17 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VegetarianPage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      // builder: (context) => VegetarianPage(this._onSight)
+                      builder: (context) => CanteenTestPage()));
             },
             child: Container(
               child: Center(
-                child: Text (
-                  'PREFERENCES',
+                child: Text(
+                  'LOCATION MAP',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -52,13 +56,15 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => HalalPage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  //MaterialPageRoute(builder: (context) => BluetoothMainPage()));
+                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
             },
             child: Container(
               child: Center(
-                child: Text (
+                child: Text(
                   'CONNECT TO BEACON',
                   style: kBottomButtonTextStyle,
                 ),
@@ -71,14 +77,17 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
           GestureDetector(
-            onTap: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AllergyPage()));
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LocalisationAppPage(
+                          this._onSight))); // TODO: resolve issue
             },
             child: Container(
               child: Center(
-                child: Text (
-                  'CONNECT TO CANE MODULE',
+                child: Text(
+                  'EXPERIMENT 1',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -89,61 +98,25 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               height: kBottomContainerHeight,
             ),
           ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.push(context,
-          //         MaterialPageRoute(builder: (context) => SpiceLevelPage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'SPICINESS PAGE',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     //padding: EdgeInsets.only(bottom: 20.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.push(context,
-          //         MaterialPageRoute(builder: (context) => CuisinePage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'CUISINE CHOICES',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     //padding: EdgeInsets.only(bottom: 20.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
-          // GestureDetector(
-          //   onTap: (){
-          //     Navigator.popUntil(context, ModalRoute.withName('/Halal Page'));
-          //         //MaterialPageRoute(builder: (context) => HalalPage()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text (
-          //         'HALAL/NON-HALAL',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kActiveCardColour,
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CaneModulePage()));
+            },
+            child: Container(
+              child: Center(
+                child: Text(
+                  'EXPERIMENT 2',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              //padding: EdgeInsets.only(bottom: 20.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
         ],
       ),
     );
