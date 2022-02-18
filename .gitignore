@@ -53,3 +53,4 @@ web/
 windows/
 winuwp/
 ios/Runner/Assets.xcassets/*
+android/app/src/main/kotlin/com/example/ee4002d_onsight/
