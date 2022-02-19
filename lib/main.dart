@@ -7,7 +7,7 @@ import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:on_sight/setuppages/HalalOrNot.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 import 'package:on_sight/setuppages/Cuisine.dart';
-import 'package:on_sight/localisation/localisation_app.dart';
+import 'package:on_sight/onsight.dart';
 
 void main() async {
   OnSight onSight = OnSight();
