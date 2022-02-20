@@ -36,6 +36,8 @@ dependencies:
   decimal: ^2.1.0
   sensors_plus: ^1.2.1
   benchmark_harness: ^2.0.0
+  provider: ^6.0.2
+  flutter_reactive_ble: ^5.0.2
 
 
 

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Cuisine.dart';
 
@@ -12,18 +15,22 @@ enum SpicePreference {
 }
 
 class SpiceLevelPage extends StatefulWidget {
-  final _onSight;
+  SpiceLevelPage({Key? key, required this.onSight, required this.ble})
+      : super(key: key);
 
-  SpiceLevelPage(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   @override
-  _SpiceLevelPageState createState() => _SpiceLevelPageState(this._onSight);
+  _SpiceLevelPageState createState() =>
+      _SpiceLevelPageState(onSight: onSight, ble: ble);
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
-  final _onSight;
+  _SpiceLevelPageState({Key? key, required this.onSight, required this.ble});
 
-  _SpiceLevelPageState(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   SpicePreference? level;
 
@@ -90,7 +97,8 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CuisinePage(this._onSight)));
+                      builder: (context) =>
+                          CuisinePage(onSight: onSight, ble: ble)));
             },
             child: Container(
               child: Center(

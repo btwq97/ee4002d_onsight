@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/HalalOrNot.dart';
 
@@ -11,19 +14,21 @@ enum FoodPreference {
 }
 
 class VegetarianPage extends StatefulWidget {
-  final _onSight;
+  VegetarianPage({Key? key, required this.onSight, required this.ble});
 
-  VegetarianPage(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   @override
-  _VegetarianPageState createState() => _VegetarianPageState(this._onSight);
+  _VegetarianPageState createState() =>
+      _VegetarianPageState(onSight: onSight, ble: ble);
 }
 
 class _VegetarianPageState extends State<VegetarianPage> {
-  final _onSight;
+  _VegetarianPageState({Key? key, required this.onSight, required this.ble});
 
-  _VegetarianPageState(this._onSight);
-
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
   FoodPreference? preferred;
 
   @override
@@ -74,7 +79,8 @@ class _VegetarianPageState extends State<VegetarianPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => HalalPage(this._onSight)));
+                      builder: (context) =>
+                          HalalPage(onSight: onSight, ble: ble)));
             },
             child: Container(
               child: Center(

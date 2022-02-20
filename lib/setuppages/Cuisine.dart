@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
 
 class CuisinePage extends StatefulWidget {
-  final _onSight;
+  CuisinePage({Key? key, required this.onSight, required this.ble})
+      : super(key: key);
 
-  CuisinePage(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   @override
-  _CuisinePageState createState() => _CuisinePageState(this._onSight);
+  _CuisinePageState createState() =>
+      _CuisinePageState(onSight: onSight, ble: ble);
 }
 
 class _CuisinePageState extends State<CuisinePage> {
-  final _onSight;
+  _CuisinePageState({required this.onSight, required this.ble});
 
-  _CuisinePageState(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   Color chineseCardColour = kInactiveCardColour;
   Color malayCardColour = kInactiveCardColour;
@@ -174,8 +180,8 @@ class _CuisinePageState extends State<CuisinePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => CustomerHomePage(this._onSight)));
-              //MaterialPageRoute(builder: (context) => VegetarianPage()));
+                      builder: (context) =>
+                          CustomerHomePage(onSight: onSight, ble: ble)));
             },
             child: Container(
               child: Center(

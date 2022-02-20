@@ -1,21 +1,19 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import 'package:on_sight/backend/backend_database.dart';
 import 'package:on_sight/localisation/localisation_localisation.dart';
 import 'package:on_sight/navigations/navigations_navigations.dart';
 import 'package:on_sight/mqtt/mqtt_mqtt.dart';
 
-// TODO:
-// 1) add in functionalities to retrieve magnetometer here.
-// 2) add in functionalities to retrieve uuid and rssi here.
 class OnSight {
+  // ==== Private Methods ====
+  OnSight();
+
   late MyDatabase _db;
   late Localisation _lc;
   late Mqtt _mq;
   late MyShortestPath _sp;
-
-  // ==== Private Methods ====
-  OnSight();
 
   // ==== Public Methods ====
   /// Runs the localisation algorithm
@@ -30,22 +28,26 @@ class OnSight {
     await dotenv.load(fileName: './lib/assets/.env');
 
     // DynamoDB
-    _db = MyDatabase(dotenv.env['awsRegion'].toString(),
-        dotenv.env['awsEndPoint'].toString()); // Only instance of db
-    await _db.init(); // must await for data to be pulled successfully
+    _db = MyDatabase(
+      dotenv.env['awsRegion'].toString(),
+      dotenv.env['awsEndPoint'].toString(),
+    );
+    await _db.init();
 
     // MQTT
     _mq = Mqtt(
-        dotenv.env['mqttHost'].toString(),
-        dotenv.env['mqttUsername'].toString(),
-        dotenv.env['mqttPassword'].toString());
+      dotenv.env['mqttHost'].toString(),
+      dotenv.env['mqttUsername'].toString(),
+      dotenv.env['mqttPassword'].toString(),
+    );
     await _mq.init();
 
     // Localisation
     _lc = Localisation(_db);
 
     // Shortest Path
-    _sp = MyShortestPath(_db); // TODO: edit start and goal
+    _sp = MyShortestPath(_db);
+
     _testShortestPath([400.0, 0.0], [1500.0, 1200.0]);
   }
 
@@ -101,8 +103,19 @@ class OnSight {
   /// None.
   ///
   /// Return:
-  /// knownUuid [List<String>].
-  List<String> getKnownUuid() {
+  /// knownUuid [List<Uuid>].
+  List<Uuid> getKnownUuid() {
     return _db.getKnownUuid();
+  }
+
+  /// Function to retrieve known uuid from database.
+  ///
+  /// Inputs:
+  /// None.
+  ///
+  /// Return:
+  /// knownUuid [List<String>].
+  List<String> getKnownStringUuid() {
+    return _db.getKnownStringUuid();
   }
 }

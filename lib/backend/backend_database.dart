@@ -1,5 +1,6 @@
 import 'package:decimal/decimal.dart';
 import 'package:aws_dynamodb_api/dynamodb-2012-08-10.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:shared_aws_api/shared.dart' as _s;
 
 // Reference: https://github.com/agilord/aws_client/issues/83
@@ -8,7 +9,8 @@ import 'package:shared_aws_api/shared.dart' as _s;
 
 class MyDatabase {
   late DynamoDB _service;
-  final List<String> _knownUuid = [];
+  final List<Uuid> _knownUuid = [];
+  final List<String> _knownStringUuid = [];
   final Map<String, List<double>> _knownBeacons = {};
   late List<Map<String, AttributeValue>> _mapData = [];
 
@@ -47,12 +49,12 @@ class MyDatabase {
         expressionAttributeValues: {':m': AttributeValue(s: venue)});
 
     for (var item in outcome.items ?? []) {
-      String tempUuid = item['uuid'].s;
       // Store uuid in known uuid
-      _knownUuid.add(tempUuid);
+      // _knownUuid.add(Uuid.parse(item['uuid'].s));
+      _knownStringUuid.add(item['uuid'].s);
 
       // Store positions in _knownBeacons
-      _knownBeacons[tempUuid] = [
+      _knownBeacons[item['uuid'].s] = [
         // Float is stored as a Decimal datatype as Python API does not support
         // storing of float numbers.
         (Decimal.parse(item['x_coordinate'].s)).toDouble(),
@@ -101,9 +103,13 @@ class MyDatabase {
   /// 1) None.
   ///
   /// Returns:
-  /// 1) _knownUuid [List<String>]
-  List<String> getKnownUuid() {
+  /// 1) _knownUuid [List<Uuid>]
+  List<Uuid> getKnownUuid() {
     return _knownUuid;
+  }
+
+  List<String> getKnownStringUuid() {
+    return _knownStringUuid;
   }
 
   /// Retrieve all known beacon positions.

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 
@@ -11,18 +14,21 @@ enum FoodPreference {
 }
 
 class HalalPage extends StatefulWidget {
-  final _onSight;
+  HalalPage({Key? key, required this.onSight, required this.ble})
+      : super(key: key);
 
-  HalalPage(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   @override
-  _HalalPageState createState() => _HalalPageState(this._onSight);
+  _HalalPageState createState() => _HalalPageState(onSight: onSight, ble: ble);
 }
 
 class _HalalPageState extends State<HalalPage> {
-  final _onSight;
+  _HalalPageState({required this.onSight, required this.ble});
 
-  _HalalPageState(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   FoodPreference? preferred;
 
@@ -74,7 +80,8 @@ class _HalalPageState extends State<HalalPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AllergyPage(this._onSight)));
+                      builder: (context) =>
+                          AllergyPage(onSight: onSight, ble: ble)));
             },
             child: Container(
               child: Center(

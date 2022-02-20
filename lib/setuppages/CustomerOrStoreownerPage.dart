@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
 
@@ -11,19 +14,22 @@ enum Role {
 }
 
 class CustomerOrStoreOwnerPage extends StatefulWidget {
-  final _onSight;
+  CustomerOrStoreOwnerPage({Key? key, required this.onSight, required this.ble})
+      : super(key: key);
 
-  CustomerOrStoreOwnerPage(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   @override
   _CustomerOrStoreownerPageState createState() =>
-      _CustomerOrStoreownerPageState(this._onSight);
+      _CustomerOrStoreownerPageState(onSight: onSight, ble: ble);
 }
 
 class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
-  final _onSight;
+  _CustomerOrStoreownerPageState({required this.onSight, required this.ble});
 
-  _CustomerOrStoreownerPageState(this._onSight);
+  final OnSight onSight;
+  final FlutterReactiveBle ble;
 
   Role? chosen;
 
@@ -75,7 +81,8 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(this._onSight)));
+                      builder: (context) =>
+                          VegetarianPage(onSight: onSight, ble: ble)));
             },
             child: Container(
               child: Center(

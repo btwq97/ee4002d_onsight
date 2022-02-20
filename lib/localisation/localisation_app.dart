@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -6,9 +5,8 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import 'package:on_sight/constants.dart';
-import 'package:on_sight/onsight.dart';
+import 'package:on_sight/services/onsight.dart';
 
-// 1) add in functionalities to retrieve magnetometer and accelerometer here.
 class LocalisationAppPage extends StatefulWidget {
   final OnSight;
 
@@ -20,7 +18,6 @@ class LocalisationAppPage extends StatefulWidget {
 }
 
 class _LocalisationAppPageState extends State<LocalisationAppPage> {
-  Isolate? isolate;
   late OnSight _onsight;
 
   List<String> knownUuid = [];
@@ -33,9 +30,10 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
   // constructor
   _LocalisationAppPageState({required OnSight onsight}) {
     _onsight = onsight;
-    knownUuid = _onsight.getKnownUuid();
+    knownUuid = _onsight.getKnownStringUuid();
   }
 
+  // TODO: connect scanned results to preform localisation
   void performMqttSend() {
     Map<String, dynamic> rawData = {};
     rawData['rssi'] = {};
@@ -69,13 +67,10 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
   }
 
   @override
-  //This whole widget component to be removed in final run
+  // This whole widget component to be removed in final run
+  // What you can expect here:
+  // Pressing 'WHERE AM I' would trigger bluetooth scan for 5s before it TIMEOUT
   Widget build(BuildContext context) {
-    final accelerometer =
-        _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-    final magnetometer =
-        _magnetometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Localisation'),
@@ -88,7 +83,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('Accelerometer: $accelerometer'),
+                Text('Accelerometer: $_accelerometerValues'),
               ],
             ),
           ),
@@ -97,7 +92,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('Magnetometer: $magnetometer'),
+                Text('Magnetometer: $_magnetometerValues'),
               ],
             ),
           ),
