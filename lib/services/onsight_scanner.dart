@@ -104,35 +104,39 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
   void performLocalisation() {
     // perform localisation when there is a change is rssi/uuid detection
     Map<String, dynamic> rawData = {};
-    Map<String, num> tempRssi = {};
-    tempRssi.addEntries([
-      MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
-      MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
-      MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
-    ]);
-    rawData.addEntries([
-      MapEntry('rssi', tempRssi),
-      MapEntry('accelerometer', _accelerometerValues),
-      MapEntry('magnetometer', _magnetometerValues)
-    ]);
 
-    // TODO: uncomment to pass values to mqtt server
-    // rawData = {
-    //   'rssi': {
-    //     'DC:A6:32:A0:B7:4D': -74.35,
-    //     'DC:A6:32:A0:C8:30': -65.25,
-    //     'DC:A6:32:A0:C9:9E': -65.75
-    //   },
-    //   'accelerometer': [3.22, 5.5, 0.25],
-    //   'magnetometer': [0.215, 9.172, 2.8155],
-    // };
+    // TODO: uncomment to pass actual values to rawData
+    // Map<String, num> tempRssi = {};
+    // tempRssi.addEntries([
+    //   MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
+    //   MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
+    //   MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
+    // ]);
+    // rawData.addEntries([
+    //   MapEntry('rssi', tempRssi),
+    //   MapEntry('accelerometer', _accelerometerValues),
+    //   MapEntry('magnetometer', _magnetometerValues)
+    // ]);
 
-    // _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
+    // TODO: uncomment to pass placeholder values to rawData for testing
+    rawData = {
+      'rssi': {
+        'DC:A6:32:A0:B7:4D': -74.35,
+        'DC:A6:32:A0:C8:30': -65.25,
+        'DC:A6:32:A0:C9:9E': -65.75
+      },
+      'accelerometer': [3.22, 5.5, 0.25],
+      'magnetometer': [0.215, 9.172, 2.8155],
+    };
+
+    // TODO: uncomment to send data to mqtt server
+    _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
 
     _results = _onSight.localisation(rawData);
     _pushState();
 
-    // _onSight.mqttPublish(_results, 'result', topic: 'fyp/test/result');
+    // TODO: uncomment to send data to mqtt server
+    _onSight.mqttPublish(_results, 'result', topic: 'fyp/test/result');
   }
 
   void sortFoundDevices(int knownDeviceIndex, DiscoveredDevice device) {
