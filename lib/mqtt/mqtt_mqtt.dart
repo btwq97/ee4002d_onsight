@@ -17,7 +17,11 @@ class Mqtt {
   /// 1) host [String].
   /// 2) username [String].
   /// 3) password [String].
-  Mqtt(String host, String username, String password) {
+  Mqtt({
+    required String host,
+    required String username,
+    required String password,
+  }) {
     _username = username;
     _password = password;
     _attempt = 0;

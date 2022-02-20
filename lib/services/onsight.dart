@@ -29,24 +29,24 @@ class OnSight {
 
     // DynamoDB
     _db = MyDatabase(
-      dotenv.env['awsRegion'].toString(),
-      dotenv.env['awsEndPoint'].toString(),
+      region: dotenv.env['awsRegion'].toString(),
+      endPointUrl: dotenv.env['awsEndPoint'].toString(),
     );
     await _db.init();
 
     // MQTT
     _mq = Mqtt(
-      dotenv.env['mqttHost'].toString(),
-      dotenv.env['mqttUsername'].toString(),
-      dotenv.env['mqttPassword'].toString(),
+      host: dotenv.env['mqttHost'].toString(),
+      username: dotenv.env['mqttUsername'].toString(),
+      password: dotenv.env['mqttPassword'].toString(),
     );
     await _mq.init();
 
     // Localisation
-    _lc = Localisation(_db);
+    _lc = Localisation(dbObj: _db);
 
     // Shortest Path
-    _sp = MyShortestPath(_db);
+    _sp = MyShortestPath(dbObj: _db);
 
     _testShortestPath([400.0, 0.0], [1500.0, 1200.0]);
   }
@@ -73,7 +73,7 @@ class OnSight {
   ///      }
   ///
   /// Returns:
-  /// 1) None.
+  /// 1) estimated position [<Map<String,dynamic>>]
   Map<String, dynamic> localisation(Map<String, dynamic> rawData) {
     return _lc.localisation(rawData);
   }
@@ -108,14 +108,14 @@ class OnSight {
     return _db.getKnownUuid();
   }
 
-  /// Function to retrieve known uuid from database.
+  /// Function to retrieve known MAC address from database.
   ///
   /// Inputs:
   /// None.
   ///
   /// Return:
   /// knownUuid [List<String>].
-  List<String> getKnownStringUuid() {
-    return _db.getKnownStringUuid();
+  List<String> getKnownMac() {
+    return _db.getKnownMac();
   }
 }

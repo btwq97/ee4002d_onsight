@@ -20,7 +20,7 @@ class LocalisationAppPage extends StatefulWidget {
 class _LocalisationAppPageState extends State<LocalisationAppPage> {
   late OnSight _onsight;
 
-  List<String> knownUuid = [];
+  List<String> knownMac = [];
   Map<String, int> _testBeacons = {};
   Map<String, dynamic> resultsLocalisation = {};
   List<double>? _accelerometerValues;
@@ -30,7 +30,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
   // constructor
   _LocalisationAppPageState({required OnSight onsight}) {
     _onsight = onsight;
-    knownUuid = _onsight.getKnownStringUuid();
+    knownMac = _onsight.getKnownMac();
   }
 
   // TODO: connect scanned results to preform localisation
@@ -179,7 +179,7 @@ class _LocalisationAppPageState extends State<LocalisationAppPage> {
       setState(() {
         for (ScanResult r in results) {
           String currUuid = r.device.id.toString();
-          // if (knownUuid.contains(currUuid)) {
+          // if (knownMac.contains(currUuid)) {
           //   _testBeacons[currUuid] = r.rssi;
           // }
           _testBeacons[currUuid] = r.rssi;

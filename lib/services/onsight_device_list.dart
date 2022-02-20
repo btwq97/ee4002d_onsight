@@ -27,6 +27,7 @@ class DeviceListScreen extends StatelessWidget {
                 discoveredDevices: [],
                 acceleration: [],
                 magnetometer: [],
+                result: {},
                 scanIsInProgress: false,
               ),
           startScan: bleScanner.startScan,
@@ -54,7 +55,7 @@ class _DeviceList extends StatefulWidget {
 }
 
 class _DeviceListState extends State<_DeviceList> {
-  List<Uuid> knownUuid = []; // find uuid of rpi?
+  List<Uuid> knownUuid = [];
 
   @override
   void initState() {
@@ -236,7 +237,7 @@ class _DeviceListState extends State<_DeviceList> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text("est_x = ${widget.scannerState.magnetometer[2]}")
+                Text("est_x = ${widget.scannerState.result['x_coordinate']}")
               ],
             ),
           ),
@@ -244,7 +245,7 @@ class _DeviceListState extends State<_DeviceList> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text("est_y = ${widget.scannerState.magnetometer[2]}")
+                Text("est_y = ${widget.scannerState.result['y_coordinate']}")
               ],
             ),
           ),
@@ -252,7 +253,7 @@ class _DeviceListState extends State<_DeviceList> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                Text("direction = ${widget.scannerState.magnetometer[2]}")
+                Text("direction = ${widget.scannerState.result['direction']}")
               ],
             ),
           ),

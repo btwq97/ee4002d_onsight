@@ -4,7 +4,29 @@ import 'package:on_sight/localisation/localisation_my_numdart.dart';
 import 'package:on_sight/backend/backend_database.dart';
 
 class Localisation {
+  // ==== Private Methods ====
+  /// constructor
+  ///
+  /// Inputs:
+  /// 1) dbObj [MyDatabase] - database object.
+  ///
+  /// Returns:
+  /// 1) None.
+  Localisation({required MyDatabase dbObj}) {
+    _nd = MyNumDart();
+
+    _knownBeacons = dbObj.getKnownBeaconsPositions();
+
+    _circleConditions = {
+      'TANGENTIAL': 1,
+      'OVERLAP': 2,
+      'NO INTERCEPT': 3,
+      'EXACT': 4,
+    };
+  }
+
   late MyNumDart _nd;
+  double BASELINERSSI = -84.0; // TODO: update baseline RSSI as necessary
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -26,27 +48,6 @@ class Localisation {
   /// key: uuid, value: [x_coordinate, y_coordinate]
   Map<String, List<double>> _knownBeacons = {};
 
-  // ==== Private Methods ====
-  /// constructor
-  ///
-  /// Inputs:
-  /// 1) dbObj [MyDatabase] - database object.
-  ///
-  /// Returns:
-  /// 1) None.
-  Localisation(MyDatabase dbObj) {
-    _nd = MyNumDart();
-
-    _knownBeacons = dbObj.getKnownBeaconsPositions();
-
-    _circleConditions = {
-      'TANGENTIAL': 1,
-      'OVERLAP': 2,
-      'NO INTERCEPT': 3,
-      'EXACT': 4
-    };
-  }
-
   /// Create estimate output.
   ///
   /// Inputs:
@@ -55,7 +56,10 @@ class Localisation {
   ///
   /// Returns:
   /// 1) Map of estimated position [Map<String,dynamic>].
-  Map<String, dynamic> _formatEstimateOutput(double xCoor, double yCoor) {
+  Map<String, dynamic> _formatEstimateOutput(
+    double xCoor,
+    double yCoor,
+  ) {
     return {'x_coordinate': xCoor, 'y_coordinate': yCoor};
   }
 
@@ -143,7 +147,9 @@ class Localisation {
   /// Returns:
   /// 1) intercepts [List<double>]
   List<List<double>> _interceptOfTwoCircles(
-      List<double> circleA, List<double> circleB) {
+    List<double> circleA,
+    List<double> circleB,
+  ) {
     double x1 = circleA[0];
     double x2 = circleB[0];
     double y1 = circleA[1];
@@ -155,9 +161,9 @@ class Localisation {
     if (y1 == y2) {
       // solving for x
       double x = (pow(r1, 2).toDouble() -
-          pow(r2, 2).toDouble() -
-          pow(x1, 2).toDouble() +
-          pow(x2, 2).toDouble()) /
+              pow(r2, 2).toDouble() -
+              pow(x1, 2).toDouble() +
+              pow(x2, 2).toDouble()) /
           (-2 * x1 + 2 * x2);
       // solving quadratically for y
       double a = 1;
@@ -177,9 +183,9 @@ class Localisation {
     } else if (x1 == x2) {
       // solving for y
       double y = (pow(r1, 2).toDouble() -
-          pow(r2, 2).toDouble() -
-          pow(y1, 2).toDouble() +
-          pow(y2, 2).toDouble()) /
+              pow(r2, 2).toDouble() -
+              pow(y1, 2).toDouble() +
+              pow(y2, 2).toDouble()) /
           (-2 * y1 + 2 * y2);
       // solving quadratically for x
       double a = 1;
@@ -249,9 +255,11 @@ class Localisation {
   ///                                              radiuses is tangential to each other.
   /// Return:
   /// 1) Status [int] - 'OVERLAP', 'NO INTERCEPT', or 'EXACT'.
-  int _statusOfThirdCircle(List<double> circleC,
-      {List<List<double>>? overlapIntercepts,
-        List<double>? tangentialIntercept}) {
+  int _statusOfThirdCircle(
+    List<double> circleC, {
+    List<List<double>>? overlapIntercepts,
+    List<double>? tangentialIntercept,
+  }) {
     // For overlap
     if ((overlapIntercepts?.isNotEmpty ?? true) &&
         (tangentialIntercept?.isEmpty ?? true)) {
@@ -285,7 +293,7 @@ class Localisation {
       double radiusC = circleC[2];
 
       List<double> vectorAC =
-      _nd.vectorAdd(_nd.negateList(tangentialIntercept!), vectorC);
+          _nd.vectorAdd(_nd.negateList(tangentialIntercept!), vectorC);
       double magnitudeAC = _nd.vectorMagnitude(vectorAC);
 
       if (_nd.isClose(magnitudeAC, radiusC) || (magnitudeAC == radiusC)) {
@@ -360,7 +368,10 @@ class Localisation {
   /// Return:
   /// 1) innerCoor [List<double>].
   List<double> _innerIntersection(
-      List<double> interceptA, List<double> interceptB, List<double> center) {
+    List<double> interceptA,
+    List<double> interceptB,
+    List<double> center,
+  ) {
     List<double> vectorAC = _nd.vectorAdd(_nd.negateList(interceptA), center);
     List<double> vectorBC = _nd.vectorAdd(_nd.negateList(interceptB), center);
 
@@ -385,11 +396,13 @@ class Localisation {
   /// Returns:
   /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}
   Map<String, dynamic> _estimatedInterceptWhenThreeCirclesOverlap(
-      List<List<double>> circle, List<List<double>> interceptA) {
+    List<List<double>> circle,
+    List<List<double>> interceptA,
+  ) {
     List<List<double>> interceptB =
-    _interceptOfTwoCircles(circle[0], circle[2]);
+        _interceptOfTwoCircles(circle[0], circle[2]);
     List<List<double>> interceptC =
-    _interceptOfTwoCircles(circle[1], circle[2]);
+        _interceptOfTwoCircles(circle[1], circle[2]);
 
     List<double> innerA = _innerIntersection(
         interceptA[0], interceptA[1], circle[2].sublist(0, 2));
@@ -417,7 +430,11 @@ class Localisation {
   /// Return:
   /// 1) intercept [List<double>].
   List<double> _coordinateClosestToCircle(
-      double gradient, double constant, double centerX, List<double> circle) {
+    double gradient,
+    double constant,
+    double centerX,
+    List<double> circle,
+  ) {
     double X = circle[0];
     double Y = circle[1];
     double R = circle[2];
@@ -459,7 +476,8 @@ class Localisation {
   /// Return:
   /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
   Map<String, dynamic> _estimatedPositionWhenTwoSmallestCirclesDoNotIntercept(
-      List<List<double>> circles) {
+    List<List<double>> circles,
+  ) {
     List<double> circleA = circles[0];
     List<double> circleB = circles[1];
     List<double> circleC = circles[2];
@@ -478,11 +496,19 @@ class Localisation {
     double constant = y1 - gradient * x1;
 
     // For circleA
-    List<double> closestInterceptA =
-    _coordinateClosestToCircle(gradient, constant, x2, circles[0]);
+    List<double> closestInterceptA = _coordinateClosestToCircle(
+      gradient,
+      constant,
+      x2,
+      circles[0],
+    );
     // For circleB
-    List<double> closestInterceptB =
-    _coordinateClosestToCircle(gradient, constant, x1, circles[1]);
+    List<double> closestInterceptB = _coordinateClosestToCircle(
+      gradient,
+      constant,
+      x1,
+      circles[1],
+    );
     // estimate AB
     List<double> vectorAB = [
       (r1 * closestInterceptB[0] + r2 * closestInterceptA[0]) / (r1 + r2),
@@ -493,8 +519,12 @@ class Localisation {
     constant = y3 - gradient * x3;
 
     // For circleC
-    List<double> closestInterceptC =
-    _coordinateClosestToCircle(gradient, constant, vectorAB[0], circles[2]);
+    List<double> closestInterceptC = _coordinateClosestToCircle(
+      gradient,
+      constant,
+      vectorAB[0],
+      circles[2],
+    );
 
     return _formatEstimateOutput(
         (r2 * closestInterceptC[0] + r3 * vectorAB[0]) / (r2 + r3),
@@ -522,11 +552,12 @@ class Localisation {
   /// Return:
   /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
   Map<String, dynamic>
-  _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
-      List<List<double>> intercepts,
-      double radiusA,
-      double radiusB,
-      List<double> circleC) {
+      _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
+    List<List<double>> intercepts,
+    double radiusA,
+    double radiusB,
+    List<double> circleC,
+  ) {
     List<double> interceptA = intercepts[0];
     List<double> interceptB = intercepts[1];
     double x3 = circleC[0];
@@ -543,8 +574,12 @@ class Localisation {
     double gradient = (vectorAB[1] - y3) / (vectorAB[0] - x3);
     double constant = y3 - gradient * x3;
 
-    List<double> closestCoord =
-    _coordinateClosestToCircle(gradient, constant, vectorAB[0], circleC);
+    List<double> closestCoord = _coordinateClosestToCircle(
+      gradient,
+      constant,
+      vectorAB[0],
+      circleC,
+    );
 
     return _formatEstimateOutput(
         (radiusB * closestCoord[0] + r3 * vectorAB[0]) / (radiusB + r3),
@@ -560,7 +595,9 @@ class Localisation {
   /// Returns:
   /// 1) intercept of circle A and B [List<double>].
   List<double> _interceptOfTwoTangentialCircles(
-      List<double> circleA, List<double> circleB) {
+    List<double> circleA,
+    List<double> circleB,
+  ) {
     double radiusA = circleA[2];
     double radiusB = circleB[2];
 
@@ -582,7 +619,10 @@ class Localisation {
   /// Return:
   /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
   Map<String, dynamic> _estimatedPositionWhenSmallestTwoCirclesAreTangential(
-      List<double> interceptA, double radiusA, List<double> circleC) {
+    List<double> interceptA,
+    double radiusA,
+    List<double> circleC,
+  ) {
     double x3 = circleC[0];
     double y3 = circleC[1];
     double r3 = circleC[2];
@@ -592,7 +632,7 @@ class Localisation {
     double constant = y3 - gradient * x3;
 
     List<double> closestCoord =
-    _coordinateClosestToCircle(gradient, constant, interceptA[0], circleC);
+        _coordinateClosestToCircle(gradient, constant, interceptA[0], circleC);
 
     return _formatEstimateOutput(
         (radiusA * closestCoord[0] + r3 * interceptA[0]) / (radiusA + r3),
@@ -620,7 +660,8 @@ class Localisation {
   /// Returns:
   /// 1) estDistance [double] - estimated diatances converted from RSSI in meters.
   double _rssiToDistance(double rssi) {
-    double RSSId0 = (-84.0).abs(); // #TODO: maybe can modify this in RUNTIME.
+    double RSSId0 =
+        (BASELINERSSI).abs(); // #TODO: maybe can modify this in RUNTIME.
     int n = 3;
     int d0 = 1;
     int x = 0;
@@ -651,7 +692,8 @@ class Localisation {
   /// Returns:
   /// 1) estRssi [double] - estimated diatances converted from RSSI.
   double _distanceToRssi(double distance) {
-    double RSSId0 = (-84.0).abs(); // #TODO: maybe can modify this in RUNTIME.
+    double RSSId0 =
+        (BASELINERSSI).abs(); // #TODO: maybe can modify this in RUNTIME.
     int n = 3;
     int d0 = 1;
     int x = 0;
@@ -675,14 +717,16 @@ class Localisation {
 
     // Case: circles with the two smallest radiuses overlaps
     int statusOfTwoSmallestCircles =
-    _statusOfTwoCircles(circles[0], circles[1]);
+        _statusOfTwoCircles(circles[0], circles[1]);
     if (statusOfTwoSmallestCircles == (_circleConditions['OVERLAP'] ?? 2)) {
-      List<List<double>> interceptA =
-      _interceptOfTwoCircles(circles[0], circles[1]);
+      List<List<double>> interceptA = _interceptOfTwoCircles(
+        circles[0],
+        circles[1],
+      );
 
       // Case: last circle overlaps exactly with interceptA
       int statusOfLastCircles =
-      _statusOfThirdCircle(circles[2], overlapIntercepts: interceptA);
+          _statusOfThirdCircle(circles[2], overlapIntercepts: interceptA);
       if (statusOfLastCircles == (_circleConditions['EXACT'] ?? 4)) {
         print('Performing Case 1: Three circles intercept exactly.');
         estimate = _exactInterceptWithThreeCircles(circles);
@@ -690,15 +734,21 @@ class Localisation {
       // Case: last circle overlaps with the other two smaller circles
       else if (statusOfLastCircles == (_circleConditions['OVERLAP'] ?? 2)) {
         print('Performing Case 2: Three circles overlaps each other.');
-        estimate =
-            _estimatedInterceptWhenThreeCirclesOverlap(circles, interceptA);
+        estimate = _estimatedInterceptWhenThreeCirclesOverlap(
+          circles,
+          interceptA,
+        );
       }
       // Case: last circle do not overlap or intercept at all
       else {
         print(
             'Performing Case 3: Only the two smallest circles intercept but the last do not.');
         estimate = _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
-            interceptA, circles[0][2], circles[1][2], circles[2]);
+          interceptA,
+          circles[0][2],
+          circles[1][2],
+          circles[2],
+        );
       }
     }
 
@@ -715,10 +765,14 @@ class Localisation {
       print(
           'Performing Case 5: Two smallest circles are tangential to each other.');
 
-      List<double> interceptA =
-      _interceptOfTwoTangentialCircles(circles[0], circles[1]);
-      int statusOfLastCircle =
-      _statusOfThirdCircle(circles[2], tangentialIntercept: interceptA);
+      List<double> interceptA = _interceptOfTwoTangentialCircles(
+        circles[0],
+        circles[1],
+      );
+      int statusOfLastCircle = _statusOfThirdCircle(
+        circles[2],
+        tangentialIntercept: interceptA,
+      );
 
       // Case: Circles with two smallest circles are tangential to each other
       //       and the last circle intercept exactly at interceptA.
@@ -730,7 +784,10 @@ class Localisation {
       //       and the last circle do not intercept at interceptA.
       else {
         estimate = _estimatedPositionWhenSmallestTwoCirclesAreTangential(
-            interceptA, circles[0][2], circles[2]);
+          interceptA,
+          circles[0][2],
+          circles[2],
+        );
       }
     }
     return estimate;
@@ -748,22 +805,17 @@ class Localisation {
   ///                                   'direction':direction}
   Map<String, dynamic> localisation(Map<String, dynamic> rawData) {
     Map<String, dynamic> result = {};
+    Map<String, double> distances = {};
 
     rawData.forEach((key, value) {
       if (key == 'rssi') {
-        Map<String, double> distances = {};
         rawData[key].forEach((uuid, rssi) {
-          distances[uuid] = _rssiToDistance(rssi);
+          distances[uuid] = _rssiToDistance(rssi.toDouble());
+          // 2) convert map to a format storable in a database.
+          // 3) check the current location of the map based on result.
+          // 4) determine if location on map is inline with the shortest path.
+          // 5) if yes, continue. If no, re-route?
         });
-        // finding estimated positions
-        result = _trilateration(distances);
-
-        // TODO:
-        // 1) A*/Dijkstra algorithm
-        // 2) convert map to a format storable in a database.
-        // 3) check the current location of the map based on result.
-        // 4) determine if location on map is inline with the shortest path.
-        // 5) if yes, continue. If no, re-route?
       }
       // TODO: add in additional features
       else if (key == 'magnetometer') {
@@ -773,6 +825,8 @@ class Localisation {
         // Do nothing
       }
     });
+
+    result.addEntries(_trilateration(distances).entries);
 
     return result;
   }

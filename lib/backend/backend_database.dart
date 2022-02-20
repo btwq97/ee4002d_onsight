@@ -1,4 +1,3 @@
-import 'package:decimal/decimal.dart';
 import 'package:aws_dynamodb_api/dynamodb-2012-08-10.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:shared_aws_api/shared.dart' as _s;
@@ -10,7 +9,7 @@ import 'package:shared_aws_api/shared.dart' as _s;
 class MyDatabase {
   late DynamoDB _service;
   final List<Uuid> _knownUuid = [];
-  final List<String> _knownStringUuid = [];
+  final List<String> _knownMac = [];
   final Map<String, List<double>> _knownBeacons = {};
   late List<Map<String, AttributeValue>> _mapData = [];
 
@@ -23,7 +22,7 @@ class MyDatabase {
   ///
   /// Returns:
   /// 1) None.
-  MyDatabase(String region, String endPointUrl) {
+  MyDatabase({required String region, required String endPointUrl}) {
     _service = DynamoDB(
         region: region,
         endpointUrl: endPointUrl,
@@ -41,7 +40,10 @@ class MyDatabase {
   /// Returns:
   /// 1) None
   Future _queryBeaconData(
-      String tableName, String primaryKey, String venue) async {
+    String tableName,
+    String primaryKey,
+    String venue,
+  ) async {
     QueryOutput outcome = await _service.query(
         returnConsumedCapacity: ReturnConsumedCapacity.total,
         tableName: tableName,
@@ -49,17 +51,21 @@ class MyDatabase {
         expressionAttributeValues: {':m': AttributeValue(s: venue)});
 
     for (var item in outcome.items ?? []) {
-      // Store uuid in known uuid
-      // _knownUuid.add(Uuid.parse(item['uuid'].s));
-      _knownStringUuid.add(item['uuid'].s);
+      // Store known UUID
+      _knownUuid.add(Uuid.parse(item['uuid'].s));
+
+      // Store known MAC address
+      String tempMac = item['mac'].s;
+      _knownMac.add(tempMac);
 
       // Store positions in _knownBeacons
-      _knownBeacons[item['uuid'].s] = [
-        // Float is stored as a Decimal datatype as Python API does not support
-        // storing of float numbers.
-        (Decimal.parse(item['x_coordinate'].s)).toDouble(),
-        (Decimal.parse(item['y_coordinate'].s)).toDouble()
-      ];
+      _knownBeacons.addEntries([
+        MapEntry(tempMac, [
+          // convert string to double
+          double.parse(item['x_coordinate'].n),
+          double.parse(item['y_coordinate'].n),
+        ])
+      ]);
     }
   }
 
@@ -73,7 +79,10 @@ class MyDatabase {
   /// Returns:
   /// 1) None
   Future _queryMapData(
-      String tableName, String primaryKey, String venue) async {
+    String tableName,
+    String primaryKey,
+    String venue,
+  ) async {
     QueryOutput outcome = await _service.query(
         returnConsumedCapacity: ReturnConsumedCapacity.total,
         tableName: tableName,
@@ -108,8 +117,8 @@ class MyDatabase {
     return _knownUuid;
   }
 
-  List<String> getKnownStringUuid() {
-    return _knownStringUuid;
+  List<String> getKnownMac() {
+    return _knownMac;
   }
 
   /// Retrieve all known beacon positions.

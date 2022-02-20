@@ -20,7 +20,7 @@ class GeneralizedMaze implements Graph<GeneralizedTile> {
 
   GeneralizedMaze(String map) {
     final Maze maze =
-    Maze.parse(map); // Lazy. Outsource parsing to the original.
+        Maze.parse(map); // Lazy. Outsource parsing to the original.
 
     numRows = maze.tiles.length;
     numColumns = maze.tiles[0].length;
@@ -60,11 +60,11 @@ class GeneralizedMaze implements Graph<GeneralizedTile> {
   Iterable<GeneralizedTile> getNeighboursOf(GeneralizedTile currentTile) {
     final result = Queue<GeneralizedTile>();
     for (var newX = math.max(0, currentTile.x - 1);
-    newX <= math.min(numColumns - 1, currentTile.x + 1);
-    newX++) {
+        newX <= math.min(numColumns - 1, currentTile.x + 1);
+        newX++) {
       for (var newY = math.max(0, currentTile.y - 1);
-      newY <= math.min(numRows - 1, currentTile.y + 1);
-      newY++) {
+          newY <= math.min(numRows - 1, currentTile.y + 1);
+          newY++) {
         result.add(tiles[newY][newX]);
       }
     }
@@ -83,12 +83,12 @@ class MyShortestPath {
   /// and convert then into tiles to be used by the AStar algorithm.
   ///
   /// Inputs:
-  /// 1) db [MyDatabase] - database object.
+  /// 1) dbObj [MyDatabase] - database object.
   ///
   /// Return:
   /// 1) None.
-  MyShortestPath(MyDatabase db) {
-    _mapData = db.getMapData();
+  MyShortestPath({required MyDatabase dbObj}) {
+    _mapData = dbObj.getMapData();
   }
 
   // ==== Private Methods ====
@@ -111,9 +111,9 @@ class MyShortestPath {
 
     // using linear O(1) array search for a 2d map
     Map<String, AttributeValue> startCell =
-    _mapData[(start[1] ~/ 200) * 8 + start[0] ~/ 200];
+        _mapData[(start[1] ~/ 200) * 8 + start[0] ~/ 200];
     Map<String, AttributeValue> goalCell =
-    _mapData[(goal[1] ~/ 200) * 8 + goal[0] ~/ 200];
+        _mapData[(goal[1] ~/ 200) * 8 + goal[0] ~/ 200];
 
     _mapData.forEach((cell) {
       if (cell['is_obstacle']!.boolValue == true) {
@@ -125,7 +125,7 @@ class MyShortestPath {
             temp += 'g'; // if cell is a landmark, and it is the end goal
           } else {
             temp +=
-            'x'; // all other landmarks are treated as obstacles for simplicity's sake.
+                'x'; // all other landmarks are treated as obstacles for simplicity's sake.
           }
         }
       } else {

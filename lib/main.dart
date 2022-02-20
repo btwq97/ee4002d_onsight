@@ -27,6 +27,7 @@ void main() async {
   final _scanner = ServicesScanner(
     ble: _ble,
     logMessage: _bleLogger.addToLog,
+    onSight: onSight,
   );
   final _monitor = BleStatusMonitor(_ble);
   final _connector = BleDeviceConnector(
@@ -56,6 +57,7 @@ void main() async {
             discoveredDevices: [],
             acceleration: [],
             magnetometer: [],
+            result: {},
             scanIsInProgress: false,
           ),
         ),
