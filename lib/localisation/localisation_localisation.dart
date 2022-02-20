@@ -45,7 +45,7 @@ class Localisation {
   Map<String, int> _circleConditions = {};
 
   /// Known locations of beacons
-  /// key: uuid, value: [x_coordinate, y_coordinate]
+  /// key: macAddr, value: [x_coordinate, y_coordinate]
   Map<String, List<double>> _knownBeacons = {};
 
   /// Create estimate output.
@@ -67,7 +67,7 @@ class Localisation {
   /// to List.
   ///
   /// Input:
-  /// 1) inputMap [Map<String, double>] - {key:uuid, value:distances in meters}.
+  /// 1) inputMap [Map<String, double>] - {key:macAddr, value:distances in meters}.
   ///
   /// Returns:
   /// 1) circles [List<List<double>>] (ascending order by radius).
@@ -75,22 +75,22 @@ class Localisation {
   List<List<double>> _mapToList(Map<String, double> inputMap) {
     int metersToCentimeters = 100;
     double x1, x2, x3, y1, y2, y3, r1, r2, r3;
-    List<String> uuid = [];
+    List<String> macAddr = [];
 
     inputMap.forEach((key, value) {
-      uuid.add(key);
+      macAddr.add(key);
     });
 
-    x1 = _knownBeacons[uuid[0]]![0]; // Note: ! is for null checks
-    y1 = _knownBeacons[uuid[0]]![1];
-    x2 = _knownBeacons[uuid[1]]![0];
-    y2 = _knownBeacons[uuid[1]]![1];
-    x3 = _knownBeacons[uuid[2]]![0];
-    y3 = _knownBeacons[uuid[2]]![1];
+    x1 = _knownBeacons[macAddr[0]]![0]; // Note: ! is for null checks
+    y1 = _knownBeacons[macAddr[0]]![1];
+    x2 = _knownBeacons[macAddr[1]]![0];
+    y2 = _knownBeacons[macAddr[1]]![1];
+    x3 = _knownBeacons[macAddr[2]]![0];
+    y3 = _knownBeacons[macAddr[2]]![1];
 
-    r1 = inputMap[uuid[0]]! * metersToCentimeters;
-    r2 = inputMap[uuid[1]]! * metersToCentimeters;
-    r3 = inputMap[uuid[2]]! * metersToCentimeters;
+    r1 = inputMap[macAddr[0]]! * metersToCentimeters;
+    r2 = inputMap[macAddr[1]]! * metersToCentimeters;
+    r3 = inputMap[macAddr[2]]! * metersToCentimeters;
 
     List<List<double>> circles = [
       [x1, y1, r1],
@@ -707,7 +707,7 @@ class Localisation {
   /// Trilateration
   ///
   /// Input:
-  /// 1) distances [Map<String,double>] - {key:uuid, value: radius distances in meters}.
+  /// 1) distances [Map<String,double>] - {key:macAddr, value: radius distances in meters}.
   ///
   /// Returns:
   /// 1) estimate [Map<String, dynamic>] - {'x_coordinate':<>, 'y_coordinate':<>}
@@ -809,8 +809,8 @@ class Localisation {
 
     rawData.forEach((key, value) {
       if (key == 'rssi') {
-        rawData[key].forEach((uuid, rssi) {
-          distances[uuid] = _rssiToDistance(rssi.toDouble());
+        rawData[key].forEach((macAddr, rssi) {
+          distances[macAddr] = _rssiToDistance(rssi.toDouble());
           // 2) convert map to a format storable in a database.
           // 3) check the current location of the map based on result.
           // 4) determine if location on map is inline with the shortest path.

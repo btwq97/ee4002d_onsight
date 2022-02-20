@@ -60,12 +60,12 @@ class Mqtt {
       // start of string builder
       result = '{"mode":"$mode","attempt":$_attempt,"rssi":{';
       int count = 0; // counter to track key items
-      temp.forEach((uuid, rssi) {
+      temp.forEach((mac, rssi) {
         if (count != 2) {
-          result += '"${uuid.toString()}":$rssi,';
+          result += '"$mac":$rssi,';
         } else {
           // end off with } to close the json string
-          result += '"${uuid.toString()}":$rssi}';
+          result += '"$mac":$rssi}';
         }
         count++;
       });
@@ -78,10 +78,10 @@ class Mqtt {
           // skip direction
         } else {
           if (count != 1) {
-            result += '"$coor":$pos,';
-          } else {
             // end off with } to close the json string
             result += '"$coor":$pos}';
+          } else {
+            result += '"$coor":$pos,';
           }
         }
         count++;

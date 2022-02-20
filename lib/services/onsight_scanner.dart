@@ -115,10 +115,24 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
       MapEntry('accelerometer', _accelerometerValues),
       MapEntry('magnetometer', _magnetometerValues)
     ]);
-    print('rawData = $rawData');
-    _results = _onSight.localisation(rawData);
 
+    // TODO: uncomment to pass values to mqtt server
+    // rawData = {
+    //   'rssi': {
+    //     'DC:A6:32:A0:B7:4D': -74.35,
+    //     'DC:A6:32:A0:C8:30': -65.25,
+    //     'DC:A6:32:A0:C9:9E': -65.75
+    //   },
+    //   'accelerometer': [3.22, 5.5, 0.25],
+    //   'magnetometer': [0.215, 9.172, 2.8155],
+    // };
+
+    // _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
+
+    _results = _onSight.localisation(rawData);
     _pushState();
+
+    // _onSight.mqttPublish(_results, 'result', topic: 'fyp/test/result');
   }
 
   void sortFoundDevices(int knownDeviceIndex, DiscoveredDevice device) {
