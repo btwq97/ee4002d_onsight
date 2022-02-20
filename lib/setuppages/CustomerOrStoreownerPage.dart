@@ -14,19 +14,28 @@ enum Role {
 }
 
 class CustomerOrStoreOwnerPage extends StatefulWidget {
-  CustomerOrStoreOwnerPage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  CustomerOrStoreOwnerPage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
   _CustomerOrStoreownerPageState createState() =>
-      _CustomerOrStoreownerPageState(onSight: onSight, ble: ble);
+      _CustomerOrStoreownerPageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
-  _CustomerOrStoreownerPageState({required this.onSight, required this.ble});
+  _CustomerOrStoreownerPageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -81,8 +90,10 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          VegetarianPage(onSight: onSight, ble: ble)));
+                      builder: (context) => VegetarianPage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

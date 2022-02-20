@@ -8,19 +8,27 @@ import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 
 class AllergyPage extends StatefulWidget {
-  AllergyPage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  AllergyPage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _AllergyPageState createState() =>
-      _AllergyPageState(onSight: onSight, ble: ble);
+  _AllergyPageState createState() => _AllergyPageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _AllergyPageState extends State<AllergyPage> {
-  _AllergyPageState({required this.onSight, required this.ble});
+  _AllergyPageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -136,8 +144,10 @@ class _AllergyPageState extends State<AllergyPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          SpiceLevelPage(onSight: onSight, ble: ble)));
+                      builder: (context) => SpiceLevelPage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

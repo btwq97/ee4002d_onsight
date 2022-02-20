@@ -10,19 +10,27 @@ import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
 
 class CustomerHomePage extends StatefulWidget {
-  CustomerHomePage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  CustomerHomePage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _CustomerHomePageState createState() =>
-      _CustomerHomePageState(onSight: onSight, ble: ble);
+  _CustomerHomePageState createState() => _CustomerHomePageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
-  _CustomerHomePageState({required this.onSight, required this.ble});
+  _CustomerHomePageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -82,7 +90,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => LocalisationAppPage(
-                          this.onSight))); // TODO: resolve issue
+                            this.onSight,
+                          ))); // TODO: resolve issue
             },
             child: Container(
               child: Center(
@@ -120,8 +129,10 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          DeviceListScreen(onSight: this.onSight, ble: ble)));
+                      builder: (context) => DeviceListScreen(
+                            onSight: this.onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

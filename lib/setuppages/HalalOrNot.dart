@@ -14,22 +14,30 @@ enum FoodPreference {
 }
 
 class HalalPage extends StatefulWidget {
-  HalalPage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  HalalPage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _HalalPageState createState() => _HalalPageState(onSight: onSight, ble: ble);
+  _HalalPageState createState() => _HalalPageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _HalalPageState extends State<HalalPage> {
-  _HalalPageState({required this.onSight, required this.ble});
+  _HalalPageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
-
   FoodPreference? preferred;
 
   @override
@@ -80,8 +88,10 @@ class _HalalPageState extends State<HalalPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          AllergyPage(onSight: onSight, ble: ble)));
+                      builder: (context) => AllergyPage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

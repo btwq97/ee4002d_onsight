@@ -14,18 +14,27 @@ enum FoodPreference {
 }
 
 class VegetarianPage extends StatefulWidget {
-  VegetarianPage({Key? key, required this.onSight, required this.ble});
+  VegetarianPage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _VegetarianPageState createState() =>
-      _VegetarianPageState(onSight: onSight, ble: ble);
+  _VegetarianPageState createState() => _VegetarianPageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _VegetarianPageState extends State<VegetarianPage> {
-  _VegetarianPageState({Key? key, required this.onSight, required this.ble});
+  _VegetarianPageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -79,8 +88,10 @@ class _VegetarianPageState extends State<VegetarianPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          HalalPage(onSight: onSight, ble: ble)));
+                      builder: (context) => HalalPage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

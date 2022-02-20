@@ -8,19 +8,27 @@ import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
 
 class CuisinePage extends StatefulWidget {
-  CuisinePage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  CuisinePage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _CuisinePageState createState() =>
-      _CuisinePageState(onSight: onSight, ble: ble);
+  _CuisinePageState createState() => _CuisinePageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _CuisinePageState extends State<CuisinePage> {
-  _CuisinePageState({required this.onSight, required this.ble});
+  _CuisinePageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -180,8 +188,10 @@ class _CuisinePageState extends State<CuisinePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          CustomerHomePage(onSight: onSight, ble: ble)));
+                      builder: (context) => CustomerHomePage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(

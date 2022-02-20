@@ -24,10 +24,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final _bleLogger = BleLogger();
   final _ble = FlutterReactiveBle();
-  final _scanner = BleScanner(
+  final _scanner = ServicesScanner(
     ble: _ble,
     logMessage: _bleLogger.addToLog,
-    onSight: onSight,
   );
   final _monitor = BleStatusMonitor(_ble);
   final _connector = BleDeviceConnector(
@@ -51,10 +50,12 @@ void main() async {
         Provider.value(value: _connector),
         Provider.value(value: _serviceDiscoverer),
         Provider.value(value: _bleLogger),
-        StreamProvider<BleScannerState?>(
+        StreamProvider<ServicesScannerState?>(
           create: (_) => _scanner.state,
-          initialData: const BleScannerState(
+          initialData: const ServicesScannerState(
             discoveredDevices: [],
+            acceleration: [],
+            magnetometer: [],
             scanIsInProgress: false,
           ),
         ),
@@ -75,7 +76,10 @@ void main() async {
         title: 'Flutter Safeguard Check example',
         color: _themeColor,
         theme: ThemeData(primarySwatch: _themeColor),
-        home: HomePage(onSight: onSight, ble: _ble),
+        home: HomePage(
+          onSight: onSight,
+          ble: _ble,
+        ),
       ),
     ),
   );

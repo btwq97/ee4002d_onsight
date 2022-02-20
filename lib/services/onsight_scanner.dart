@@ -1,41 +1,42 @@
-import 'dart:async';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:meta/meta.dart';
-
+import 'dart:async';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
-import 'package:on_sight/services/onsight.dart';
 
-// TODO: find a way to integrate acc and mag here
-
-class BleScanner implements ReactiveState<BleScannerState> {
-  BleScanner({
+class ServicesScanner implements ReactiveState<ServicesScannerState> {
+  ServicesScanner({
     required FlutterReactiveBle ble,
     required Function(String message) logMessage,
-    required OnSight onSight,
   })  : _ble = ble,
-        _logMessage = logMessage,
-        _onSight = onSight;
+        _logMessage = logMessage;
 
   final FlutterReactiveBle _ble;
-  final OnSight _onSight;
   final void Function(String message) _logMessage;
-  final StreamController<BleScannerState> _stateStreamController =
+  final StreamController<ServicesScannerState> _bleStreamController =
       StreamController();
 
   // for subscriptions
-  StreamSubscription? _subscription;
+  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   final _bleDevices = <DiscoveredDevice>[];
+  List<double> _accelerometerValues = [];
+  List<double> _magnetometerValues = [];
 
   @override
-  Stream<BleScannerState> get state => _stateStreamController.stream;
+  Stream<ServicesScannerState> get state => _bleStreamController.stream;
 
-  void startScan(List<Uuid> serviceIds, List<double> acc, List<double> mag) {
+  void startScan(List<Uuid> serviceIds) {
+    // reset all subscriptions
     _logMessage('Start ble discovery');
     _bleDevices.clear();
-    _subscription?.cancel();
-    _subscription =
-        _ble.scanForDevices(withServices: serviceIds).listen((device) {
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+
+    // for bluetooth
+    _streamSubscriptions
+        .add(_ble.scanForDevices(withServices: serviceIds).listen((device) {
       final knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
       // if prev value is found
       if (knownDeviceIndex >= 0) {
@@ -47,42 +48,74 @@ class BleScanner implements ReactiveState<BleScannerState> {
       _bleDevices.sort((a, b) => b.rssi.compareTo(a.rssi));
       // update ScannerState
       _pushState();
+    }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
 
-      // perform localisation
-      print("ACC = $acc");
-      print("MAG = $mag");
-    }, onError: (Object e) => _logMessage('Device scan fails with error: $e'));
+    // for acc
+    _streamSubscriptions.add(
+      accelerometerEvents.listen(
+        (AccelerometerEvent event) {
+          _accelerometerValues = <double>[
+            event.x,
+            event.y,
+            event.z,
+          ];
+          _pushState();
+        },
+      ),
+    );
+
+    // for mag
+    _streamSubscriptions.add(
+      magnetometerEvents.listen(
+        (MagnetometerEvent event) {
+          _magnetometerValues = <double>[
+            event.x,
+            event.y,
+            event.z,
+          ];
+          _pushState();
+        },
+      ),
+    );
+
     _pushState();
   }
 
   void _pushState() {
-    _stateStreamController.add(
-      BleScannerState(
+    _bleStreamController.add(
+      ServicesScannerState(
           discoveredDevices: _bleDevices,
-          scanIsInProgress: _subscription != null),
+          acceleration: _accelerometerValues,
+          magnetometer: _magnetometerValues,
+          scanIsInProgress: _streamSubscriptions.isNotEmpty),
     );
   }
 
   Future<void> stopScan() async {
     _logMessage('Stop ble discovery');
-
-    await _subscription?.cancel();
-    _subscription = null;
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+    _streamSubscriptions.clear();
     _pushState();
   }
 
   Future<void> dispose() async {
-    await _stateStreamController.close();
+    await _bleStreamController.close();
   }
 }
 
 @immutable
-class BleScannerState {
-  const BleScannerState({
-    required this.discoveredDevices,
-    required this.scanIsInProgress,
+class ServicesScannerState {
+  const ServicesScannerState({
+    required this.discoveredDevices, // bluetooth devices
+    required this.acceleration, //acceleration value
+    required this.magnetometer, // magneto value
+    required this.scanIsInProgress, // checks if scanning is in progress
   });
 
   final List<DiscoveredDevice> discoveredDevices;
+  final List<double> acceleration;
+  final List<double> magnetometer;
   final bool scanIsInProgress;
 }

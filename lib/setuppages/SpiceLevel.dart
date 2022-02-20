@@ -15,23 +15,30 @@ enum SpicePreference {
 }
 
 class SpiceLevelPage extends StatefulWidget {
-  SpiceLevelPage({Key? key, required this.onSight, required this.ble})
-      : super(key: key);
+  SpiceLevelPage({
+    Key? key,
+    required this.onSight,
+    required this.ble,
+  }) : super(key: key);
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
 
   @override
-  _SpiceLevelPageState createState() =>
-      _SpiceLevelPageState(onSight: onSight, ble: ble);
+  _SpiceLevelPageState createState() => _SpiceLevelPageState(
+        onSight: onSight,
+        ble: ble,
+      );
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
-  _SpiceLevelPageState({Key? key, required this.onSight, required this.ble});
+  _SpiceLevelPageState({
+    required this.onSight,
+    required this.ble,
+  });
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
-
   SpicePreference? level;
 
   @override
@@ -97,8 +104,10 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          CuisinePage(onSight: onSight, ble: ble)));
+                      builder: (context) => CuisinePage(
+                            onSight: onSight,
+                            ble: ble,
+                          )));
             },
             child: Container(
               child: Center(
