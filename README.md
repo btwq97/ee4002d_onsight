@@ -1,6 +1,6 @@
 # on_sight
 
-EE4002D App Component YQ
+EE4002D App Component
 
 # Configuring the application
 
