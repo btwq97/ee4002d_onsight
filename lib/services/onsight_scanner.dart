@@ -13,10 +13,13 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     required OnSight onSight,
   })  : _ble = ble,
         _logMessage = logMessage,
-        _onSight = onSight;
+        _onSight = onSight {
+    _knownDevices = _onSight.getKnownMac();
+  }
 
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
+  List<String> _knownDevices = [];
   final void Function(String message) _logMessage;
   final StreamController<ServicesScannerState> _bleStreamController =
       StreamController();
@@ -28,6 +31,8 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
   List<SensorCharacteristics> _accelerometerValues = [];
   List<SensorCharacteristics> _magnetometerValues = [];
   List<SensorCharacteristics> _results = [];
+  Map<String, num> _tempRssi =
+      {}; // TODO: uncomment to pass actual values to rawData
 
   @override
   Stream<ServicesScannerState> get state => _bleStreamController.stream;
@@ -41,8 +46,12 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     }
 
     // for bluetooth
-    _streamSubscriptions
-        .add(_ble.scanForDevices(withServices: serviceIds).listen((device) {
+    _streamSubscriptions.add(_ble
+        .scanForDevices(
+      withServices: serviceIds,
+      scanMode: ScanMode.lowPower,
+    )
+        .listen((device) {
       int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
       sortFoundDevices(knownDeviceIndex, device);
       performLocalisation();
@@ -105,46 +114,65 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     // perform localisation when there is a change is rssi/uuid detection
     Map<String, dynamic> rawData = {};
 
-    // TODO: uncomment to pass actual values to rawData
-    // Map<String, num> tempRssi = {};
-    // tempRssi.addEntries([
-    //   MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
-    //   MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
-    //   MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
-    // ]);
-    // rawData.addEntries([
-    //   MapEntry('rssi', tempRssi),
-    //   MapEntry('accelerometer', _accelerometerValues),
-    //   MapEntry('magnetometer', _magnetometerValues)
-    // ]);
+    for (int i = 0; i < _bleDevices.length; i++) {
+      if (_knownDevices.contains(_bleDevices[i].id)) {
+        _tempRssi.addEntries([
+          MapEntry(_bleDevices[i].id.toString(), _bleDevices[i].rssi.toInt()),
+        ]);
+      }
 
-    // TODO: uncomment to pass placeholder values to rawData for testing
-    rawData = {
-      'rssi': {
-        'DC:A6:32:A0:B7:4D': -74.35,
-        'DC:A6:32:A0:C8:30': -65.25,
-        'DC:A6:32:A0:C9:9E': -65.75
-      },
-      'accelerometer': [3.22, 5.5, 0.25],
-      'magnetometer': [0.215, 9.172, 2.8155],
-    };
+      if (_tempRssi.length == 3) {
+        List<double> tempAcc = [
+          _accelerometerValues[0].value.toDouble(),
+          _accelerometerValues[1].value.toDouble(),
+          _accelerometerValues[2].value.toDouble(),
+        ];
+        List<double> tempMag = [
+          _magnetometerValues[0].value.toDouble(),
+          _magnetometerValues[1].value.toDouble(),
+          _magnetometerValues[2].value.toDouble(),
+        ];
+        rawData.addEntries([
+          MapEntry('rssi', _tempRssi),
+          MapEntry('accelerometer', tempAcc),
+          MapEntry('magnetometer', tempMag),
+        ]);
 
-    // TODO: uncomment to send data to mqtt server
-    _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
+        // TODO: uncomment to pass placeholder values to rawData for testing
+        // rawData = {
+        //   'rssi': {
+        //     'DC:A6:32:A0:B7:4D': -74.35,
+        //     'DC:A6:32:A0:C8:30': -65.25,
+        //     'DC:A6:32:A0:C9:9E': -65.75
+        //   },
+        //   'accelerometer': [3.22, 5.5, 0.25],
+        //   'magnetometer': [0.215, 9.172, 2.8155],
+        // };
 
-    Map<String, dynamic> tempResult = _onSight.localisation(rawData);
-    // TODO: uncomment to send data to mqtt server
-    _onSight.mqttPublish(tempResult, 'result', topic: 'fyp/test/result');
+        // TODO: uncomment to send data to mqtt server
+        _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
 
-    _results = <SensorCharacteristics>[
-      SensorCharacteristics(name: 'x_coor', value: tempResult['x_coordinate']),
-      SensorCharacteristics(name: 'y_coor', value: tempResult['y_coordinate']),
-      SensorCharacteristics(
-        name: 'direction',
-        value: Direction(direction: tempResult['direction']).convertToDouble(),
-      ),
-    ];
-    _pushState();
+        Map<String, dynamic> tempResult = _onSight.localisation(rawData);
+        // TODO: uncomment to send data to mqtt server
+        _onSight.mqttPublish(tempResult, 'result', topic: 'fyp/test/result');
+
+        _results = <SensorCharacteristics>[
+          SensorCharacteristics(
+              name: 'x_coor', value: tempResult['x_coordinate']),
+          SensorCharacteristics(
+              name: 'y_coor', value: tempResult['y_coordinate']),
+          SensorCharacteristics(
+            name: 'direction',
+            value:
+                Direction(direction: tempResult['direction']).convertToDouble(),
+          ),
+        ];
+        _pushState();
+
+        _tempRssi.clear(); // clear variable
+        break;
+      }
+    }
   }
 
   void sortFoundDevices(int knownDeviceIndex, DiscoveredDevice device) {

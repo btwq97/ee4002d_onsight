@@ -26,7 +26,7 @@ class Localisation {
   }
 
   late MyNumDart _nd;
-  double BASELINERSSI = -84.0; // TODO: update baseline RSSI as necessary
+  double BASELINERSSI = -55.0; // TODO: update baseline RSSI as necessary
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.

@@ -60,9 +60,6 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void initState() {
     super.initState();
-    // TODO: uncomment to discover BLE only from known devices
-    // knownUuid = widget.onSight.getKnownUuid(); // pull known uuid from database
-
     _startScanning(); // we dont need to stream the devices here as it is taken cared of in ble_scanner
 
     // Example of how to subscribe to a stream

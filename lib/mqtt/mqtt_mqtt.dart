@@ -55,7 +55,7 @@ class Mqtt {
   String _mapToString(Map<String, dynamic> map, String mode) {
     String result = '';
     if (mode == 'rssi') {
-      Map<String, double> temp = map["rssi"];
+      Map<String, num> temp = map["rssi"];
 
       // start of string builder
       result = '{"mode":"$mode","attempt":$_attempt,"rssi":{';
