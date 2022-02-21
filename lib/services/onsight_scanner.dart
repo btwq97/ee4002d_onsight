@@ -25,9 +25,9 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   final _bleDevices = <DiscoveredDevice>[];
-  List<double> _accelerometerValues = [];
-  List<double> _magnetometerValues = [];
-  Map<String, dynamic> _results = {};
+  List<SensorCharacteristics> _accelerometerValues = [];
+  List<SensorCharacteristics> _magnetometerValues = [];
+  List<SensorCharacteristics> _results = [];
 
   @override
   Stream<ServicesScannerState> get state => _bleStreamController.stream;
@@ -52,10 +52,10 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     _streamSubscriptions.add(
       accelerometerEvents.listen(
         (AccelerometerEvent event) {
-          _accelerometerValues = <double>[
-            event.x,
-            event.y,
-            event.z,
+          _accelerometerValues = <SensorCharacteristics>[
+            SensorCharacteristics(name: 'acc_x', value: event.x),
+            SensorCharacteristics(name: 'acc_y', value: event.y),
+            SensorCharacteristics(name: 'acc_z', value: event.z),
           ];
           _pushState();
         },
@@ -66,10 +66,10 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     _streamSubscriptions.add(
       magnetometerEvents.listen(
         (MagnetometerEvent event) {
-          _magnetometerValues = <double>[
-            event.x,
-            event.y,
-            event.z,
+          _magnetometerValues = <SensorCharacteristics>[
+            SensorCharacteristics(name: 'mag_x', value: event.x),
+            SensorCharacteristics(name: 'mag_y', value: event.y),
+            SensorCharacteristics(name: 'mag_z', value: event.z),
           ];
           _pushState();
         },
@@ -132,11 +132,19 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     // TODO: uncomment to send data to mqtt server
     _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
 
-    _results = _onSight.localisation(rawData);
-    _pushState();
-
+    Map<String, dynamic> tempResult = _onSight.localisation(rawData);
     // TODO: uncomment to send data to mqtt server
-    _onSight.mqttPublish(_results, 'result', topic: 'fyp/test/result');
+    _onSight.mqttPublish(tempResult, 'result', topic: 'fyp/test/result');
+
+    _results = <SensorCharacteristics>[
+      SensorCharacteristics(name: 'x_coor', value: tempResult['x_coordinate']),
+      SensorCharacteristics(name: 'y_coor', value: tempResult['y_coordinate']),
+      SensorCharacteristics(
+        name: 'direction',
+        value: Direction(direction: tempResult['direction']).convertToDouble(),
+      ),
+    ];
+    _pushState();
   }
 
   void sortFoundDevices(int knownDeviceIndex, DiscoveredDevice device) {
@@ -162,8 +170,52 @@ class ServicesScannerState {
   });
 
   final List<DiscoveredDevice> discoveredDevices;
-  final List<double> acceleration;
-  final List<double> magnetometer;
-  final Map<String, dynamic> result;
+  final List<SensorCharacteristics> acceleration;
+  final List<SensorCharacteristics> magnetometer;
+  final List<SensorCharacteristics> result;
   final bool scanIsInProgress;
+}
+
+class SensorCharacteristics {
+  const SensorCharacteristics({
+    required this.name,
+    required this.value,
+  });
+
+  final String name;
+  final double value;
+}
+
+class Direction {
+  const Direction({
+    required this.direction,
+  });
+
+  final String direction;
+
+  /// Function to convert String direction to its corresponding double value.
+  ///
+  /// Inputs:
+  /// 1) None.
+  ///
+  /// Return:
+  /// 1) [double].
+  double convertToDouble() {
+    if (this.direction == 'North')
+      return 1.0;
+    else if (this.direction == 'South')
+      return 2.0;
+    else if (this.direction == 'East')
+      return 3.0;
+    else if (this.direction == 'West')
+      return 4.0;
+    else if (this.direction == 'NorthEast')
+      return 5.0;
+    else if (this.direction == 'SouthEast')
+      return 6.0;
+    else if (this.direction == 'SouthWest')
+      return 7.0;
+    else // NorthWest
+      return 8.0;
+  }
 }

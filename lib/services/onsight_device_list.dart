@@ -27,7 +27,7 @@ class DeviceListScreen extends StatelessWidget {
                 discoveredDevices: [],
                 acceleration: [],
                 magnetometer: [],
-                result: {},
+                result: [],
                 scanIsInProgress: false,
               ),
           startScan: bleScanner.startScan,
@@ -106,7 +106,7 @@ class _DeviceListState extends State<_DeviceList> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -124,7 +124,6 @@ class _DeviceListState extends State<_DeviceList> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -147,15 +146,15 @@ class _DeviceListState extends State<_DeviceList> {
           ),
 
           // For discovery
-          const SizedBox(height: 8),
           Flexible(
             child: ListView(
               children: widget.scannerState.discoveredDevices
                   .map(
                     (device) => ListTile(
-                        title: Text(device.name),
-                        subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-                        leading: const BluetoothIcon()),
+                      title: Text(device.name),
+                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                      leading: const BluetoothIcon(),
+                    ),
                   )
                   .toList(),
             ),
@@ -164,62 +163,47 @@ class _DeviceListState extends State<_DeviceList> {
           // For accelerometer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Expanded(child: Text('Accelerometer'))],
+            children: [
+              Expanded(
+                child: Text('Accelerometer'),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("acc_x = ${widget.scannerState.acceleration[0]}")
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("acc_y = ${widget.scannerState.acceleration[1]}")
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("acc_z = ${widget.scannerState.acceleration[2]}")
-              ],
+          Flexible(
+            child: ListView(
+              children: widget.scannerState.acceleration
+                  .map(
+                    (sensorValue) => ListTile(
+                      title: Text(sensorValue.name),
+                      subtitle: Text(sensorValue.value.toString()),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
 
           // For magnetometer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Expanded(child: Text('Magnetometer'))],
+            children: [
+              Expanded(
+                child: Text('Magnetometer'),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("mag_x = ${widget.scannerState.magnetometer[0]}")
-              ],
+          Flexible(
+            child: ListView(
+              children: widget.scannerState.magnetometer
+                  .map(
+                    (sensorValue) => ListTile(
+                      title: Text(sensorValue.name),
+                      subtitle: Text(sensorValue.value.toString()),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("mag_y = ${widget.scannerState.magnetometer[1]}")
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("mag_z = ${widget.scannerState.magnetometer[2]}")
-              ],
-            ),
-          ),
+
           // For results
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,32 +219,48 @@ class _DeviceListState extends State<_DeviceList> {
                 ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("est_x = ${widget.scannerState.result['x_coordinate']}")
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("est_y = ${widget.scannerState.result['y_coordinate']}")
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Text("direction = ${widget.scannerState.result['direction']}")
-              ],
+          Flexible(
+            child: ListView(
+              children: widget.scannerState.result
+                  .map(
+                    (result) => ListTile(
+                      title: Text(result.name),
+                      subtitle: Text((result.name == 'direction')
+                          ? convertToDirection(result.value)
+                          : result.value.toString()),
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+/// Function to convert numbered direction to its corresponding string value.
+///
+/// Inputs:
+/// 1) direction [double] - direction in double.
+///
+/// Return:
+/// 1) [String].
+String convertToDirection(double direction) {
+  if (direction == 1.0)
+    return 'North';
+  else if (direction == 2.0)
+    return 'South';
+  else if (direction == 3.0)
+    return 'East';
+  else if (direction == 4.0)
+    return 'West';
+  else if (direction == 5.0)
+    return 'NorthEast';
+  else if (direction == 6.0)
+    return 'SouthEast';
+  else if (direction == 7.0)
+    return 'SouthWest';
+  else // NorthWest
+    return 'NorthWest';
 }

@@ -57,7 +57,7 @@ void main() async {
             discoveredDevices: [],
             acceleration: [],
             magnetometer: [],
-            result: {},
+            result: [],
             scanIsInProgress: false,
           ),
         ),
