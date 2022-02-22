@@ -4,7 +4,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/onsight_cane.dart';
-import 'package:on_sight/connectivity/canemodule_main.dart';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
 
