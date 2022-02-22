@@ -31,8 +31,6 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
   List<SensorCharacteristics> _accelerometerValues = [];
   List<SensorCharacteristics> _magnetometerValues = [];
   List<SensorCharacteristics> _results = [];
-  Map<String, num> _tempRssi =
-      {}; // TODO: uncomment to pass actual values to rawData
 
   @override
   Stream<ServicesScannerState> get state => _bleStreamController.stream;
@@ -53,8 +51,10 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     )
         .listen((device) {
       int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
-      sortFoundDevices(knownDeviceIndex, device);
-      performLocalisation();
+      performLocalisation(isNewDeviceFound(
+        knownDeviceIndex,
+        device,
+      )); // note: localisation is only performed when 3 or more rssi is found
     }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
 
     // for acc
@@ -110,28 +110,38 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     await _bleStreamController.close();
   }
 
-  void performLocalisation() {
+  void performLocalisation(bool hasUpdate) {
     // perform localisation when there is a change is rssi/uuid detection
     Map<String, dynamic> rawData = {};
+    Map<String, num> _tempRssi =
+        {}; // TODO: uncomment to pass actual values to rawData
 
-    for (int i = 0; i < _bleDevices.length; i++) {
-      if (_knownDevices.contains(_bleDevices[i].id)) {
+    if (hasUpdate) {
+      // updates only when 3 or more devices are found
+      // TODO: Test if clearing cache memory will result in better result
+      if (_bleDevices.length >= 3) {
+        // update uuid and rssi
         _tempRssi.addEntries([
-          MapEntry(_bleDevices[i].id.toString(), _bleDevices[i].rssi.toInt()),
+          MapEntry(_bleDevices[0].id.toString(), _bleDevices[0].rssi.toInt()),
+          MapEntry(_bleDevices[1].id.toString(), _bleDevices[1].rssi.toInt()),
+          MapEntry(_bleDevices[2].id.toString(), _bleDevices[2].rssi.toInt()),
         ]);
-      }
 
-      if (_tempRssi.length == 3) {
+        // update acceleration
         List<double> tempAcc = [
           _accelerometerValues[0].value.toDouble(),
           _accelerometerValues[1].value.toDouble(),
           _accelerometerValues[2].value.toDouble(),
         ];
+
+        // update magnetometer
         List<double> tempMag = [
           _magnetometerValues[0].value.toDouble(),
           _magnetometerValues[1].value.toDouble(),
           _magnetometerValues[2].value.toDouble(),
         ];
+
+        // add sensor readings to rawData for localisation
         rawData.addEntries([
           MapEntry('rssi', _tempRssi),
           MapEntry('accelerometer', tempAcc),
@@ -167,23 +177,30 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
                 Direction(direction: tempResult['direction']).convertToDouble(),
           ),
         ];
-        _pushState();
 
-        _tempRssi.clear(); // clear variable
-        break;
+        _pushState();
       }
     }
   }
 
-  void sortFoundDevices(int knownDeviceIndex, DiscoveredDevice device) {
-    // if prev value is found
+  bool isNewDeviceFound(int knownDeviceIndex, DiscoveredDevice device) {
+    bool hasUpdate = false;
+
     if (knownDeviceIndex >= 0) {
       _bleDevices[knownDeviceIndex] = device;
+      hasUpdate = true; // update prev rssi value
     } else {
-      _bleDevices.add(device);
+      if (_knownDevices.contains(device.id)) {
+        _bleDevices.add(device);
+        hasUpdate = true; // new rpi found
+      }
     }
-    _bleDevices.sort((a, b) => b.rssi.compareTo(a.rssi)); // sort the output
-    _pushState();
+
+    if (hasUpdate) {
+      _pushState();
+    }
+
+    return hasUpdate;
   }
 }
 
