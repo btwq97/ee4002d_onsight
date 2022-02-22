@@ -48,11 +48,11 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     _streamSubscriptions.add(_ble
         .scanForDevices(
       withServices: serviceIds,
-      scanMode: ScanMode.lowPower,
+      scanMode: ScanMode.lowPower, // TODO: change scanMode as necessary
     )
         .listen((device) {
       int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
-      performLocalisation(isNewDeviceFound(knownDeviceIndex, device),
+      performLocalisation(areDevicesUpdated(knownDeviceIndex, device),
           // TODO: edit true/false to indicate if we are testing or not
           isTesting: true);
     }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
@@ -165,7 +165,9 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
         MapEntry('direction', 'North'),
       ]);
     } else {
-      tempResult = _onSight.localisation(rawData);
+      if (hasUpdate) {
+        tempResult = _onSight.localisation(rawData);
+      }
     }
 
     _results = <SensorCharacteristics>[
@@ -182,14 +184,17 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
         value: Direction(direction: tempResult['direction']).convertToDouble(),
       ),
     ];
-
     _pushState();
 
-    // TODO: uncomment to send data to mqtt server
-    publishMqttPayload(rawData, tempResult);
+    if (hasUpdate) {
+      publishMqttPayload(rawData, tempResult);
+    }
+    if (isTesting) {
+      publishMqttPayload(rawData, tempResult);
+    }
   }
 
-  bool isNewDeviceFound(int knownDeviceIndex, DiscoveredDevice device) {
+  bool areDevicesUpdated(int knownDeviceIndex, DiscoveredDevice device) {
     bool hasUpdate = false;
 
     if (knownDeviceIndex >= 0) {
