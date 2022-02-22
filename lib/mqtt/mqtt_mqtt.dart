@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -32,63 +33,58 @@ class Mqtt {
   ///
   /// Inputs:
   /// 1) map [Map<String,dynamic>] - examples of raw payload.
-  /// result mode
-  /// e.g. {
-  ///         "x_coordinate": -53.600680425231964,
-  ///         "y_coordinate": 200.09818188520637,
-  ///         "direction":"North"
-  ///      }
-  ///
-  /// rssi mode
   /// e.g. {
   ///         "rssi": {
   ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
   ///               "40409a6a-ec8b-4d24-b496-9bd2e78c044f": -73.5868,
   ///               "87ccf436-0f86-4dfe-80f9-9ff731033620": -75.7231
   ///         },
-  ///         'accelerometer': 5,
-  ///         'magnetometer': [-33.57, 86.31]
+  ///         "accelerometer": [-33.57, 86.31, 12.2],
+  ///         "magnetometer": [-33.57, 86.31, 12.2],
+  ///         "x_coordinate": -53.600680425231964,
+  ///         "y_coordinate": 200.09818188520637,
+  ///         "direction":"North"
   ///      }
   ///
   /// Returns:
   /// 1) result [String].
-  String _mapToString(Map<String, dynamic> map, String mode) {
-    String result = '';
-    if (mode == 'rssi') {
-      Map<String, num> temp = map["rssi"];
-
-      // start of string builder
-      result = '{"mode":"$mode","attempt":$_attempt,"rssi":{';
-      int count = 0; // counter to track key items
-      temp.forEach((mac, rssi) {
-        if (count != 2) {
-          result += '"$mac":$rssi,';
-        } else {
-          // end off with } to close the json string
-          result += '"$mac":$rssi}';
-        }
-        count++;
-      });
-      result += '}';
-    } else if (mode == 'result') {
-      result = '{"mode":"$mode","attempt":$_attempt,"result":{';
-      int count = 0; // counter to track key items
-      map.forEach((coor, pos) {
-        if (coor == 'direction') {
-          // skip direction
-        } else {
-          if (count != 1) {
-            // end off with } to close the json string
-            result += '"$coor":$pos}';
-          } else {
-            result += '"$coor":$pos,';
-          }
-        }
-        count++;
-      });
-      result += '}';
-      _attempt++; // '_attempt' updates itself after both rssi and results comes in
-    }
+  String _mapToString(Map<String, dynamic> map) {
+    String result = '{';
+    map.forEach((key, value) {
+      switch (key) {
+        case 'rssi':
+          int count = 0;
+          result += '\"$key\":{';
+          value.forEach((rssiKey, rssiValue) {
+            result += '\"$rssiKey\":$rssiValue';
+            if (count == 2) {
+              result += '},';
+            } else {
+              result += ',';
+            }
+            count += 1;
+          });
+          break;
+        case 'accelerometer':
+          result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
+          break;
+        case 'magnetometer':
+          result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
+          break;
+        case 'x_coordinate':
+          result += '\"$key\":${value},';
+          break;
+        case 'y_coordinate':
+          result += '\"$key\":${value},';
+          break;
+        case 'direction':
+          result += '\"$key\":\"${value}\"';
+          break;
+        default:
+          break;
+      }
+    });
+    result += '}';
     return result;
   }
 
@@ -117,30 +113,29 @@ class Mqtt {
   /// Publish payload to specified topic.
   ///
   /// Input:
-  /// 1) rawData [Map<String,dynamic>] - examples of raw payload.
+  /// 1) payload [Map<String,dynamic>] - example of a raw payload.
   /// e.g. {
-  ///         "x_coordinate": -53.600680425231964,
-  ///         "y_coordinate": 200.09818188520637,
-  ///         "direction":"North"
-  ///      }
-  /// or   {
   ///         "rssi": {
   ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
   ///               "40409a6a-ec8b-4d24-b496-9bd2e78c044f": -73.5868,
   ///               "87ccf436-0f86-4dfe-80f9-9ff731033620": -75.7231
   ///         },
-  ///         'accelerometer': 5,
-  ///         'magnetometer': [-33.57, 86.31]
+  ///         "accelerometer": [-33.57, 86.31, 12.2],
+  ///         "magnetometer": [-33.57, 86.31, 12.2],
+  ///         "x_coordinate": -53.600680425231964,
+  ///         "y_coordinate": 200.09818188520637,
+  ///         "direction":"North"
   ///      }
-  /// 2) mode [String] - either 'rssi' or 'result'.
-  /// 3) topic [String] - default is 'test/pub'.
+  /// 2) topic [String] - default is 'fyp/test/datapipeline'.
   ///
   /// Return:
   /// 1) None
-  void publish(Map<String, dynamic> rawData, String mode,
-      {String topic = 'test/pub'}) {
+  void publish(
+    Map<String, dynamic> payload, {
+    String topic = 'fyp/test/datapipeline',
+  }) {
     MqttClientPayloadBuilder _builder = MqttClientPayloadBuilder();
-    _builder.addString(_mapToString(rawData, mode));
+    _builder.addString(_mapToString(payload));
     _client.publishMessage(topic, MqttQos.exactlyOnce, _builder.payload!);
   }
 

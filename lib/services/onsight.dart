@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
@@ -61,7 +63,7 @@ class OnSight {
   /// Wrapper function for localisation.
   ///
   /// Inputs:
-  /// 1) rawData [Map<String, dynamic>] -
+  /// 1) rawData [LinkedHashMap<String, dynamic>] -
   /// e.g. {
   ///         'rssi': {
   ///           'd94250a2-c73a-4249-9a1e-4abb2643078a': -74.35,
@@ -73,28 +75,38 @@ class OnSight {
   ///      }
   ///
   /// Returns:
-  /// 1) estimated position [<Map<String,dynamic>>]
-  Map<String, dynamic> localisation(Map<String, dynamic> rawData) {
+  /// 1) estimated position [LinkedHashMap<String,dynamic>]
+  LinkedHashMap<String, dynamic> localisation(
+    LinkedHashMap<String, dynamic> rawData,
+  ) {
     return _lc.localisation(rawData);
   }
 
   /// Wrapper function for publishing data points to mqtt server.
   ///
   /// Inputs:
-  /// 1) rawData [Map<String, dynamic>] -
+  /// 1) payload [Map<String, dynamic>] -
   /// e.g. {
-  ///         'x_coordinate': X,
-  ///         'y_coordinate': Y,
-  ///         'direction':direction
+  ///         "rssi": {
+  ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
+  ///               "40409a6a-ec8b-4d24-b496-9bd2e78c044f": -73.5868,
+  ///               "87ccf436-0f86-4dfe-80f9-9ff731033620": -75.7231
+  ///         },
+  ///         "accelerometer": [-33.57, 86.31, 12.2],
+  ///         "magnetometer": [-33.57, 86.31, 12.2],
+  ///         "x_coordinate": -53.600680425231964,
+  ///         "y_coordinate": 200.09818188520637,
+  ///         "direction":"North"
   ///      }
-  /// 2) mode [String] - either 'rssi' or 'result'.
-  /// 2) topic [String] - default is 'test/pub'.
+  /// 2) topic [String] - default is ''fyp/test/datapipeline''.
   ///
   /// Returns:
   /// 1) None.
-  void mqttPublish(Map<String, dynamic> rawData, String mode,
-      {String topic = 'test/pub'}) {
-    _mq.publish(rawData, mode, topic: topic);
+  void mqttPublish(
+    Map<String, dynamic> payload, {
+    String topic = 'fyp/test/datapipeline',
+  }) {
+    _mq.publish(payload, topic: topic);
   }
 
   /// Function to retrieve known uuid from database.

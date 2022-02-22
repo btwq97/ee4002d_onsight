@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:math';
+import 'dart:collection';
+
 import 'package:on_sight/localisation/localisation_my_numdart.dart';
 import 'package:on_sight/backend/backend_database.dart';
 
@@ -797,19 +799,22 @@ class Localisation {
   /// Wrapper for trilateration
   ///
   /// Inputs:
-  /// 1) rawData [Map<String,dynamic] - keys include 'rssi', 'accelerometer',
+  /// 1) rawData [LinkedHashMap<String,dynamic] - keys include 'rssi', 'accelerometer',
   ///                                   and 'magnetometer'.
   ///
   /// Returns:
-  /// 1) result [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y,
+  /// 1) result [LinkedHashMap<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y,
   ///                                   'direction':direction}
-  Map<String, dynamic> localisation(Map<String, dynamic> rawData) {
-    Map<String, dynamic> result = {};
-    Map<String, double> distances = {};
+  LinkedHashMap<String, dynamic> localisation(
+    LinkedHashMap<String, dynamic> rawData,
+  ) {
+    LinkedHashMap<String, dynamic> result = LinkedHashMap();
+    LinkedHashMap<String, double> distances = LinkedHashMap();
 
     rawData.forEach((key, value) {
       if (key == 'rssi') {
-        rawData[key].forEach((macAddr, rssi) {
+        LinkedHashMap<String, int> rssiData = rawData[key];
+        rssiData.forEach((macAddr, rssi) {
           distances[macAddr] = _rssiToDistance(rssi.toDouble());
           // 2) convert map to a format storable in a database.
           // 3) check the current location of the map based on result.

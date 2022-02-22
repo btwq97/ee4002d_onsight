@@ -1,5 +1,6 @@
-import 'package:meta/meta.dart';
 import 'dart:async';
+import 'dart:collection';
+import 'package:meta/meta.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
@@ -51,10 +52,9 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     )
         .listen((device) {
       int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
-      performLocalisation(isNewDeviceFound(
-        knownDeviceIndex,
-        device,
-      )); // note: localisation is only performed when 3 or more rssi is found
+      performLocalisation(isNewDeviceFound(knownDeviceIndex, device),
+          // TODO: edit true/false to indicate if we are testing or not
+          isTesting: true);
     }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
 
     // for acc
@@ -110,81 +110,83 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     await _bleStreamController.close();
   }
 
-  void performLocalisation(bool hasUpdate) {
-    // perform localisation when there is a change is rssi/uuid detection
-    Map<String, dynamic> rawData = {};
-    Map<String, num> _tempRssi =
-        {}; // TODO: uncomment to pass actual values to rawData
+  void performLocalisation(bool hasUpdate, {required bool isTesting}) {
+    LinkedHashMap<String, num> _tempRssi = LinkedHashMap();
 
-    if (hasUpdate) {
-      // updates only when 3 or more devices are found
-      // TODO: Test if clearing cache memory will result in better result
-      if (_bleDevices.length >= 3) {
-        // update uuid and rssi
-        _tempRssi.addEntries([
-          MapEntry(_bleDevices[0].id.toString(), _bleDevices[0].rssi.toInt()),
-          MapEntry(_bleDevices[1].id.toString(), _bleDevices[1].rssi.toInt()),
-          MapEntry(_bleDevices[2].id.toString(), _bleDevices[2].rssi.toInt()),
-        ]);
-
-        // update acceleration
-        List<double> tempAcc = [
-          _accelerometerValues[0].value.toDouble(),
-          _accelerometerValues[1].value.toDouble(),
-          _accelerometerValues[2].value.toDouble(),
-        ];
-
-        // update magnetometer
-        List<double> tempMag = [
-          _magnetometerValues[0].value.toDouble(),
-          _magnetometerValues[1].value.toDouble(),
-          _magnetometerValues[2].value.toDouble(),
-        ];
-
-        // add sensor readings to rawData for localisation
-        rawData.addEntries([
-          MapEntry('rssi', _tempRssi),
-          MapEntry('accelerometer', tempAcc),
-          MapEntry('magnetometer', tempMag),
-        ]);
-
-        // TODO: uncomment to pass placeholder values to rawData for testing
-        // rawData = {
-        //   'rssi': {
-        //     'DC:A6:32:A0:B7:4D': -74.35,
-        //     'DC:A6:32:A0:C8:30': -65.25,
-        //     'DC:A6:32:A0:C9:9E': -65.75
-        //   },
-        //   'accelerometer': [3.22, 5.5, 0.25],
-        //   'magnetometer': [0.215, 9.172, 2.8155],
-        // };
-
-        // TODO: uncomment to send data to mqtt server
-        _onSight.mqttPublish(rawData, 'rssi', topic: 'fyp/test/rssi');
-
-        Map<String, dynamic> tempResult = _onSight.localisation(rawData);
-        // TODO: uncomment to send data to mqtt server
-        _onSight.mqttPublish(tempResult, 'result', topic: 'fyp/test/result');
-
-        _results = <SensorCharacteristics>[
-          SensorCharacteristics(
-            name: 'x_coor',
-            value: tempResult['x_coordinate'],
-          ),
-          SensorCharacteristics(
-            name: 'y_coor',
-            value: tempResult['y_coordinate'],
-          ),
-          SensorCharacteristics(
-            name: 'direction',
-            value:
-                Direction(direction: tempResult['direction']).convertToDouble(),
-          ),
-        ];
-
-        _pushState();
+    if (isTesting) {
+      // Placeholder values
+      _tempRssi.addEntries([
+        MapEntry("DC:A6:32:A0:B7:4D", -65.0),
+        MapEntry("DC:A6:32:A0:C9:9E", -71.3),
+        MapEntry("DC:A6:32:A0:C9:3B", -68.0),
+      ]);
+    } else {
+      if (hasUpdate) {
+        // updates only when 3 or more devices are found
+        // TODO: Test if clearing cache memory will result in better result
+        if (_bleDevices.length >= 3) {
+          // update uuid and rssi
+          _tempRssi.addEntries([
+            MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
+            MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
+            MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
+          ]);
+        }
       }
     }
+
+    // update acceleration
+    List<double> tempAcc = [
+      _accelerometerValues[0].value,
+      _accelerometerValues[1].value,
+      _accelerometerValues[2].value,
+    ];
+
+    // update magnetometer
+    List<double> tempMag = [
+      _magnetometerValues[0].value,
+      _magnetometerValues[1].value,
+      _magnetometerValues[2].value,
+    ];
+
+    // add sensor readings to rawData for localisation
+    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
+    rawData.addEntries([
+      MapEntry('rssi', _tempRssi),
+      MapEntry('accelerometer', tempAcc),
+      MapEntry('magnetometer', tempMag),
+    ]);
+
+    LinkedHashMap<String, dynamic> tempResult = LinkedHashMap();
+    if (isTesting) {
+      tempResult.addEntries([
+        MapEntry('x_coordinate', 67.0),
+        MapEntry('y_coordinate', 512.55),
+        MapEntry('direction', 'North'),
+      ]);
+    } else {
+      tempResult = _onSight.localisation(rawData);
+    }
+
+    _results = <SensorCharacteristics>[
+      SensorCharacteristics(
+        name: 'x_coor',
+        value: tempResult['x_coordinate'],
+      ),
+      SensorCharacteristics(
+        name: 'y_coor',
+        value: tempResult['y_coordinate'],
+      ),
+      SensorCharacteristics(
+        name: 'direction',
+        value: Direction(direction: tempResult['direction']).convertToDouble(),
+      ),
+    ];
+
+    _pushState();
+
+    // TODO: uncomment to send data to mqtt server
+    publishMqttPayload(rawData, tempResult);
   }
 
   bool isNewDeviceFound(int knownDeviceIndex, DiscoveredDevice device) {
@@ -201,10 +203,24 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
     }
 
     if (hasUpdate) {
+      _bleDevices.sort((curr, next) =>
+          next.rssi.compareTo(curr.rssi)); // sort the rssi in descendind order
       _pushState();
     }
 
     return hasUpdate;
+  }
+
+  void publishMqttPayload(
+    Map<String, dynamic> rawData,
+    Map<String, dynamic> tempResult,
+  ) {
+    Map<String, dynamic> mqttPayload = {};
+
+    mqttPayload.addEntries(rawData.entries);
+    mqttPayload.addEntries(tempResult.entries);
+
+    _onSight.mqttPublish(mqttPayload);
   }
 }
 
