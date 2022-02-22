@@ -44,19 +44,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
       subscription.cancel();
     }
 
-    // for bluetooth
-    _streamSubscriptions.add(_ble
-        .scanForDevices(
-      withServices: serviceIds,
-      scanMode: ScanMode.lowPower, // TODO: change scanMode as necessary
-    )
-        .listen((device) {
-      int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
-      performLocalisation(areDevicesUpdated(knownDeviceIndex, device),
-          // TODO: edit true/false to indicate if we are testing or not
-          isTesting: true);
-    }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
-
     // for acc
     _streamSubscriptions.add(
       accelerometerEvents.listen(
@@ -84,6 +71,19 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         },
       ),
     );
+
+    // for bluetooth
+    _streamSubscriptions.add(_ble
+        .scanForDevices(
+      withServices: serviceIds,
+      scanMode: ScanMode.lowPower, // TODO: change scanMode as necessary
+    )
+        .listen((device) {
+      int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
+      performLocalisation(areDevicesUpdated(knownDeviceIndex, device),
+          // TODO: edit true/false to indicate if we are testing or not
+          isTesting: true);
+    }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
   }
 
   void _pushState() {
@@ -111,6 +111,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   }
 
   void performLocalisation(bool hasUpdate, {required bool isTesting}) {
+    if (_accelerometerValues.isEmpty || _magnetometerValues.isEmpty) return;
+
     LinkedHashMap<String, num> _tempRssi = LinkedHashMap();
 
     if (isTesting) {
