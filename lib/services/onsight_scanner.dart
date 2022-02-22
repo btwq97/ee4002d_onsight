@@ -168,9 +168,13 @@ class ServicesScanner implements ReactiveState<ServicesScannerState> {
 
         _results = <SensorCharacteristics>[
           SensorCharacteristics(
-              name: 'x_coor', value: tempResult['x_coordinate']),
+            name: 'x_coor',
+            value: tempResult['x_coordinate'],
+          ),
           SensorCharacteristics(
-              name: 'y_coor', value: tempResult['y_coordinate']),
+            name: 'y_coor',
+            value: tempResult['y_coordinate'],
+          ),
           SensorCharacteristics(
             name: 'direction',
             value:
