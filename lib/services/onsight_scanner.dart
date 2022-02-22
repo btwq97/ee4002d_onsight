@@ -114,6 +114,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     if (_accelerometerValues.isEmpty || _magnetometerValues.isEmpty) return;
 
     LinkedHashMap<String, num> _tempRssi = LinkedHashMap();
+    bool areBleDevicesReady = (_bleDevices.length >= 3);
 
     if (isTesting) {
       // Placeholder values
@@ -124,7 +125,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
       ]);
     } else {
       // updates only when 3 or more devices are found
-      if (hasUpdate && _bleDevices.length >= 3) {
+      if (hasUpdate && areBleDevicesReady) {
         // TODO: Test if clearing cache memory will result in better result
         // update uuid and rssi
         _tempRssi.addEntries([
@@ -165,7 +166,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         MapEntry('direction', 'North'),
       ]);
     } else {
-      if (hasUpdate && _bleDevices.length >= 3) {
+      if (hasUpdate && areBleDevicesReady) {
         tempResult = _onSight.localisation(rawData);
       }
     }
