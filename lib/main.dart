@@ -9,6 +9,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/ble_device_connector.dart';
 import 'package:on_sight/services/reactive_packages/ble_device_interactor.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
+import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_monitor.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_screen.dart';
 import 'package:on_sight/services/reactive_packages/ble_logger.dart';
@@ -24,10 +25,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final _bleLogger = BleLogger();
   final _ble = FlutterReactiveBle();
-  final _scanner = ServicesScanner(
+  final _servicesScanner = OnsightServicesScanner(
     ble: _ble,
     logMessage: _bleLogger.addToLog,
     onSight: onSight,
+  );
+  final _espScanner = BleScanner(
+    ble: _ble,
+    logMessage: _bleLogger.addToLog,
   );
   final _monitor = BleStatusMonitor(_ble);
   final _connector = BleDeviceConnector(
@@ -46,18 +51,26 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        Provider.value(value: _scanner),
+        Provider.value(value: _servicesScanner),
+        Provider.value(value: _espScanner),
         Provider.value(value: _monitor),
         Provider.value(value: _connector),
         Provider.value(value: _serviceDiscoverer),
         Provider.value(value: _bleLogger),
         StreamProvider<ServicesScannerState?>(
-          create: (_) => _scanner.state,
+          create: (_) => _servicesScanner.state,
           initialData: const ServicesScannerState(
             discoveredDevices: [],
             acceleration: [],
             magnetometer: [],
             result: [],
+            scanIsInProgress: false,
+          ),
+        ),
+        StreamProvider<BleScannerState?>(
+          create: (_) => _espScanner.state,
+          initialData: const BleScannerState(
+            discoveredDevices: [],
             scanIsInProgress: false,
           ),
         ),
@@ -75,7 +88,7 @@ void main() async {
         ),
       ],
       child: MaterialApp(
-        title: 'Flutter Safeguard Check example',
+        title: 'Permission Safeguard Check',
         color: _themeColor,
         theme: ThemeData(primarySwatch: _themeColor),
         home: HomePage(

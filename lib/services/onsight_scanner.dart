@@ -7,8 +7,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
-class ServicesScanner implements ReactiveState<ServicesScannerState> {
-  ServicesScanner({
+class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
+  OnsightServicesScanner({
     required FlutterReactiveBle ble,
     required Function(String message) logMessage,
     required OnSight onSight,

@@ -3,9 +3,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
-import 'package:on_sight/connectivity/bluetooth_main.dart';
+import 'package:on_sight/services/onsight_cane.dart';
 import 'package:on_sight/connectivity/canemodule_main.dart';
-import 'package:on_sight/localisation/localisation_app.dart';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
 
@@ -69,12 +68,12 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
           GestureDetector(
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BluetoothMainPage()));
+                  MaterialPageRoute(builder: (context) => OnsightCaneScreen()));
             },
             child: Container(
               child: Center(
                 child: Text(
-                  'CONNECT TO BEACON',
+                  'CONNECT TO ESP32',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -89,47 +88,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => LocalisationAppPage(
-                            this.onSight,
-                          ))); // TODO: resolve issue
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'FLUTTER BLUE',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CaneModulePage()));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'EXPERIMENT 2',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DeviceListScreen(
+                      builder: (context) => OnsightLocalisationUI(
                             onSight: this.onSight,
                             ble: ble,
                           )));

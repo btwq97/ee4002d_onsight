@@ -6,8 +6,8 @@ import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
 
-class DeviceListScreen extends StatelessWidget {
-  DeviceListScreen({
+class OnsightLocalisationUI extends StatelessWidget {
+  OnsightLocalisationUI({
     Key? key,
     required this.onSight,
     required this.ble,
@@ -18,7 +18,7 @@ class DeviceListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Consumer2<ServicesScanner, ServicesScannerState?>(
+      Consumer2<OnsightServicesScanner, ServicesScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
           onSight: onSight,
           ble: ble,
