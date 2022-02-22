@@ -6,12 +6,12 @@ import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
 
-class OnsightLocalisationUI extends StatelessWidget {
-  OnsightLocalisationUI({
+class OnsightLocalisationScreen extends StatelessWidget {
+  OnsightLocalisationScreen({
     Key? key,
     required this.onSight,
     required this.ble,
-  }) : super(key: key);
+  }) : super(key: key) {}
 
   final OnSight onSight;
   final FlutterReactiveBle ble;
@@ -60,6 +60,7 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void initState() {
     super.initState();
+    widget.onSight.ConnnectToMqttServer();
     _startScanning(); // we dont need to stream the devices here as it is taken cared of in ble_scanner
 
     // Example of how to subscribe to a stream
@@ -82,6 +83,7 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void dispose() {
     widget.stopScan();
+    widget.onSight.disconnnectFromMqttServer();
     super.dispose();
   }
 

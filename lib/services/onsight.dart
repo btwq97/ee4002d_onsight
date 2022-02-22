@@ -42,7 +42,6 @@ class OnSight {
       username: dotenv.env['mqttUsername'].toString(),
       password: dotenv.env['mqttPassword'].toString(),
     );
-    await _mq.init();
 
     // Localisation
     _lc = Localisation(dbObj: _db);
@@ -129,5 +128,13 @@ class OnSight {
   /// knownUuid [List<String>].
   List<String> getKnownMac() {
     return _db.getKnownMac();
+  }
+
+  void disconnnectFromMqttServer() {
+    _mq.disconnnectFromMqttServer();
+  }
+
+  Future ConnnectToMqttServer() async {
+    await _mq.init();
   }
 }

@@ -139,17 +139,14 @@ class Mqtt {
     _client.publishMessage(topic, MqttQos.exactlyOnce, _builder.payload!);
   }
 
-  /// Disconnects from MQTT server.
+  /// Connect to MQTT server.
   ///
   /// Inputs:
   /// 1) None.
   ///
   /// Returns:
   /// 1) None.
-  Future disconnnect() async {
-    await MqttUtilities.asyncSleep(1);
+  void disconnnectFromMqttServer() {
     _client.disconnect();
-    await MqttUtilities.asyncSleep(1);
-    exit(-1);
   }
 }

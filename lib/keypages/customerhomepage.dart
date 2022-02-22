@@ -87,7 +87,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => OnsightLocalisationUI(
+                      builder: (context) => OnsightLocalisationScreen(
                             onSight: this.onSight,
                             ble: ble,
                           )));
