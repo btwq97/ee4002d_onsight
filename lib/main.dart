@@ -109,7 +109,6 @@ class HomePage extends StatelessWidget {
   const HomePage({
     Key? key,
     required this.onSight,
-    required,
     required this.ble,
   }) : super(key: key);
 

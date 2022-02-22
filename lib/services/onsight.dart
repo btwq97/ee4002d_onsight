@@ -42,6 +42,7 @@ class OnSight {
       username: dotenv.env['mqttUsername'].toString(),
       password: dotenv.env['mqttPassword'].toString(),
     );
+    await _mq.init();
 
     // Localisation
     _lc = Localisation(dbObj: _db);
