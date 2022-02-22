@@ -121,17 +121,15 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         MapEntry("DC:A6:32:A0:C9:3B", -68.0),
       ]);
     } else {
-      if (hasUpdate) {
-        // updates only when 3 or more devices are found
+      // updates only when 3 or more devices are found
+      if (hasUpdate && _bleDevices.length >= 3) {
         // TODO: Test if clearing cache memory will result in better result
-        if (_bleDevices.length >= 3) {
-          // update uuid and rssi
-          _tempRssi.addEntries([
-            MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
-            MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
-            MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
-          ]);
-        }
+        // update uuid and rssi
+        _tempRssi.addEntries([
+          MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
+          MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
+          MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
+        ]);
       }
     }
 
@@ -165,7 +163,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         MapEntry('direction', 'North'),
       ]);
     } else {
-      if (hasUpdate) {
+      if (hasUpdate && _bleDevices.length >= 3) {
         tempResult = _onSight.localisation(rawData);
       }
     }

@@ -14,7 +14,7 @@ import 'package:on_sight/services/reactive_packages/ble_status_monitor.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_screen.dart';
 import 'package:on_sight/services/reactive_packages/ble_logger.dart';
 
-const _themeColor = Colors.lightGreen;
+const _themeColor = Color(0xFF301934);
 
 void main() async {
   // init OnSight program
@@ -90,7 +90,10 @@ void main() async {
       child: MaterialApp(
         title: 'Permission Safeguard Check',
         color: _themeColor,
-        theme: ThemeData(primarySwatch: _themeColor),
+        theme: ThemeData.dark().copyWith(
+          primaryColor: _themeColor,
+          scaffoldBackgroundColor: _themeColor,
+        ),
         home: HomePage(
           onSight: onSight,
           ble: _ble,
@@ -117,8 +120,8 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         theme: ThemeData.dark().copyWith(
-          primaryColor: Color(0xFF301934),
-          scaffoldBackgroundColor: Color(0xFF301934),
+          primaryColor: _themeColor,
+          scaffoldBackgroundColor: _themeColor,
         ),
         initialRoute: '/Safeguard Check',
         routes: {
