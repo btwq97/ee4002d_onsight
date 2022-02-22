@@ -135,7 +135,7 @@ class OnSight {
     _mq.disconnnectFromMqttServer();
   }
 
-  Future ConnnectToMqttServer() async {
+  Future<void> ConnnectToMqttServer() async {
     await _mq.init();
   }
 }

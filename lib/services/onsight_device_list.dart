@@ -60,6 +60,7 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void initState() {
     super.initState();
+
     _startScanning(); // we dont need to stream the devices here as it is taken cared of in ble_scanner
 
     // Example of how to subscribe to a stream
@@ -81,8 +82,9 @@ class _DeviceListState extends State<_DeviceList> {
 
   @override
   void dispose() {
-    widget.stopScan();
     super.dispose();
+
+    widget.stopScan();
   }
 
   void _startScanning() {
