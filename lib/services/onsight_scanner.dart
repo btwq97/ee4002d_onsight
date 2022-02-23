@@ -33,9 +33,24 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<SensorCharacteristics> _results = [];
 
+  // for navigations
+  /// 1: Hungry Burger
+  /// 2: Asian Delight
+  /// 3: HK Cafe
+  Map<int, List<double>> endGoal = {
+    0x1: [1580, 1880],
+    0x2: [1580, 1680],
+    0x3: [1580, 1480]
+  };
+  List<double> startPoint = [];
+
   @override
   Stream<ServicesScannerState> get state => _bleStreamController.stream;
 
+  /// TODO: integrate navigations here
+  /// Add try-catch for scenario when 's' and 'g' are not present in textMap
+  /// print our shortest path
+  /// use path following algorithm to follow path
   void startScan(List<Uuid> serviceIds) {
     // reset all subscriptions
     _logMessage('Start ble discovery');
@@ -76,13 +91,15 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     _streamSubscriptions.add(_ble
         .scanForDevices(
       withServices: serviceIds,
-      scanMode: ScanMode.lowPower, // TODO: change scanMode as necessary
+      // TODO: change scanMode as necessary
+      scanMode: ScanMode.lowLatency,
     )
         .listen((device) {
-      int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
-      performLocalisation(areDevicesUpdated(knownDeviceIndex, device),
-          // TODO: edit true/false to indicate if we are testing or not
-          isTesting: true);
+      performLocalisation(
+        areDevicesUpdated(device),
+        // TODO: edit true/false to indicate if we are testing or not
+        isTesting: true,
+      );
     }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
   }
 
@@ -102,6 +119,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
+    startPoint.clear();
     _streamSubscriptions.clear();
     _pushState();
   }
@@ -161,8 +179,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     LinkedHashMap<String, dynamic> tempResult = LinkedHashMap();
     if (isTesting) {
       tempResult.addEntries([
-        MapEntry('x_coordinate', 67.0),
-        MapEntry('y_coordinate', 512.55),
+        MapEntry('x_coordinate', 650.0),
+        MapEntry('y_coordinate', 30.35),
         MapEntry('direction', 'North'),
       ]);
     } else {
@@ -172,14 +190,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     }
 
     _results = <SensorCharacteristics>[
-      SensorCharacteristics(
-        name: 'x_coor',
-        value: tempResult['x_coordinate'],
-      ),
-      SensorCharacteristics(
-        name: 'y_coor',
-        value: tempResult['y_coordinate'],
-      ),
+      SensorCharacteristics(name: 'x_coor', value: tempResult['x_coordinate']),
+      SensorCharacteristics(name: 'y_coor', value: tempResult['y_coordinate']),
       SensorCharacteristics(
         name: 'direction',
         value: Direction(direction: tempResult['direction']).convertToDouble(),
@@ -188,6 +200,13 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     _pushState();
 
     if (hasUpdate) {
+      // shortest path
+      startPoint = [_results[0].value, _results[1].value];
+      if (_onSight.sp.setup(startPoint, endGoal[0x3] ?? []) == 0) {
+        print('shortest path = ${_onSight.sp.determineShortestPath()}');
+      }
+
+      // publish to mqtt
       publishMqttPayload(rawData, tempResult);
     }
     if (isTesting) {
@@ -195,7 +214,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     }
   }
 
-  bool areDevicesUpdated(int knownDeviceIndex, DiscoveredDevice device) {
+  bool areDevicesUpdated(DiscoveredDevice device) {
+    int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
     bool hasUpdate = false;
 
     if (knownDeviceIndex >= 0) {

@@ -15,9 +15,10 @@ class OnSight {
   late MyDatabase _db;
   late Localisation _lc;
   late Mqtt _mq;
-  late MyShortestPath _sp;
 
   // ==== Public Methods ====
+  late MyShortestPath sp;
+
   /// Runs the localisation algorithm
   ///
   /// Inputs:
@@ -48,16 +49,14 @@ class OnSight {
     _lc = Localisation(dbObj: _db);
 
     // Shortest Path
-    _sp = MyShortestPath(dbObj: _db);
-
-    _testShortestPath([400.0, 0.0], [1500.0, 1200.0]);
+    sp = MyShortestPath(dbObj: _db);
   }
 
   /// TODO: TO delete in production code
   /// To test if shortest path algorithm runs properly
   void _testShortestPath(List<double> start, List<double> goal) {
-    _sp.setup(start, goal);
-    print(_sp.determineShortestPath());
+    sp.setup(start, goal);
+    print(sp.determineShortestPath());
   }
 
   /// Wrapper function for localisation.

@@ -173,12 +173,16 @@ class MyShortestPath {
   /// 2) goal [List<double>] - initial goal point (x,y).
   ///
   /// Returns:
-  /// 1) None.
-  void setup(List<double> start, List<double> goal) {
+  /// 1) [int]. 0: success, -1: failure
+  int setup(List<double> start, List<double> goal) {
+    if (goal.isEmpty || start.isEmpty) return -1;
+
     String textMap = _generateTextMap(start, goal);
     print(textMap);
     _maze = GeneralizedMaze(textMap);
     _aStar = AStar(_maze);
     _isGenerated = true;
+
+    return 0;
   }
 }
