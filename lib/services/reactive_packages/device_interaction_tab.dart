@@ -6,8 +6,8 @@ import 'package:functional_data/functional_data.dart';
 import 'package:provider/provider.dart';
 
 import 'package:on_sight/services/reactive_packages/ble_device_connector.dart';
-import 'package:on_sight/services/reactive_packages/characteristics_interaction_dialogue.dart';
-import 'package:on_sight/services/reactive_packages/ble_device_interactor.dart';
+import 'package:on_sight/services/reactive_packages/onsight_characteristics_interaction_dialogue.dart';
+import 'package:on_sight/services/reactive_packages/onsight_ble_device_interactor.dart';
 
 part 'device_interaction_tab.g.dart';
 //ignore_for_file: annotate_overrides

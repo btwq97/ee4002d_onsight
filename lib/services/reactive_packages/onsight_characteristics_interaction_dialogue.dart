@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:on_sight/services/reactive_packages/ble_device_interactor.dart';
+import 'package:on_sight/services/reactive_packages/onsight_ble_device_interactor.dart';
 import 'package:provider/provider.dart';
 
 class CharacteristicInteractionDialog extends StatelessWidget {
@@ -96,6 +96,7 @@ class _CharacteristicInteractionDialogState
   }
 
   List<int> _parseInput() => textEditingController.text
+      // TODO: for checking of input from 'Write Characteristic'
       .split(',')
       .map(
         int.parse,

@@ -1,20 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-
-class BleLogger {
-  final List<String> _logMessages = [];
-  final DateFormat formatter = DateFormat('HH:mm:ss.SSS');
-
-  List<String> get messages => _logMessages;
-
-  void addToLog(String message) {
-    final now = DateTime.now();
-    _logMessages.add('${formatter.format(now)} - $message');
-  }
-
-  void clearLogs() => _logMessages.clear();
-}
+import 'package:on_sight/services/reactive_packages/ble_logger.dart';
 
 class DeviceLogTab extends StatelessWidget {
   const DeviceLogTab({Key? key}) : super(key: key);

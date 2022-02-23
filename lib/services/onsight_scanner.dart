@@ -10,10 +10,8 @@ import 'package:on_sight/services/onsight.dart';
 class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   OnsightServicesScanner({
     required FlutterReactiveBle ble,
-    required Function(String message) logMessage,
     required OnSight onSight,
   })  : _ble = ble,
-        _logMessage = logMessage,
         _onSight = onSight {
     _knownDevices = _onSight.getKnownMac();
   }
@@ -21,7 +19,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
   List<String> _knownDevices = [];
-  final void Function(String message) _logMessage;
   final StreamController<ServicesScannerState> _bleStreamController =
       StreamController();
 
@@ -53,7 +50,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   /// use path following algorithm to follow path
   void startScan(List<Uuid> serviceIds) {
     // reset all subscriptions
-    _logMessage('Start ble discovery');
     _bleDevices.clear();
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
@@ -100,7 +96,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         // TODO: edit true/false to indicate if we are testing or not
         isTesting: true,
       );
-    }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
+    }, onError: (Object e) => print('Device scan fails with error: $e')));
   }
 
   void _pushState() {
@@ -115,7 +111,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   }
 
   Future<void> stopScan() async {
-    _logMessage('Stop ble discovery');
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }

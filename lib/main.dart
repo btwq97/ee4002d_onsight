@@ -7,7 +7,7 @@ import 'package:on_sight/services/onsight.dart';
 // for reactive ble
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/ble_device_connector.dart';
-import 'package:on_sight/services/reactive_packages/ble_device_interactor.dart';
+import 'package:on_sight/services/reactive_packages/onsight_ble_device_interactor.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_monitor.dart';
@@ -27,7 +27,6 @@ void main() async {
   final _ble = FlutterReactiveBle();
   final _servicesScanner = OnsightServicesScanner(
     ble: _ble,
-    logMessage: _bleLogger.addToLog,
     onSight: onSight,
   );
   final _espScanner = BleScanner(
@@ -39,7 +38,7 @@ void main() async {
     ble: _ble,
     logMessage: _bleLogger.addToLog,
   );
-  final _serviceDiscoverer = BleDeviceInteractor(
+  final _caneServiceDiscoverer = BleDeviceInteractor(
     bleDiscoverServices: _ble.discoverServices,
     readCharacteristic: _ble.readCharacteristic,
     writeWithResponse: _ble.writeCharacteristicWithResponse,
@@ -55,7 +54,7 @@ void main() async {
         Provider.value(value: _espScanner),
         Provider.value(value: _monitor),
         Provider.value(value: _connector),
-        Provider.value(value: _serviceDiscoverer),
+        Provider.value(value: _caneServiceDiscoverer),
         Provider.value(value: _bleLogger),
         StreamProvider<ServicesScannerState?>(
           create: (_) => _servicesScanner.state,

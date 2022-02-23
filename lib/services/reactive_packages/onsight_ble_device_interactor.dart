@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
+/// TODO: example for writing characteristics to ble devices
 class BleDeviceInteractor {
   BleDeviceInteractor({
     required Future<List<DiscoveredService>> Function(String deviceId)
