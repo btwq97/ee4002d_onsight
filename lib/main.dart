@@ -128,7 +128,6 @@ class HomePage extends StatelessWidget {
                 if (status == BleStatus.ready) {
                   return CustomerOrStoreOwnerPage(
                     onSight: onSight,
-                    ble: ble,
                   );
                 } else {
                   return BleStatusScreen(status: status ?? BleStatus.unknown);

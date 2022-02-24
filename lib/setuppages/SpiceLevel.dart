@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
@@ -18,27 +16,22 @@ class SpiceLevelPage extends StatefulWidget {
   SpiceLevelPage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _SpiceLevelPageState createState() => _SpiceLevelPageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _SpiceLevelPageState extends State<SpiceLevelPage> {
   _SpiceLevelPageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
   SpicePreference? level;
 
   @override
@@ -106,7 +99,6 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
                   MaterialPageRoute(
                       builder: (context) => CuisinePage(
                             onSight: onSight,
-                            ble: ble,
                           )));
             },
             child: Container(

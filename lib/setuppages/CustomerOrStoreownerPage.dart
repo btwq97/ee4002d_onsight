@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
@@ -17,28 +15,23 @@ class CustomerOrStoreOwnerPage extends StatefulWidget {
   CustomerOrStoreOwnerPage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _CustomerOrStoreownerPageState createState() =>
       _CustomerOrStoreownerPageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
   _CustomerOrStoreownerPageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   Role? chosen;
 
@@ -92,7 +85,6 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                   MaterialPageRoute(
                       builder: (context) => VegetarianPage(
                             onSight: onSight,
-                            ble: ble,
                           )));
             },
             child: Container(

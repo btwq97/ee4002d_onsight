@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
@@ -11,27 +9,22 @@ class AllergyPage extends StatefulWidget {
   AllergyPage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _AllergyPageState createState() => _AllergyPageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _AllergyPageState extends State<AllergyPage> {
   _AllergyPageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   Color eggCardColour = kInactiveCardColour;
   Color nutsCardColour = kInactiveCardColour;
@@ -146,7 +139,6 @@ class _AllergyPageState extends State<AllergyPage> {
                   MaterialPageRoute(
                       builder: (context) => SpiceLevelPage(
                             onSight: onSight,
-                            ble: ble,
                           )));
             },
             child: Container(

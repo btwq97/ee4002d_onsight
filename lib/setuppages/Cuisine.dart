@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
@@ -11,27 +9,22 @@ class CuisinePage extends StatefulWidget {
   CuisinePage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _CuisinePageState createState() => _CuisinePageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _CuisinePageState extends State<CuisinePage> {
   _CuisinePageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   Color chineseCardColour = kInactiveCardColour;
   Color malayCardColour = kInactiveCardColour;
@@ -190,7 +183,6 @@ class _CuisinePageState extends State<CuisinePage> {
                   MaterialPageRoute(
                       builder: (context) => CustomerHomePage(
                             onSight: onSight,
-                            ble: ble,
                           )));
             },
             child: Container(

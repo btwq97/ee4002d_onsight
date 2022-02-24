@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/onsight_cane.dart';
@@ -11,27 +9,22 @@ class CustomerHomePage extends StatefulWidget {
   CustomerHomePage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _CustomerHomePageState createState() => _CustomerHomePageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _CustomerHomePageState extends State<CustomerHomePage> {
   _CustomerHomePageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   Widget build(BuildContext context) {

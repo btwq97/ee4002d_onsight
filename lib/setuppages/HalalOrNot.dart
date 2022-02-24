@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
@@ -17,27 +15,22 @@ class HalalPage extends StatefulWidget {
   HalalPage({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key);
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   _HalalPageState createState() => _HalalPageState(
         onSight: onSight,
-        ble: ble,
       );
 }
 
 class _HalalPageState extends State<HalalPage> {
   _HalalPageState({
     required this.onSight,
-    required this.ble,
   });
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
   FoodPreference? preferred;
 
   @override
@@ -90,7 +83,6 @@ class _HalalPageState extends State<HalalPage> {
                   MaterialPageRoute(
                       builder: (context) => AllergyPage(
                             onSight: onSight,
-                            ble: ble,
                           )));
             },
             child: Container(
