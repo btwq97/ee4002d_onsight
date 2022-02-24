@@ -28,9 +28,9 @@ flutter clean
 flutter run
 ```
 
-If the clean build does not work, then remedy with the steps below:
+If the clean build does not work, then remedy with the steps below.
 
-# Bluetooth Remedies:
+## Bluetooth Remedies:
 
 Note: This was a remdy for Flutter_Blue Package. It may or may not work for FLutter_Reactive_BLE.
 
