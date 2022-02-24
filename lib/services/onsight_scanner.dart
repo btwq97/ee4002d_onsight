@@ -107,6 +107,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
           acceleration: _accelerometerValues,
           magnetometer: _magnetometerValues,
           result: _results,
+          // startscan is called in init, resulting in streams being subscribed automatically.
+          // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
           scanIsInProgress: _streamSubscriptions.isNotEmpty),
     );
   }

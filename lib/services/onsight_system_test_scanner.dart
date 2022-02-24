@@ -55,6 +55,9 @@ class OnsightSystemTestScanner
     _bleStreamController.add(
       OnsightSystemTestScannerState(
           discoveredDevices: _bleDevices,
+          // startscan is called when 'start' button is pressed,
+          // resulting in streams being subscribed.
+          // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
           scanIsInProgress: _streamSubscriptions.isNotEmpty),
     );
   }
