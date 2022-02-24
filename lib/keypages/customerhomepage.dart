@@ -4,7 +4,7 @@ import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/onsight_cane.dart';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
-import 'package:on_sight/services/onsight_system_test.dart';
+import 'package:on_sight/services/onsight_system_test_device_list.dart';
 
 class CustomerHomePage extends StatefulWidget {
   CustomerHomePage({
