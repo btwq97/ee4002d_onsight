@@ -1,0 +1,8 @@
+Version 0.1.0
+1. Integrated MQTT, DynamoDB, Flutter_Reactive_BLE into application.
+2. Application can now continuously scan for surrounding BLE devices and perform localisation locally.
+3. Application is able to log sensors data onto a .csv over MQTT in real time.
+4. Application can connect to ESP32 and send characteristic values over BLE.
+5. Phased out Flutter_Blue package.
+
+ 

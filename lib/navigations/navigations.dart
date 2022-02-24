@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'dart:math' as math;
-import 'package:on_sight/backend/backend_database.dart';
-import 'package:on_sight/navigations/navigations_a_star.dart';
-import 'package:on_sight/navigations/navigations_a_star_2d.dart';
+import 'package:on_sight/backend/database.dart';
+import 'package:on_sight/navigations/a_star.dart';
+import 'package:on_sight/navigations/a_star_2d.dart';
 import 'package:aws_dynamodb_api/dynamodb-2012-08-10.dart';
 
 class GeneralizedTile extends Tile with Node<GeneralizedTile> {

@@ -3,10 +3,10 @@ import 'dart:collection';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
-import 'package:on_sight/backend/backend_database.dart';
-import 'package:on_sight/localisation/localisation_localisation.dart';
-import 'package:on_sight/navigations/navigations_navigations.dart';
-import 'package:on_sight/mqtt/mqtt_mqtt.dart';
+import 'package:on_sight/backend/database.dart';
+import 'package:on_sight/localisation/localisation.dart';
+import 'package:on_sight/navigations/navigations.dart';
+import 'package:on_sight/mqtt/mqtt.dart';
 
 class OnSight {
   // ==== Private Methods ====

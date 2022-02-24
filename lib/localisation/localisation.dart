@@ -2,8 +2,8 @@ import 'dart:core';
 import 'dart:math';
 import 'dart:collection';
 
-import 'package:on_sight/localisation/localisation_my_numdart.dart';
-import 'package:on_sight/backend/backend_database.dart';
+import 'package:on_sight/localisation/my_numdart.dart';
+import 'package:on_sight/backend/database.dart';
 
 class Localisation {
   // ==== Private Methods ====
