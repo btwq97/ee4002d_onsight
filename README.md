@@ -32,7 +32,7 @@ If the clean build does not work, then remedy with the steps below.
 
 ## Bluetooth Remedies:
 
-Note: This was a remdy for Flutter_Blue Package. It may or may not work for FLutter_Reactive_BLE.
+Note: This was a remedy for Flutter_Blue Package. It may or may not work for Flutter_Reactive_BLE.
 
 ### iOS
 
