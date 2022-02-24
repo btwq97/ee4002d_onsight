@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
+import 'dart:collection';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:on_sight/services/onsight.dart';
 
 class Mqtt {
   late MqttServerClient _client;
 
   String _username = '';
   String _password = '';
-  int _attempt = -1;
 
   // ==== Private Methods ====
   /// Constructor.
@@ -25,14 +25,13 @@ class Mqtt {
   }) {
     _username = username;
     _password = password;
-    _attempt = 0;
     _client = MqttServerClient(host, 'flutter_client');
   }
 
-  /// Converts input map to json payload.
+  /// Converts input hashMap to json payload.
   ///
   /// Inputs:
-  /// 1) map [Map<String,dynamic>] - examples of raw payload.
+  /// 1) hashMap [LinkedHashMap<String,dynamic>] - examples of raw payload.
   /// e.g. {
   ///         "rssi": {
   ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
@@ -45,45 +44,81 @@ class Mqtt {
   ///         "y_coordinate": 200.09818188520637,
   ///         "direction":"North"
   ///      }
+  /// 2) mode [Mode]:
+  ///    - 0x1: 'fyp/test/datapipeline'
+  ///    - 0x2: 'fyp/test/sc'
   ///
   /// Returns:
   /// 1) result [String].
-  String _mapToString(Map<String, dynamic> map) {
-    String result = '{';
-    map.forEach((key, value) {
-      switch (key) {
-        case 'rssi':
-          int count = 0;
-          result += '\"$key\":{';
-          value.forEach((rssiKey, rssiValue) {
-            result += '\"$rssiKey\":$rssiValue';
-            if (count == 2) {
-              result += '},';
-            } else {
-              result += ',';
-            }
-            count += 1;
-          });
-          break;
-        case 'accelerometer':
-          result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
-          break;
-        case 'magnetometer':
-          result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
-          break;
-        case 'x_coordinate':
-          result += '\"$key\":${value},';
-          break;
-        case 'y_coordinate':
-          result += '\"$key\":${value},';
-          break;
-        case 'direction':
-          result += '\"$key\":\"${value}\"';
-          break;
-        default:
-          break;
-      }
-    });
+  String _mapToString(LinkedHashMap<String, dynamic> hashMap,
+      {required Mode mode}) {
+    String result = '{'; // initial json string
+
+    switch (mode) {
+      case Mode.DATA_PIPELINE:
+        hashMap.forEach((key, value) {
+          switch (key) {
+            case 'time':
+              result += '\"$key\":\"$value\",';
+              break;
+            case 'rssi':
+              LinkedHashMap<String, num> allRssi = value;
+              int count = allRssi.length;
+
+              result += '\"$key\":{';
+              value.forEach((rssiKey, rssiValue) {
+                result += '\"$rssiKey\":$rssiValue';
+                if (count == 1) {
+                  result += '},';
+                } else {
+                  result += ',';
+                }
+                count -= 1;
+              });
+              break;
+            case 'accelerometer':
+              result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
+              break;
+            case 'magnetometer':
+              result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
+              break;
+            case 'x_coordinate':
+              result += '\"$key\":${value},';
+              break;
+            case 'y_coordinate':
+              result += '\"$key\":${value},';
+              break;
+            case 'direction':
+              result += '\"$key\":\"${value}\"';
+              break;
+            default:
+              break;
+          }
+        });
+        break;
+
+      case Mode.SYSTEM_TESTING:
+        int count = hashMap.length;
+        hashMap.forEach((key, value) {
+          switch (key) {
+            case 'time':
+              result += '\"$key\":\"$value\"';
+              break;
+            default:
+              result += '\"$key\":$value';
+              break;
+          }
+          if (count != 1) {
+            result += ',';
+          }
+          count -= 1;
+        });
+        break;
+
+      default:
+        break;
+    }
+
     result += '}';
     return result;
   }
@@ -113,7 +148,7 @@ class Mqtt {
   /// Publish payload to specified topic.
   ///
   /// Input:
-  /// 1) payload [Map<String,dynamic>] - example of a raw payload.
+  /// 1) payload [LinkedHashMap<String,dynamic>] - example of a raw payload.
   /// e.g. {
   ///         "rssi": {
   ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
@@ -127,15 +162,19 @@ class Mqtt {
   ///         "direction":"North"
   ///      }
   /// 2) topic [String] - default is 'fyp/test/datapipeline'.
+  /// 3) mode [int]:
+  ///    - 0x1: 'fyp/test/datapipeline'
+  ///    - 0x2: 'fyp/test/sc'
   ///
   /// Return:
   /// 1) None
   void publish(
-    Map<String, dynamic> payload, {
+    LinkedHashMap<String, dynamic> payload, {
     String topic = 'fyp/test/datapipeline',
+    required Mode mode,
   }) {
     MqttClientPayloadBuilder _builder = MqttClientPayloadBuilder();
-    _builder.addString(_mapToString(payload));
+    _builder.addString(_mapToString(payload, mode: mode));
     _client.publishMessage(topic, MqttQos.exactlyOnce, _builder.payload!);
   }
 

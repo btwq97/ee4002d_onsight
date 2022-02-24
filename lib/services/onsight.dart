@@ -8,6 +8,11 @@ import 'package:on_sight/localisation/localisation.dart';
 import 'package:on_sight/navigations/navigations.dart';
 import 'package:on_sight/mqtt/mqtt.dart';
 
+enum Mode {
+  DATA_PIPELINE,
+  SYSTEM_TESTING,
+}
+
 class OnSight {
   // ==== Private Methods ====
   OnSight();
@@ -84,7 +89,7 @@ class OnSight {
   /// Wrapper function for publishing data points to mqtt server.
   ///
   /// Inputs:
-  /// 1) payload [Map<String, dynamic>] -
+  /// 1) payload [LinkedHashMap<String, dynamic>] -
   /// e.g. {
   ///         "rssi": {
   ///               "9d9214f8-8870-43dd-a496-401765bf7866": -61.6888,
@@ -97,15 +102,19 @@ class OnSight {
   ///         "y_coordinate": 200.09818188520637,
   ///         "direction":"North"
   ///      }
-  /// 2) topic [String] - default is ''fyp/test/datapipeline''.
+  /// 2) topic [String] - default is 'fyp/test/datapipeline'.
+  /// 3) mode [Mode]:
+  ///    - 0x1: 'fyp/test/datapipeline'
+  ///    - 0x2: 'fyp/test/sc'
   ///
   /// Returns:
   /// 1) None.
   void mqttPublish(
-    Map<String, dynamic> payload, {
+    LinkedHashMap<String, dynamic> payload, {
     String topic = 'fyp/test/datapipeline',
+    required Mode mode,
   }) {
-    _mq.publish(payload, topic: topic);
+    _mq.publish(payload, topic: topic, mode: mode);
   }
 
   /// Function to retrieve known uuid from database.

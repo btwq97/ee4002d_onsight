@@ -96,6 +96,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         // TODO: edit true/false to indicate if we are testing or not
         isTesting: true,
       );
+      _pushState();
     }, onError: (Object e) => print('Device scan fails with error: $e')));
   }
 
@@ -126,26 +127,41 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   void performLocalisation(bool hasUpdate, {required bool isTesting}) {
     if (_accelerometerValues.isEmpty || _magnetometerValues.isEmpty) return;
 
-    LinkedHashMap<String, num> _tempRssi = LinkedHashMap();
+    DateTime currTime = DateTime.now();
+    String stringTime =
+        '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
+
+    LinkedHashMap<String, num> _tempRssi = LinkedHashMap(); // for localisation
+    LinkedHashMap<String, num> _tempAllRssi =
+        LinkedHashMap(); // for writing to csv
     bool isReady = (hasUpdate && (_bleDevices.length >= 3));
 
     if (isTesting) {
       // Placeholder values
-      _tempRssi.addEntries([
+      _tempAllRssi.addEntries([
         MapEntry("DC:A6:32:A0:B7:4D", -65.0),
         MapEntry("DC:A6:32:A0:C9:9E", -71.3),
         MapEntry("DC:A6:32:A0:C9:3B", -68.0),
+        MapEntry("DC:A6:32:A0:C8:30", -67.0),
+        MapEntry("DC:A6:32:A0:C6:17", -78.3),
       ]);
     } else {
       // updates only when 3 or more devices are found
       if (isReady) {
         // TODO: Test if clearing cache memory will result in better result
-        // update uuid and rssi
+
+        // for localisation use
         _tempRssi.addEntries([
           MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
           MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
           MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
         ]);
+        // for writing to csv
+        for (int i = 0; i < _bleDevices.length; i++) {
+          _tempAllRssi.addEntries([
+            MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
+          ]);
+        }
       }
     }
 
@@ -164,14 +180,27 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     ];
 
     // add sensor readings to rawData for localisation
-    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
+    LinkedHashMap<String, dynamic> rawData =
+        LinkedHashMap(); // for localisation use
+    LinkedHashMap<String, dynamic> allRawData =
+        LinkedHashMap(); // for storing to csv
+
+    // for localisation use
     rawData.addEntries([
       MapEntry('rssi', _tempRssi),
       MapEntry('accelerometer', tempAcc),
       MapEntry('magnetometer', tempMag),
     ]);
+    // for storing to csv
+    allRawData.addEntries([
+      MapEntry('rssi', _tempAllRssi),
+      MapEntry('accelerometer', tempAcc),
+      MapEntry('magnetometer', tempMag),
+    ]);
 
     LinkedHashMap<String, dynamic> tempResult = LinkedHashMap();
+    tempResult.addEntries([MapEntry('time', stringTime)]);
+
     if (isTesting) {
       tempResult.addEntries([
         MapEntry('x_coordinate', 650.0),
@@ -196,16 +225,16 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
 
     if (isReady) {
       // shortest path
-      startPoint = [_results[0].value, _results[1].value];
-      if (_onSight.sp.setup(startPoint, endGoal[0x3] ?? []) == 0) {
-        print('shortest path = ${_onSight.sp.determineShortestPath()}');
-      }
+      // startPoint = [_results[0].value, _results[1].value];
+      // if (_onSight.sp.setup(startPoint, endGoal[0x3] ?? []) == 0) {
+      //   print('shortest path = ${_onSight.sp.determineShortestPath()}');
+      // }
 
       // publish to mqtt
-      publishMqttPayload(rawData, tempResult);
+      publishMqttPayload(allRawData, tempResult);
     }
     if (isTesting) {
-      publishMqttPayload(rawData, tempResult);
+      publishMqttPayload(allRawData, tempResult);
     }
   }
 
@@ -233,15 +262,15 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   }
 
   void publishMqttPayload(
-    Map<String, dynamic> rawData,
-    Map<String, dynamic> tempResult,
+    LinkedHashMap<String, dynamic> rawData,
+    LinkedHashMap<String, dynamic> tempResult,
   ) {
-    Map<String, dynamic> mqttPayload = {};
+    LinkedHashMap<String, dynamic> mqttPayload = LinkedHashMap();
 
     mqttPayload.addEntries(rawData.entries);
     mqttPayload.addEntries(tempResult.entries);
 
-    _onSight.mqttPublish(mqttPayload);
+    _onSight.mqttPublish(mqttPayload, mode: Mode.DATA_PIPELINE);
   }
 }
 

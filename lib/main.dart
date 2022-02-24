@@ -13,6 +13,7 @@ import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_monitor.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_screen.dart';
 import 'package:on_sight/services/reactive_packages/ble_logger.dart';
+import 'package:on_sight/services/onsight_system_test_scanner.dart';
 
 const _themeColor = Color(0xFF301934);
 
@@ -26,6 +27,10 @@ void main() async {
   final _bleLogger = BleLogger();
   final _ble = FlutterReactiveBle();
   final _servicesScanner = OnsightServicesScanner(
+    ble: _ble,
+    onSight: onSight,
+  );
+  final _systemTestScanner = OnsightSystemTestScanner(
     ble: _ble,
     onSight: onSight,
   );
@@ -51,6 +56,7 @@ void main() async {
     MultiProvider(
       providers: [
         Provider.value(value: _servicesScanner),
+        Provider.value(value: _systemTestScanner),
         Provider.value(value: _espScanner),
         Provider.value(value: _monitor),
         Provider.value(value: _connector),
@@ -63,6 +69,13 @@ void main() async {
             acceleration: [],
             magnetometer: [],
             result: [],
+            scanIsInProgress: false,
+          ),
+        ),
+        StreamProvider<OnsightSystemTestScannerState?>(
+          create: (_) => _systemTestScanner.state,
+          initialData: const OnsightSystemTestScannerState(
+            discoveredDevices: [],
             scanIsInProgress: false,
           ),
         ),

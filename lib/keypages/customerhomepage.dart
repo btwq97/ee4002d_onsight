@@ -4,6 +4,7 @@ import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/onsight_cane.dart';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
+import 'package:on_sight/services/onsight_system_test.dart';
 
 class CustomerHomePage extends StatefulWidget {
   CustomerHomePage({
@@ -44,6 +45,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => CanteenTestPage()));
             },
+
+            // Location map
             child: Container(
               child: Center(
                 child: Text(
@@ -57,6 +60,8 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               height: kBottomContainerHeight,
             ),
           ),
+
+          // Connect to ESP32
           GestureDetector(
             onTap: () {
               Navigator.push(context,
@@ -75,6 +80,32 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
               height: kBottomContainerHeight,
             ),
           ),
+
+          // System Characteristics Testing
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => OnsightSystemTestScreen(
+                            onSight: this.onSight,
+                          )));
+            },
+            child: Container(
+              child: Center(
+                child: Text(
+                  'SYSTEM TESTING',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+
+          // Localisation Screen
           GestureDetector(
             onTap: () {
               Navigator.push(
