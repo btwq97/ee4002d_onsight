@@ -10,18 +10,15 @@ class OnsightLocalisationScreen extends StatelessWidget {
   OnsightLocalisationScreen({
     Key? key,
     required this.onSight,
-    required this.ble,
   }) : super(key: key) {}
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
 
   @override
   Widget build(BuildContext context) =>
       Consumer2<OnsightServicesScanner, ServicesScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
           onSight: onSight,
-          ble: ble,
           scannerState: bleScannerState ??
               const ServicesScannerState(
                 discoveredDevices: [],
@@ -39,13 +36,11 @@ class OnsightLocalisationScreen extends StatelessWidget {
 class _DeviceList extends StatefulWidget {
   _DeviceList(
       {required this.onSight,
-      required this.ble,
       required this.scannerState,
       required this.startScan,
       required this.stopScan});
 
   final OnSight onSight;
-  final FlutterReactiveBle ble;
   final ServicesScannerState scannerState;
   final void Function(List<Uuid>) startScan;
   final VoidCallback stopScan;
@@ -60,30 +55,12 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   void initState() {
     super.initState();
-
     _startScanning(); // we dont need to stream the devices here as it is taken cared of in ble_scanner
-
-    // Example of how to subscribe to a stream
-    // _streamSubscriptions.add(
-    //     widget.ble.scanForDevices(withServices: knownUuid).listen((update) {
-    //   setState(() {
-    //     String currUuid = update.id;
-    //     if (_discoveredDevices.containsKey(currUuid)) {
-    //       int tempRssi = _discoveredDevices[currUuid] ?? 0;
-    //       _discoveredDevices[currUuid] = (tempRssi + update.rssi) ~/ 2;
-    //     } else {
-    //       _discoveredDevices[currUuid] = update.rssi;
-    //     }
-    //     print("discovered = ${_discoveredDevices}");
-    //     // print("from ble = ${widget.scannerState.discoveredDevices}");
-    //   });
-    // }));
   }
 
   @override
   void dispose() {
     super.dispose();
-
     widget.stopScan();
   }
 

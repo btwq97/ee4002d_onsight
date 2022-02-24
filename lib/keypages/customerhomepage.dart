@@ -89,7 +89,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(
                       builder: (context) => OnsightLocalisationScreen(
                             onSight: this.onSight,
-                            ble: ble,
                           )));
             },
             child: Container(
