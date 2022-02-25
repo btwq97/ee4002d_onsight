@@ -1,8 +1,8 @@
 import 'dart:collection';
 import 'dart:math' as math;
 import 'package:on_sight/backend/database.dart';
-import 'package:on_sight/navigations/a_star.dart';
-import 'package:on_sight/navigations/a_star_2d.dart';
+import 'package:on_sight/navigations/navigation_packages/a_star.dart';
+import 'package:on_sight/navigations/navigation_packages/a_star_2d.dart';
 import 'package:on_sight/error_handling/my_exceptions.dart';
 import 'package:aws_dynamodb_api/dynamodb-2012-08-10.dart';
 
