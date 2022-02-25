@@ -30,17 +30,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<SensorCharacteristics> _results = [];
 
-  // for navigations
-  /// 1: Hungry Burger
-  /// 2: Asian Delight
-  /// 3: HK Cafe
-  Map<int, List<double>> endGoal = {
-    0x1: [1580, 1880],
-    0x2: [1580, 1680],
-    0x3: [1580, 1480]
-  };
-  List<double> startPoint = [];
-
   @override
   Stream<ServicesScannerState> get state => _bleStreamController.stream;
 
@@ -117,7 +106,6 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
-    startPoint.clear();
     _streamSubscriptions.clear();
     _pushState();
   }
@@ -182,10 +170,10 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     ];
 
     // add sensor readings to rawData for localisation
-    LinkedHashMap<String, dynamic> rawData =
-        LinkedHashMap(); // for localisation use
-    LinkedHashMap<String, dynamic> allRawData =
-        LinkedHashMap(); // for storing to csv
+    // for localisation use
+    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
+    // for storing to csv
+    LinkedHashMap<String, dynamic> allRawData = LinkedHashMap();
 
     // for localisation use
     rawData.addEntries([
@@ -200,43 +188,38 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
       MapEntry('magnetometer', tempMag),
     ]);
 
-    LinkedHashMap<String, dynamic> tempResult = LinkedHashMap();
-    tempResult.addEntries([MapEntry('time', stringTime)]);
+    // for storing of result of localisation
+    LinkedHashMap<String, dynamic> result = LinkedHashMap();
+    result.addEntries([MapEntry('time', stringTime)]);
 
     if (isTesting) {
-      tempResult.addEntries([
+      result.addEntries([
         MapEntry('x_coordinate', 650.0),
         MapEntry('y_coordinate', 30.35),
         MapEntry('direction', 'North'),
       ]);
     } else {
       if (isReady) {
-        tempResult = _onSight.localisation(rawData);
+        result = _onSight.localisation(rawData);
       }
     }
 
     _results = <SensorCharacteristics>[
-      SensorCharacteristics(name: 'x_coor', value: tempResult['x_coordinate']),
-      SensorCharacteristics(name: 'y_coor', value: tempResult['y_coordinate']),
+      SensorCharacteristics(name: 'x_coor', value: result['x_coordinate']),
+      SensorCharacteristics(name: 'y_coor', value: result['y_coordinate']),
       SensorCharacteristics(
         name: 'direction',
-        value: Direction(direction: tempResult['direction']).convertToDouble(),
+        value: Direction(direction: result['direction']).convertToDouble(),
       ),
     ];
     _pushState();
 
     if (isReady) {
-      // shortest path
-      // startPoint = [_results[0].value, _results[1].value];
-      // if (_onSight.sp.setup(startPoint, endGoal[0x3] ?? []) == 0) {
-      //   print('shortest path = ${_onSight.sp.determineShortestPath()}');
-      // }
-
       // publish to mqtt
-      publishMqttPayload(allRawData, tempResult);
+      publishMqttPayload(allRawData, result);
     }
     if (isTesting) {
-      publishMqttPayload(allRawData, tempResult);
+      publishMqttPayload(allRawData, result);
     }
   }
 
@@ -265,12 +248,12 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
 
   void publishMqttPayload(
     LinkedHashMap<String, dynamic> rawData,
-    LinkedHashMap<String, dynamic> tempResult,
+    LinkedHashMap<String, dynamic> result,
   ) {
     LinkedHashMap<String, dynamic> mqttPayload = LinkedHashMap();
 
     mqttPayload.addEntries(rawData.entries);
-    mqttPayload.addEntries(tempResult.entries);
+    mqttPayload.addEntries(result.entries);
 
     _onSight.mqttPublish(mqttPayload, mode: Mode.DATA_PIPELINE);
   }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:collection';
 
 import 'package:on_sight/localisation/my_numdart.dart';
+import 'package:on_sight/navigations/navigations.dart';
 import 'package:on_sight/backend/database.dart';
 
 class Localisation {
@@ -11,12 +12,14 @@ class Localisation {
   ///
   /// Inputs:
   /// 1) dbObj [MyDatabase] - database object.
+  /// 2) spObj [MyShortestPath] - shortest path object.
   ///
   /// Returns:
   /// 1) None.
-  Localisation({required MyDatabase dbObj}) {
-    _nd = MyNumDart();
-
+  Localisation({
+    required MyDatabase dbObj,
+    required MyShortestPath spObj,
+  }) : _spObj = spObj {
     _knownBeacons = dbObj.getKnownBeaconsPositions();
 
     _circleConditions = {
@@ -27,8 +30,19 @@ class Localisation {
     };
   }
 
-  late MyNumDart _nd;
-  double BASELINERSSI = -55.0; // TODO: update baseline RSSI as necessary
+  final MyNumDart _nd = MyNumDart();
+  final MyShortestPath _spObj;
+  static double BASELINERSSI = -55.0; // TODO: update baseline RSSI as necessary
+
+  /// For Navigations
+  /// 1: Hungry Burger
+  /// 2: Asian Delight
+  /// 3: HK Cafe
+  static Map<int, List<double>> END_GOAL = {
+    0x1: [1580, 1880],
+    0x2: [1580, 1680],
+    0x3: [1580, 1480]
+  };
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -821,17 +835,24 @@ class Localisation {
           // 4) determine if location on map is inline with the shortest path.
           // 5) if yes, continue. If no, re-route?
         });
+        result.addEntries(_trilateration(distances).entries);
       }
       // TODO: add in additional features
       else if (key == 'magnetometer') {
+        // shortest path
+        List<double> startPoint = [
+          result['x_coordinate'],
+          result['x_coordinate'],
+        ];
+        if (_spObj.setup(startPoint, END_GOAL[0x3] ?? []) == 0) {
+          print('shortest path = ${_spObj.determineShortestPath()}');
+        }
         result['direction'] = 'North'; // Placeholder
       } else if (key == 'accelerometer') {
       } else {
         // Do nothing
       }
     });
-
-    result.addEntries(_trilateration(distances).entries);
 
     return result;
   }

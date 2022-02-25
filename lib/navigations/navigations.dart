@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:on_sight/backend/database.dart';
 import 'package:on_sight/navigations/a_star.dart';
 import 'package:on_sight/navigations/a_star_2d.dart';
+import 'package:on_sight/error_handling/my_exceptions.dart';
 import 'package:aws_dynamodb_api/dynamodb-2012-08-10.dart';
 
 class GeneralizedTile extends Tile with Node<GeneralizedTile> {
@@ -108,6 +109,8 @@ class MyShortestPath {
     int count = 0;
     String temp = '';
     String textMap = '';
+    bool hasStart = false;
+    bool hasGoal = false;
 
     // using linear O(1) array search for a 2d map
     Map<String, AttributeValue> startCell =
@@ -123,6 +126,7 @@ class MyShortestPath {
         } else {
           if (cell['tiles_id']!.n == goalCell['tiles_id']!.n) {
             temp += 'g'; // if cell is a landmark, and it is the end goal
+            hasGoal = true;
           } else {
             temp +=
                 'x'; // all other landmarks are treated as obstacles for simplicity's sake.
@@ -131,6 +135,7 @@ class MyShortestPath {
       } else {
         if (cell['tiles_id']!.n == startCell['tiles_id']!.n) {
           temp += 's'; // if cell is the starting point
+          hasStart = true;
         } else {
           temp += 'o'; // all other non-obstacle cells are paths
         }
@@ -146,7 +151,17 @@ class MyShortestPath {
       }
     });
 
-    return textMap;
+    if (hasGoal && hasStart) {
+      return textMap;
+    } else {
+      if (hasGoal && !hasStart) {
+        throw TileException(errMsg: 'No start point!');
+      } else if (!hasGoal && hasStart) {
+        throw TileException(errMsg: 'No goal point!');
+      } else {
+        throw TileException(errMsg: 'No start nor goal point!');
+      }
+    }
   }
 
   // ==== Public Methods ====
@@ -161,7 +176,7 @@ class MyShortestPath {
     if (_isGenerated) {
       return _aStar.findPathSync(_maze.start, _maze.goal);
     } else {
-      throw Exception('Text map is not generated');
+      throw TileException(errMsg: 'Text map is not generated');
     }
   }
 
@@ -177,8 +192,16 @@ class MyShortestPath {
   int setup(List<double> start, List<double> goal) {
     if (goal.isEmpty || start.isEmpty) return -1;
 
-    String textMap = _generateTextMap(start, goal);
-    print(textMap);
+    String textMap = '';
+
+    try {
+      textMap = _generateTextMap(start, goal);
+      print(textMap);
+    } on TileException catch (error) {
+      print(error.what());
+      return -1;
+    }
+
     _maze = GeneralizedMaze(textMap);
     _aStar = AStar(_maze);
     _isGenerated = true;

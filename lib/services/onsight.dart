@@ -49,12 +49,11 @@ class OnSight {
       password: dotenv.env['mqttPassword'].toString(),
     );
     await _mq.init();
-
-    // Localisation
-    _lc = Localisation(dbObj: _db);
-
     // Shortest Path
     sp = MyShortestPath(dbObj: _db);
+
+    // Localisation
+    _lc = Localisation(dbObj: _db, spObj: sp);
   }
 
   /// TODO: TO delete in production code
