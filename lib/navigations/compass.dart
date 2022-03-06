@@ -102,7 +102,7 @@ class Compass {
 
   num calibrate(num rawHeading) {
     /// How to calibrate?
-    /// 1) Uncomment line 116.
+    /// 1) Uncomment line 118.
     /// 2) Compare readings with a compass and find offset.
     /// 3) Compass is now calibrated.
 
