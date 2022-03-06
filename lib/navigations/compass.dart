@@ -106,7 +106,7 @@ class Compass {
     /// 2) Compare readings with a compass and find offset.
     /// 3) Compass is now calibrated.
 
-    num offset = 120; // based on calibration with iPhone 12 mini
+    num offset = 100; // based on calibration with iPhone 12 mini
     num calibratedHeading = rawHeading;
 
     // convert to all positive bearings
