@@ -218,11 +218,11 @@ class _DeviceListState extends State<_DeviceList> {
 /// Function to convert numbered direction to its corresponding string value.
 ///
 /// Inputs:
-/// 1) direction [double] - direction in double.
+/// 1) direction [num] - direction in double.
 ///
 /// Return:
 /// 1) [String].
-String convertToDirection(double direction) {
+String convertToDirection(num direction) {
   if (direction == 1.0)
     return 'North';
   else if (direction == 2.0)
@@ -232,11 +232,13 @@ String convertToDirection(double direction) {
   else if (direction == 4.0)
     return 'West';
   else if (direction == 5.0)
-    return 'NorthEast';
+    return 'North-East';
   else if (direction == 6.0)
-    return 'SouthEast';
+    return 'South-East';
   else if (direction == 7.0)
-    return 'SouthWest';
-  else // NorthWest
-    return 'NorthWest';
+    return 'South-West';
+  else if (direction == 8.0)
+    return 'North-West';
+  else
+    return "Error";
 }

@@ -3,9 +3,9 @@ import 'dart:math';
 import 'dart:collection';
 
 import 'package:on_sight/localisation/my_numdart.dart';
-import 'package:on_sight/navigations/navigations.dart';
 import 'package:on_sight/backend/database.dart';
 import 'package:on_sight/error_handling/my_exceptions.dart';
+import 'package:on_sight/navigations/compass.dart';
 
 class Localisation {
   // ==== Private Methods ====
@@ -13,14 +13,12 @@ class Localisation {
   ///
   /// Inputs:
   /// 1) dbObj [MyDatabase] - database object.
-  /// 2) spObj [MyShortestPath] - shortest path object.
   ///
   /// Returns:
   /// 1) None.
   Localisation({
     required MyDatabase dbObj,
-    required MyShortestPath spObj,
-  }) : _spObj = spObj {
+  }) {
     _knownBeacons = dbObj.getKnownBeaconsPositions();
 
     _circleConditions = {
@@ -32,7 +30,6 @@ class Localisation {
   }
 
   final MyNumDart _nd = MyNumDart();
-  final MyShortestPath _spObj;
   static double BASELINERSSI = -55.0; // TODO: update baseline RSSI as necessary
 
   /// For Navigations
@@ -749,12 +746,12 @@ class Localisation {
         tangentialIntercept: [],
       );
       if (statusOfLastCircles == (_circleConditions['EXACT'] ?? 4)) {
-        print('Performing Case 1: Three circles intercept exactly.');
+        // print('Performing Case 1: Three circles intercept exactly.');
         estimate = _exactInterceptWithThreeCircles(circles: circles);
       }
       // Case: last circle overlaps with the other two smaller circles
       else if (statusOfLastCircles == (_circleConditions['OVERLAP'] ?? 2)) {
-        print('Performing Case 2: Three circles overlaps each other.');
+        // print('Performing Case 2: Three circles overlaps each other.');
         estimate = _estimatedInterceptWhenThreeCirclesOverlap(
           circles,
           interceptA,
@@ -762,8 +759,8 @@ class Localisation {
       }
       // Case: last circle do not overlap or intercept at all
       else {
-        print(
-            'Performing Case 3: Only the two smallest circles intercept but the last do not.');
+        // print(
+        //     'Performing Case 3: Only the two smallest circles intercept but the last do not.');
         estimate = _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
           interceptA,
           circles[0][2],
@@ -776,15 +773,15 @@ class Localisation {
     // Case: circles with the two smallest radiuses do not overlap
     else if (statusOfTwoSmallestCircles ==
         (_circleConditions['NO INTERCEPT'] ?? 3)) {
-      print('Performing Case 4: Two smallest circles do not intercept.');
+      // print('Performing Case 4: Two smallest circles do not intercept.');
       estimate =
           _estimatedPositionWhenTwoSmallestCirclesDoNotIntercept(circles);
     }
 
     // Case: Circles with two smallest circles are tangential to each other
     else {
-      print(
-          'Performing Case 5: Two smallest circles are tangential to each other.');
+      // print(
+      //     'Performing Case 5: Two smallest circles are tangential to each other.');
 
       List<double> interceptA = _interceptOfTwoTangentialCircles(
         circles[0],
@@ -836,24 +833,24 @@ class Localisation {
         LinkedHashMap<String, num> rssiData = rawData[key];
         rssiData.forEach((macAddr, rssi) {
           distances[macAddr] = _rssiToDistance(rssi.toDouble());
-          // 2) convert map to a format storable in a database.
-          // 3) check the current location of the map based on result.
-          // 4) determine if location on map is inline with the shortest path.
-          // 5) if yes, continue. If no, re-route?
         });
         result.addEntries(_trilateration(distances).entries);
       }
       // TODO: add in additional features
       else if (key == 'magnetometer') {
-        // shortest path
-        // List<double> startPoint = [
-        //   result['x_coordinate'],
-        //   result['y_coordinate'],
-        // ];
-        // if (_spObj.setup(startPoint, END_GOAL[0x3] ?? []) == 0) {
-        //   print('shortest path = ${_spObj.determineShortestPath()}');
-        // }
-        result['direction'] = 'North'; // Placeholder
+        List<num> currMagneto = value;
+        num bearing = -1.0;
+        try {
+          bearing = Compass(
+            magx: currMagneto[0],
+            magy: currMagneto[1],
+            magz: currMagneto[2],
+          ).toNum();
+        } on NoPossibleSolution catch (error) {
+          print(error.what());
+          bearing = -1.0;
+        }
+        result['direction'] = bearing;
       } else if (key == 'accelerometer') {
       } else {
         // Do nothing

@@ -199,7 +199,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         SensorCharacteristics(name: 'y_coor', value: result['y_coordinate']),
         SensorCharacteristics(
           name: 'direction',
-          value: Direction(direction: result['direction']).convertToDouble(),
+          value: result['direction'],
         ),
       ];
       _pushState();
@@ -208,17 +208,17 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       publishMqttPayload(allRawData, result);
 
       // print for debugging purposes
-      print(
-        SensorScannerState(
-                discoveredDevices: _bleDevices,
-                result: _results,
-                acceleration: _accelerometerValues,
-                magnetometer: _magnetometerValues,
-                // startscan is called in init, resulting in streams being subscribed automatically.
-                // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
-                scanIsInProgress: _streamSubscriptions.isNotEmpty)
-            .toString(),
-      );
+      // print(
+      //   SensorScannerState(
+      //           discoveredDevices: _bleDevices,
+      //           result: _results,
+      //           acceleration: _accelerometerValues,
+      //           magnetometer: _magnetometerValues,
+      //           // startscan is called in init, resulting in streams being subscribed automatically.
+      //           // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
+      //           scanIsInProgress: _streamSubscriptions.isNotEmpty)
+      //       .toString(),
+      // );
     }
   }
 
@@ -311,38 +311,4 @@ class SensorCharacteristics {
 
   final String name;
   final double value;
-}
-
-class Direction {
-  const Direction({
-    required this.direction,
-  });
-
-  final String direction;
-
-  /// Function to convert String direction to its corresponding double value.
-  ///
-  /// Inputs:
-  /// 1) None.
-  ///
-  /// Return:
-  /// 1) [double].
-  double convertToDouble() {
-    if (this.direction == 'North')
-      return 1.0;
-    else if (this.direction == 'South')
-      return 2.0;
-    else if (this.direction == 'East')
-      return 3.0;
-    else if (this.direction == 'West')
-      return 4.0;
-    else if (this.direction == 'NorthEast')
-      return 5.0;
-    else if (this.direction == 'SouthEast')
-      return 6.0;
-    else if (this.direction == 'SouthWest')
-      return 7.0;
-    else // NorthWest
-      return 8.0;
-  }
 }

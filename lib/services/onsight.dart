@@ -5,7 +5,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import 'package:on_sight/backend/database.dart';
 import 'package:on_sight/localisation/localisation.dart';
-import 'package:on_sight/navigations/navigations.dart';
 import 'package:on_sight/mqtt/mqtt.dart';
 
 enum Mode {
@@ -22,8 +21,6 @@ class OnSight {
   late Mqtt _mq;
 
   // ==== Public Methods ====
-  late MyShortestPath sp;
-
   /// Runs the localisation algorithm
   ///
   /// Inputs:
@@ -49,18 +46,9 @@ class OnSight {
       password: dotenv.env['mqttPassword'].toString(),
     );
     await _mq.init();
-    // Shortest Path
-    sp = MyShortestPath(dbObj: _db);
 
     // Localisation
-    _lc = Localisation(dbObj: _db, spObj: sp);
-  }
-
-  /// TODO: TO delete in production code
-  /// To test if shortest path algorithm runs properly
-  void _testShortestPath(List<double> start, List<double> goal) {
-    sp.setup(start, goal);
-    print(sp.determineShortestPath());
+    _lc = Localisation(dbObj: _db);
   }
 
   /// Wrapper function for localisation.
