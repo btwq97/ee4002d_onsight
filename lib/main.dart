@@ -62,13 +62,13 @@ void main() async {
         Provider.value(value: _connector),
         Provider.value(value: _caneServiceDiscoverer),
         Provider.value(value: _bleLogger),
-        StreamProvider<ServicesScannerState?>(
+        StreamProvider<SensorScannerState?>(
           create: (_) => _servicesScanner.state,
-          initialData: const ServicesScannerState(
+          initialData: const SensorScannerState(
             discoveredDevices: [],
+            result: [],
             acceleration: [],
             magnetometer: [],
-            result: [],
             scanIsInProgress: false,
           ),
         ),

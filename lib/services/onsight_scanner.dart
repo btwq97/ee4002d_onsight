@@ -7,7 +7,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
-class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
+class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   OnsightServicesScanner({
     required FlutterReactiveBle ble,
     required OnSight onSight,
@@ -19,9 +19,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
   List<String> _knownDevices = [];
-  final StreamController<ServicesScannerState> _bleStreamController =
+  final StreamController<SensorScannerState> _bleStreamController =
       StreamController();
-
   // for subscriptions
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
@@ -31,12 +30,8 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
   List<SensorCharacteristics> _results = [];
 
   @override
-  Stream<ServicesScannerState> get state => _bleStreamController.stream;
+  Stream<SensorScannerState> get state => _bleStreamController.stream;
 
-  /// TODO: integrate navigations here
-  /// Add try-catch for scenario when 's' and 'g' are not present in textMap
-  /// print our shortest path
-  /// use path following algorithm to follow path
   void startScan(List<Uuid> serviceIds) {
     // reset all subscriptions
     _bleDevices.clear();
@@ -77,25 +72,25 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
         .scanForDevices(
       withServices: serviceIds,
       // TODO: change scanMode as necessary
-      scanMode: ScanMode.lowLatency,
+      scanMode: ScanMode.balanced,
     )
         .listen((device) {
       performLocalisation(
         areDevicesUpdated(device),
         // TODO: edit true/false to indicate if we are testing or not
-        isTesting: true,
+        isDebugMode: true,
       );
-      _pushState();
     }, onError: (Object e) => print('Device scan fails with error: $e')));
+    _pushState();
   }
 
   void _pushState() {
     _bleStreamController.add(
-      ServicesScannerState(
+      SensorScannerState(
           discoveredDevices: _bleDevices,
+          result: _results,
           acceleration: _accelerometerValues,
           magnetometer: _magnetometerValues,
-          result: _results,
           // startscan is called in init, resulting in streams being subscribed automatically.
           // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
           scanIsInProgress: _streamSubscriptions.isNotEmpty),
@@ -114,46 +109,25 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
     await _bleStreamController.close();
   }
 
-  void performLocalisation(bool hasUpdate, {required bool isTesting}) {
+  void performLocalisation(bool hasUpdate, {required bool isDebugMode}) {
     if (_accelerometerValues.isEmpty || _magnetometerValues.isEmpty) return;
 
     DateTime currTime = DateTime.now();
     String stringTime =
         '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
 
-    LinkedHashMap<String, num> _tempRssi = LinkedHashMap(); // for localisation
-    LinkedHashMap<String, num> _tempAllRssi =
-        LinkedHashMap(); // for writing to csv
+    // for localisation
+    LinkedHashMap<String, num> tempRssi = LinkedHashMap();
+    // for writing to csv
+    LinkedHashMap<String, num> tempAllRssi = LinkedHashMap();
+    // for localisation use
+    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
+    // for storing to csv
+    LinkedHashMap<String, dynamic> allRawData = LinkedHashMap();
+    // for storing of result of localisation
+    LinkedHashMap<String, dynamic> result = LinkedHashMap();
+    // to check if system is ready
     bool isReady = (hasUpdate && (_bleDevices.length >= 3));
-
-    if (isTesting) {
-      // Placeholder values
-      _tempAllRssi.addEntries([
-        MapEntry("DC:A6:32:A0:B7:4D", -65.0),
-        MapEntry("DC:A6:32:A0:C9:9E", -71.3),
-        MapEntry("DC:A6:32:A0:C9:3B", -68.0),
-        MapEntry("DC:A6:32:A0:C8:30", -67.0),
-        MapEntry("DC:A6:32:A0:C6:17", -78.3),
-      ]);
-    } else {
-      // updates only when 3 or more devices are found
-      if (isReady) {
-        // TODO: Test if clearing cache memory will result in better result
-
-        // for localisation use
-        _tempRssi.addEntries([
-          MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
-          MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
-          MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
-        ]);
-        // for writing to csv
-        for (int i = 0; i < _bleDevices.length; i++) {
-          _tempAllRssi.addEntries([
-            MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
-          ]);
-        }
-      }
-    }
 
     // update acceleration
     List<double> tempAcc = [
@@ -169,57 +143,82 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
       _magnetometerValues[2].value,
     ];
 
-    // add sensor readings to rawData for localisation
-    // for localisation use
-    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
-    // for storing to csv
-    LinkedHashMap<String, dynamic> allRawData = LinkedHashMap();
-
-    // for localisation use
-    rawData.addEntries([
-      MapEntry('rssi', _tempRssi),
-      MapEntry('accelerometer', tempAcc),
-      MapEntry('magnetometer', tempMag),
-    ]);
-    // for storing to csv
-    allRawData.addEntries([
-      MapEntry('rssi', _tempAllRssi),
-      MapEntry('accelerometer', tempAcc),
-      MapEntry('magnetometer', tempMag),
-    ]);
-
-    // for storing of result of localisation
-    LinkedHashMap<String, dynamic> result = LinkedHashMap();
-    result.addEntries([MapEntry('time', stringTime)]);
-
-    if (isTesting) {
-      result.addEntries([
-        MapEntry('x_coordinate', 650.0),
-        MapEntry('y_coordinate', 30.35),
-        MapEntry('direction', 'North'),
+    // update location
+    if (isDebugMode) {
+      // Placeholder values
+      // used in localisation
+      tempRssi.addEntries([
+        MapEntry("DC:A6:32:A0:C9:9E", -67.0),
+        MapEntry("DC:A6:32:A0:C8:30", -72.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -73.0),
+      ]);
+      // store to csv
+      tempAllRssi.addEntries([
+        MapEntry("DC:A6:32:A0:C9:9E", -67.0),
+        MapEntry("DC:A6:32:A0:C8:30", -72.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -73.0),
       ]);
     } else {
+      // updates only when 3 or more devices are found
       if (isReady) {
-        result = _onSight.localisation(rawData);
+        // for localisation use
+        tempRssi.addEntries([
+          MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
+          MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
+          MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
+        ]);
+        // for writing to csv
+        for (int i = 0; i < _bleDevices.length; i++) {
+          tempAllRssi.addEntries([
+            MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
+          ]);
+        }
       }
     }
 
-    _results = <SensorCharacteristics>[
-      SensorCharacteristics(name: 'x_coor', value: result['x_coordinate']),
-      SensorCharacteristics(name: 'y_coor', value: result['y_coordinate']),
-      SensorCharacteristics(
-        name: 'direction',
-        value: Direction(direction: result['direction']).convertToDouble(),
-      ),
-    ];
-    _pushState();
+    // for localisation use
+    rawData.addEntries([
+      MapEntry('rssi', tempRssi),
+      MapEntry('accelerometer', tempAcc),
+      MapEntry('magnetometer', tempMag),
+    ]);
 
-    if (isReady) {
+    // for storing to csv
+    allRawData.addEntries([
+      MapEntry('time', stringTime),
+      MapEntry('rssi', tempAllRssi),
+      MapEntry('accelerometer', tempAcc),
+      MapEntry('magnetometer', tempMag),
+    ]);
+
+    if (isDebugMode || isReady) {
+      result = _onSight.localisation(rawData);
+
+      _results = <SensorCharacteristics>[
+        SensorCharacteristics(name: 'x_coor', value: result['x_coordinate']),
+        SensorCharacteristics(name: 'y_coor', value: result['y_coordinate']),
+        SensorCharacteristics(
+          name: 'direction',
+          value: Direction(direction: result['direction']).convertToDouble(),
+        ),
+      ];
+      _pushState();
+
       // publish to mqtt
       publishMqttPayload(allRawData, result);
-    }
-    if (isTesting) {
-      publishMqttPayload(allRawData, result);
+
+      // print for debugging purposes
+      print(
+        SensorScannerState(
+                discoveredDevices: _bleDevices,
+                result: _results,
+                acceleration: _accelerometerValues,
+                magnetometer: _magnetometerValues,
+                // startscan is called in init, resulting in streams being subscribed automatically.
+                // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
+                scanIsInProgress: _streamSubscriptions.isNotEmpty)
+            .toString(),
+      );
     }
   }
 
@@ -239,7 +238,7 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
 
     if (hasUpdate) {
       _bleDevices.sort((curr, next) =>
-          next.rssi.compareTo(curr.rssi)); // sort the rssi in descendind order
+          next.rssi.compareTo(curr.rssi)); // sort the rssi in descending order
       _pushState();
     }
 
@@ -260,20 +259,48 @@ class OnsightServicesScanner implements ReactiveState<ServicesScannerState> {
 }
 
 @immutable
-class ServicesScannerState {
-  const ServicesScannerState({
+class SensorScannerState {
+  const SensorScannerState({
     required this.discoveredDevices, // bluetooth devices
+    required this.result, // results from localisation
     required this.acceleration, //acceleration value
     required this.magnetometer, // magneto value
-    required this.result, // results from localisation
     required this.scanIsInProgress, // checks if scanning is in progress
   });
 
   final List<DiscoveredDevice> discoveredDevices;
+  final List<SensorCharacteristics> result;
   final List<SensorCharacteristics> acceleration;
   final List<SensorCharacteristics> magnetometer;
-  final List<SensorCharacteristics> result;
   final bool scanIsInProgress;
+
+  String toString() {
+    Map<String, int> dd = {};
+    if (discoveredDevices.length >= 3) {
+      dd = {
+        discoveredDevices[0].id: discoveredDevices[0].rssi,
+        discoveredDevices[1].id: discoveredDevices[1].rssi,
+        discoveredDevices[2].id: discoveredDevices[2].rssi,
+      };
+    }
+    List<double> res = [
+      result[0].value,
+      result[1].value,
+    ];
+    List<double> acc = [
+      acceleration[0].value,
+      acceleration[1].value,
+      acceleration[2].value,
+    ];
+    List<double> mag = [
+      magnetometer[0].value,
+      magnetometer[1].value,
+      magnetometer[2].value,
+    ];
+    String progress = scanIsInProgress ? 'True' : 'False';
+
+    return 'discoveredDevices = ${dd},\nacceleration = ${acc},\nmagnetometer = ${mag},\nresult = ${res},\nscanIsInProgress = ${progress}';
+  }
 }
 
 class SensorCharacteristics {

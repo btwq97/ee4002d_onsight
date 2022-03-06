@@ -16,15 +16,15 @@ class OnsightLocalisationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Consumer2<OnsightServicesScanner, ServicesScannerState?>(
+      Consumer2<OnsightServicesScanner, SensorScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
           onSight: onSight,
-          scannerState: bleScannerState ??
-              const ServicesScannerState(
+          sensorScannerState: bleScannerState ??
+              const SensorScannerState(
                 discoveredDevices: [],
-                acceleration: [],
-                magnetometer: [],
                 result: [],
+                magnetometer: [],
+                acceleration: [],
                 scanIsInProgress: false,
               ),
           startScan: bleScanner.startScan,
@@ -36,12 +36,12 @@ class OnsightLocalisationScreen extends StatelessWidget {
 class _DeviceList extends StatefulWidget {
   _DeviceList(
       {required this.onSight,
-      required this.scannerState,
+      required this.sensorScannerState,
       required this.startScan,
       required this.stopScan});
 
   final OnSight onSight;
-  final ServicesScannerState scannerState;
+  final SensorScannerState sensorScannerState;
   final void Function(List<Uuid>) startScan;
   final VoidCallback stopScan;
 
@@ -88,13 +88,13 @@ class _DeviceListState extends State<_DeviceList> {
                   children: [
                     ElevatedButton(
                       child: const Text('Start'),
-                      onPressed: !widget.scannerState.scanIsInProgress
+                      onPressed: !widget.sensorScannerState.scanIsInProgress
                           ? _startScanning
                           : null,
                     ),
                     ElevatedButton(
                       child: const Text('Stop'),
-                      onPressed: widget.scannerState.scanIsInProgress
+                      onPressed: widget.sensorScannerState.scanIsInProgress
                           ? widget.stopScan
                           : null,
                     ),
@@ -104,16 +104,16 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(!widget.scannerState.scanIsInProgress
+                      child: Text(!widget.sensorScannerState.scanIsInProgress
                           ? 'Tap start to begin localisation'
                           : 'Localisation in process...'),
                     ),
-                    if (widget.scannerState.scanIsInProgress &&
-                        widget.scannerState.discoveredDevices.isNotEmpty)
+                    if (widget.sensorScannerState.scanIsInProgress &&
+                        widget.sensorScannerState.discoveredDevices.isNotEmpty)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 18.0),
                         child: Text(
-                            'Devices found: ${widget.scannerState.discoveredDevices.length}'),
+                            'Devices found: ${widget.sensorScannerState.discoveredDevices.length}'),
                       ),
                   ],
                 ),
@@ -124,7 +124,7 @@ class _DeviceListState extends State<_DeviceList> {
           // For discovery
           Flexible(
             child: ListView(
-              children: widget.scannerState.discoveredDevices
+              children: widget.sensorScannerState.discoveredDevices
                   .map(
                     (device) => ListTile(
                       title: Text(device.name),
@@ -147,7 +147,7 @@ class _DeviceListState extends State<_DeviceList> {
           ),
           Flexible(
             child: ListView(
-              children: widget.scannerState.acceleration
+              children: widget.sensorScannerState.acceleration
                   .map(
                     (sensorValue) => ListTile(
                       title: Text(sensorValue.name),
@@ -169,7 +169,7 @@ class _DeviceListState extends State<_DeviceList> {
           ),
           Flexible(
             child: ListView(
-              children: widget.scannerState.magnetometer
+              children: widget.sensorScannerState.magnetometer
                   .map(
                     (sensorValue) => ListTile(
                       title: Text(sensorValue.name),
@@ -187,8 +187,8 @@ class _DeviceListState extends State<_DeviceList> {
               Expanded(
                 child: Text('Results'),
               ),
-              if (widget.scannerState.scanIsInProgress &&
-                  widget.scannerState.discoveredDevices.isNotEmpty)
+              if (widget.sensorScannerState.scanIsInProgress &&
+                  widget.sensorScannerState.discoveredDevices.isNotEmpty)
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 18.0),
                   child: Text('Processing...'),
@@ -197,7 +197,7 @@ class _DeviceListState extends State<_DeviceList> {
           ),
           Flexible(
             child: ListView(
-              children: widget.scannerState.result
+              children: widget.sensorScannerState.result
                   .map(
                     (result) => ListTile(
                       title: Text(result.name),

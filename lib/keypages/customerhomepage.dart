@@ -94,7 +94,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  'SYSTEM TESTING',
+                  'CHARACTERISTICS TESTING',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -118,7 +118,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  'FLUTTER REACTIVE BLE',
+                  'LOCALISATION TESTING',
                   style: kBottomButtonTextStyle,
                 ),
               ),

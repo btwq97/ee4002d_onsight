@@ -6,3 +6,12 @@ class TileException implements Exception {
     return errMsg;
   }
 }
+
+class NoPossibleSolution implements Exception {
+  NoPossibleSolution({required String errMsg}) : errMsg = errMsg;
+  final String errMsg;
+
+  String what() {
+    return errMsg;
+  }
+}

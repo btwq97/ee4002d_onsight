@@ -5,6 +5,7 @@ import 'dart:collection';
 import 'package:on_sight/localisation/my_numdart.dart';
 import 'package:on_sight/navigations/navigations.dart';
 import 'package:on_sight/backend/database.dart';
+import 'package:on_sight/error_handling/my_exceptions.dart';
 
 class Localisation {
   // ==== Private Methods ====
@@ -38,11 +39,11 @@ class Localisation {
   /// 1: Hungry Burger
   /// 2: Asian Delight
   /// 3: HK Cafe
-  static Map<int, List<double>> END_GOAL = {
-    0x1: [1580, 1880],
-    0x2: [1580, 1680],
-    0x3: [1580, 1480]
-  };
+  // static Map<int, List<double>> END_GOAL = {
+  //   0x1: [1580, 1880],
+  //   0x2: [1580, 1680],
+  //   0x3: [1580, 1480]
+  // };
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -148,7 +149,8 @@ class Localisation {
     } else if (radius < magnitude) {
       return _circleConditions['NO INTERCEPT'] ?? 3;
     } else {
-      return -1; // TODO: replace placeholder with throw statement.
+      throw NoPossibleSolution(
+          errMsg: '[_statusOfTwoCircles]: No Possible Solution Possible.');
     }
   }
 
@@ -263,23 +265,22 @@ class Localisation {
   /// Input:
   /// 1) circleC [List<double>] - details of circle e.g. X coordinate,
   ///                             Y coordinate, and Radius.
-  /// 2) overlapIntercepts [List<List<double>>?] - defaults null. Used when two
-  ///                                              circles with smallest two
-  ///                                              radiuses overlaps with each other.
-  /// 3) tangentialIntercepts [List<double>?] - defaults null. Used when two
-  ///                                              circles with smallest two
-  ///                                              radiuses is tangential to each other.
+  /// 2) overlapIntercepts [List<List<double>>] - Used when two
+  ///                                             circles with smallest two
+  ///                                             radiuses overlaps with each other.
+  /// 3) tangentialIntercepts [List<double>] - Used when two
+  ///                                          circles with smallest two
+  ///                                          radiuses is tangential to each other.
   /// Return:
   /// 1) Status [int] - 'OVERLAP', 'NO INTERCEPT', or 'EXACT'.
   int _statusOfThirdCircle(
     List<double> circleC, {
-    List<List<double>>? overlapIntercepts,
-    List<double>? tangentialIntercept,
+    required List<List<double>> overlapIntercepts,
+    required List<double> tangentialIntercept,
   }) {
     // For overlap
-    if ((overlapIntercepts?.isNotEmpty ?? true) &&
-        (tangentialIntercept?.isEmpty ?? true)) {
-      List<double> vectorA = overlapIntercepts![0];
+    if ((overlapIntercepts.isNotEmpty) && (tangentialIntercept.isEmpty)) {
+      List<double> vectorA = overlapIntercepts[0];
       List<double> vectorB = overlapIntercepts[1];
       List<double> vectorC = circleC.sublist(0, 2);
       double radiusC = circleC[2];
@@ -303,13 +304,12 @@ class Localisation {
     }
 
     // For tangential
-    else if ((overlapIntercepts?.isEmpty ?? true) &&
-        (tangentialIntercept?.isNotEmpty ?? true)) {
+    else if ((overlapIntercepts.isEmpty) && (tangentialIntercept.isNotEmpty)) {
       List<double> vectorC = circleC.sublist(0, 2);
       double radiusC = circleC[2];
 
       List<double> vectorAC =
-          _nd.vectorAdd(_nd.negateList(tangentialIntercept!), vectorC);
+          _nd.vectorAdd(_nd.negateList(tangentialIntercept), vectorC);
       double magnitudeAC = _nd.vectorMagnitude(vectorAC);
 
       if (_nd.isClose(magnitudeAC, radiusC) || (magnitudeAC == radiusC)) {
@@ -319,9 +319,10 @@ class Localisation {
       } else {
         return _circleConditions['NO INTERCEPT'] ?? 3;
       }
+    } else {
+      throw NoPossibleSolution(
+          errMsg: '[_statusOfThirdCircle]: Status of third circle is unknown!');
     }
-
-    return -1; // placeholder
   }
 
   /// Solve for the exact intercection point between three circles.
@@ -334,7 +335,8 @@ class Localisation {
   ///
   /// Return:
   /// 1) estimate [Map<String, dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}
-  Map<String, dynamic> _exactInterceptWithThreeCircles(circles) {
+  Map<String, dynamic> _exactInterceptWithThreeCircles(
+      {required List<List<double>> circles}) {
     List<double> circleA = circles[0];
     List<double> circleB = circles[1];
     List<double> circleC = circles[2];
@@ -741,11 +743,14 @@ class Localisation {
       );
 
       // Case: last circle overlaps exactly with interceptA
-      int statusOfLastCircles =
-          _statusOfThirdCircle(circles[2], overlapIntercepts: interceptA);
+      int statusOfLastCircles = _statusOfThirdCircle(
+        circles[2],
+        overlapIntercepts: interceptA,
+        tangentialIntercept: [],
+      );
       if (statusOfLastCircles == (_circleConditions['EXACT'] ?? 4)) {
         print('Performing Case 1: Three circles intercept exactly.');
-        estimate = _exactInterceptWithThreeCircles(circles);
+        estimate = _exactInterceptWithThreeCircles(circles: circles);
       }
       // Case: last circle overlaps with the other two smaller circles
       else if (statusOfLastCircles == (_circleConditions['OVERLAP'] ?? 2)) {
@@ -787,6 +792,7 @@ class Localisation {
       );
       int statusOfLastCircle = _statusOfThirdCircle(
         circles[2],
+        overlapIntercepts: [],
         tangentialIntercept: interceptA,
       );
 
@@ -794,7 +800,7 @@ class Localisation {
       //       and the last circle intercept exactly at interceptA.
       if (_circleConditions[statusOfLastCircle] ==
           (_circleConditions['EXACT'] ?? 4)) {
-        estimate = _exactInterceptWithThreeCircles(circles);
+        estimate = _exactInterceptWithThreeCircles(circles: circles);
       }
       // Case: Circles with two smallest circles are tangential to each other
       //       and the last circle do not intercept at interceptA.
@@ -827,7 +833,7 @@ class Localisation {
 
     rawData.forEach((key, value) {
       if (key == 'rssi') {
-        LinkedHashMap<String, int> rssiData = rawData[key];
+        LinkedHashMap<String, num> rssiData = rawData[key];
         rssiData.forEach((macAddr, rssi) {
           distances[macAddr] = _rssiToDistance(rssi.toDouble());
           // 2) convert map to a format storable in a database.
@@ -840,13 +846,13 @@ class Localisation {
       // TODO: add in additional features
       else if (key == 'magnetometer') {
         // shortest path
-        List<double> startPoint = [
-          result['x_coordinate'],
-          result['x_coordinate'],
-        ];
-        if (_spObj.setup(startPoint, END_GOAL[0x3] ?? []) == 0) {
-          print('shortest path = ${_spObj.determineShortestPath()}');
-        }
+        // List<double> startPoint = [
+        //   result['x_coordinate'],
+        //   result['y_coordinate'],
+        // ];
+        // if (_spObj.setup(startPoint, END_GOAL[0x3] ?? []) == 0) {
+        //   print('shortest path = ${_spObj.determineShortestPath()}');
+        // }
         result['direction'] = 'North'; // Placeholder
       } else if (key == 'accelerometer') {
       } else {

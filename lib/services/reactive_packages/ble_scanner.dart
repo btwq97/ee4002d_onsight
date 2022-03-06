@@ -32,16 +32,20 @@ class BleScanner implements ReactiveState<BleScannerState> {
       scanMode: ScanMode.lowLatency,
     )
         .listen((device) {
+      bool hasUpdates = false;
       final knownDeviceIndex = _devices.indexWhere((d) => d.id == device.id);
       if (knownDeviceIndex >= 0) {
         _devices[knownDeviceIndex] = device;
+        hasUpdates = true;
       } else {
         _devices.add(device);
+        hasUpdates = true;
       }
-      // _devices.sort((curr, next) =>
-      //     next.rssi.compareTo(curr.rssi)); // sorts in descending order
-
-      _pushState();
+      if (hasUpdates) {
+        _devices.sort((curr, next) =>
+            next.rssi.compareTo(curr.rssi)); // sorts in descending order
+        _pushState();
+      }
     }, onError: (Object e) => _logMessage('Device scan fails with error: $e'));
     _pushState();
   }

@@ -43,12 +43,16 @@ class OnsightSystemTestScanner
         .scanForDevices(
       withServices: serviceIds,
       // TODO: change scanMode as necessary
-      scanMode: ScanMode.lowLatency,
+      scanMode: ScanMode.balanced,
     )
         .listen((device) {
-      storeBleData(areDevicesUpdated(device), isTesting: true);
-      _pushState();
+      storeBleData(
+        areDevicesUpdated(device),
+        // TODO: edit true/false to indicate if we are testing or not
+        isDebugMode: true,
+      );
     }, onError: (Object e) => print('Device scan fails with error: $e')));
+    _pushState();
   }
 
   void _pushState() {
@@ -74,7 +78,7 @@ class OnsightSystemTestScanner
     await _bleStreamController.close();
   }
 
-  void storeBleData(bool hasUpdate, {required bool isTesting}) {
+  void storeBleData(bool hasUpdate, {required bool isDebugMode}) {
     DateTime currTime = DateTime.now();
     String stringTime =
         '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
@@ -82,16 +86,25 @@ class OnsightSystemTestScanner
     LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
     rawData.addEntries([MapEntry('time', stringTime)]); // store current time
 
-    if (isTesting) {
-      rawData.addEntries([
-        MapEntry("DC:A6:32:A0:B7:4D", -65.0),
+    LinkedHashMap<String, num> tmpRssi = LinkedHashMap();
+
+    if (isDebugMode) {
+      tmpRssi.addEntries([
+        MapEntry("\"DC:A6:32:A0:C9:9E\"", -67.0),
+        MapEntry("\"DC:A6:32:A0:C8:30\"", -72.0),
+        MapEntry("\"DC:A6:32:A0:B7:4D\"", -73.0),
       ]);
     } else {
       for (int i = 0; i < _bleDevices.length; i++) {
-        rawData.addEntries([MapEntry(_bleDevices[i].id, _bleDevices[i].rssi)]);
+        tmpRssi.addEntries([
+          MapEntry(
+            '\"${_bleDevices[i].id}\"',
+            _bleDevices[i].rssi,
+          )
+        ]);
       }
     }
-
+    rawData.addEntries([MapEntry('rssi', tmpRssi)]);
     publishMqttPayload(rawData, mode: Mode.SYSTEM_TESTING);
   }
 
