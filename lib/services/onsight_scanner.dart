@@ -18,6 +18,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
+  bool _hasUpdated = false;
   List<String> _knownDevices = [];
   final StreamController<SensorScannerState> _bleStreamController =
       StreamController();
@@ -25,9 +26,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
   final _bleDevices = <DiscoveredDevice>[];
-  List<SensorCharacteristics> _accelerometerValues = [];
   List<SensorCharacteristics> _magnetometerValues = [];
-  List<SensorCharacteristics> _results = [];
+  List<ResultCharactersitics> _results = [];
 
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
@@ -38,20 +38,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
-
-    // for acc
-    _streamSubscriptions.add(
-      accelerometerEvents.listen(
-        (AccelerometerEvent event) {
-          _accelerometerValues = <SensorCharacteristics>[
-            SensorCharacteristics(name: 'acc_x', value: event.x),
-            SensorCharacteristics(name: 'acc_y', value: event.y),
-            SensorCharacteristics(name: 'acc_z', value: event.z),
-          ];
-          _pushState();
-        },
-      ),
-    );
 
     // for mag
     _streamSubscriptions.add(
@@ -72,14 +58,11 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         .scanForDevices(
       withServices: serviceIds,
       // TODO: change scanMode as necessary
-      scanMode: ScanMode.balanced,
+      scanMode: ScanMode.lowLatency,
     )
         .listen((device) {
-      performLocalisation(
-        areDevicesUpdated(device),
-        // TODO: edit true/false to indicate if we are testing or not
-        isDebugMode: true,
-      );
+      _hasUpdated =
+          _areDevicesUpdated(device); // updates if there are new devices
     }, onError: (Object e) => print('Device scan fails with error: $e')));
     _pushState();
   }
@@ -89,11 +72,16 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       SensorScannerState(
           discoveredDevices: _bleDevices,
           result: _results,
-          acceleration: _accelerometerValues,
           magnetometer: _magnetometerValues,
           // startscan is called in init, resulting in streams being subscribed automatically.
           // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
           scanIsInProgress: _streamSubscriptions.isNotEmpty),
+    );
+
+    performLocalisation(
+      _hasUpdated,
+      // TODO: true if in debug mode, false if in actual test mode
+      isDebugMode: true,
     );
   }
 
@@ -110,7 +98,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   }
 
   void performLocalisation(bool hasUpdate, {required bool isDebugMode}) {
-    if (_accelerometerValues.isEmpty || _magnetometerValues.isEmpty) return;
+    if (_magnetometerValues.isEmpty) return;
 
     DateTime currTime = DateTime.now();
     String stringTime =
@@ -128,13 +116,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
     bool isReady = (hasUpdate && (_bleDevices.length >= 3));
-
-    // update acceleration
-    List<double> tempAcc = [
-      _accelerometerValues[0].value,
-      _accelerometerValues[1].value,
-      _accelerometerValues[2].value,
-    ];
 
     // update magnetometer
     List<double> tempMag = [
@@ -179,7 +160,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // for localisation use
     rawData.addEntries([
       MapEntry('rssi', tempRssi),
-      MapEntry('accelerometer', tempAcc),
       MapEntry('magnetometer', tempMag),
     ]);
 
@@ -187,42 +167,45 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     allRawData.addEntries([
       MapEntry('time', stringTime),
       MapEntry('rssi', tempAllRssi),
-      MapEntry('accelerometer', tempAcc),
       MapEntry('magnetometer', tempMag),
     ]);
 
     if (isDebugMode || isReady) {
       result = _onSight.localisation(rawData);
 
-      _results = <SensorCharacteristics>[
-        SensorCharacteristics(name: 'x_coor', value: result['x_coordinate']),
-        SensorCharacteristics(name: 'y_coor', value: result['y_coordinate']),
-        SensorCharacteristics(
-          name: 'direction',
-          value: result['direction'],
+      _results = <ResultCharactersitics>[
+        ResultCharactersitics(
+          name: 'x_coor',
+          value: result['x_coordinate']?.toString() ?? 'Error',
+        ),
+        ResultCharactersitics(
+          name: 'y_coor',
+          value: result['y_coordinate']?.toString() ?? 'Error',
+        ),
+        ResultCharactersitics(
+          name: 'zone',
+          value: result['direction']['zone'] ?? 'Error',
+        ),
+        ResultCharactersitics(
+          name: 'angle',
+          value: result['direction']['angle'] ?? 'Error',
+        ),
+        ResultCharactersitics(
+          name: 'compass_heading',
+          value: result['direction']['compass_heading'] ?? 'Error',
+        ),
+        ResultCharactersitics(
+          name: 'suggested_direction',
+          value: result['direction']['suggested_direction'] ?? 'Error',
         ),
       ];
-      _pushState();
 
       // publish to mqtt
       publishMqttPayload(allRawData, result);
-
-      // print for debugging purposes
-      // print(
-      //   SensorScannerState(
-      //           discoveredDevices: _bleDevices,
-      //           result: _results,
-      //           acceleration: _accelerometerValues,
-      //           magnetometer: _magnetometerValues,
-      //           // startscan is called in init, resulting in streams being subscribed automatically.
-      //           // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
-      //           scanIsInProgress: _streamSubscriptions.isNotEmpty)
-      //       .toString(),
-      // );
     }
   }
 
-  bool areDevicesUpdated(DiscoveredDevice device) {
+  bool _areDevicesUpdated(DiscoveredDevice device) {
     int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
     bool hasUpdate = false;
 
@@ -263,14 +246,12 @@ class SensorScannerState {
   const SensorScannerState({
     required this.discoveredDevices, // bluetooth devices
     required this.result, // results from localisation
-    required this.acceleration, //acceleration value
     required this.magnetometer, // magneto value
     required this.scanIsInProgress, // checks if scanning is in progress
   });
 
   final List<DiscoveredDevice> discoveredDevices;
-  final List<SensorCharacteristics> result;
-  final List<SensorCharacteristics> acceleration;
+  final List<ResultCharactersitics> result;
   final List<SensorCharacteristics> magnetometer;
   final bool scanIsInProgress;
 
@@ -283,15 +264,11 @@ class SensorScannerState {
         discoveredDevices[2].id: discoveredDevices[2].rssi,
       };
     }
-    List<double> res = [
+    List<String> res = [
       result[0].value,
       result[1].value,
     ];
-    List<double> acc = [
-      acceleration[0].value,
-      acceleration[1].value,
-      acceleration[2].value,
-    ];
+
     List<double> mag = [
       magnetometer[0].value,
       magnetometer[1].value,
@@ -299,7 +276,7 @@ class SensorScannerState {
     ];
     String progress = scanIsInProgress ? 'True' : 'False';
 
-    return 'discoveredDevices = ${dd},\nacceleration = ${acc},\nmagnetometer = ${mag},\nresult = ${res},\nscanIsInProgress = ${progress}';
+    return 'discoveredDevices = ${dd},\nmagnetometer = ${mag},\nresult = ${res},\nscanIsInProgress = ${progress}';
   }
 }
 
@@ -311,4 +288,14 @@ class SensorCharacteristics {
 
   final String name;
   final double value;
+}
+
+class ResultCharactersitics {
+  const ResultCharactersitics({
+    required this.name,
+    required this.value,
+  });
+
+  final String name;
+  final String value;
 }

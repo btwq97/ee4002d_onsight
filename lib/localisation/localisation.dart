@@ -7,6 +7,13 @@ import 'package:on_sight/backend/database.dart';
 import 'package:on_sight/error_handling/my_exceptions.dart';
 import 'package:on_sight/navigations/compass.dart';
 
+enum Zone {
+  start,
+  corner,
+  end,
+  stalls,
+}
+
 class Localisation {
   // ==== Private Methods ====
   /// constructor
@@ -30,17 +37,12 @@ class Localisation {
   }
 
   final MyNumDart _nd = MyNumDart();
-  static double BASELINERSSI = -55.0; // TODO: update baseline RSSI as necessary
+  // for navigation
+  bool hasTurned = false;
+  Zone currZone = Zone.start;
 
-  /// For Navigations
-  /// 1: Hungry Burger
-  /// 2: Asian Delight
-  /// 3: HK Cafe
-  // static Map<int, List<double>> END_GOAL = {
-  //   0x1: [1580, 1880],
-  //   0x2: [1580, 1680],
-  //   0x3: [1580, 1480]
-  // };
+  // TODO: update baseline RSSI as necessary
+  static double BASELINERSSI = -55.0;
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -62,6 +64,111 @@ class Localisation {
   /// key: macAddr, value: [x_coordinate, y_coordinate]
   Map<String, List<double>> _knownBeacons = {};
 
+  /// ========  For Navigations  ========
+  /// To convert estimated position from localisation to zones.
+  ///
+  /// Inputs:
+  /// 1) estPosition [List<num>] - (x_coor, y_coor).
+  ///
+  /// Returns:
+  /// 1) [Zone]
+  Zone _determineZone({required List<num> estPosition}) {
+    num currX = estPosition[0];
+    num currY = estPosition[1];
+
+    if (!hasTurned) {
+      if (currY >= 1200 && currX <= 900) {
+        return Zone.corner;
+      } else {
+        return Zone.start;
+      }
+    } else {
+      return Zone.end;
+    }
+  }
+
+  String _zoneToString(Zone userZone) {
+    if (userZone == Zone.start)
+      return 'start';
+    else if (userZone == Zone.corner)
+      return 'corner';
+    else if (userZone == Zone.end)
+      return 'end';
+    else
+      return 'stalls';
+  }
+
+  /// Retrieve the lower and upper limits of the heading
+  num _retrieveHeadingAngleRange(Heading heading) {
+    // precision to 4 d.p
+    if (heading == Heading.NE) {
+      return 45.0;
+    } else if (heading == Heading.E) {
+      return 90.0;
+    } else if (heading == Heading.SE) {
+      return 135.0;
+    } else if (heading == Heading.S) {
+      return 180;
+    } else if (heading == Heading.SW) {
+      return 225.0;
+    } else if (heading == Heading.W) {
+      return 270.0;
+    } else if (heading == Heading.NW) {
+      return 315.0;
+    } else if (heading == Heading.N) {
+      // special since North points from a negative range to a positive range (-22.5, 22.5)
+      return 0.0;
+    } else {
+      throw NoPossibleSolution(
+          errMsg:
+              "[_retrieveHeadingAngleRange]: Unable to retrieve heading angle");
+    }
+  }
+
+  /// Determines the direction for the user to move in.
+  ///
+  /// Inputs:
+  /// 1) userZone [Zone] - current zone.
+  /// 2) userBearing [Bearing] - current facing angle.
+  ///
+  /// Returns:
+  /// 1) [String] - direction for the user to move.
+  ///
+  /// TODO: Logic is buggy. It can direct the user to a particular direction.
+  ///       However, when the user is at the direct opposite direction,
+  ///       the direction given keeps jumping back and forth.
+  String determineDirection(Zone userZone, Bearing userBearing) {
+    // TODO: Placeholder values for now. Change headings to actual headings.
+    Map<Zone, Heading> FIXED_ROUTES_HEADING = {
+      Zone.start: Heading.NW,
+      Zone.corner: Heading.NE,
+      Zone.end: Heading.NE,
+    };
+
+    Heading? intendedHeading = FIXED_ROUTES_HEADING[userZone];
+    num intendedAngle = _retrieveHeadingAngleRange(userBearing.heading);
+    num rightTurnAngle = userBearing.angle - intendedAngle;
+    num leftTurnAngle = intendedAngle - userBearing.angle;
+
+    rightTurnAngle =
+        ((rightTurnAngle < 0) ? (rightTurnAngle + 360) : rightTurnAngle);
+    leftTurnAngle =
+        ((leftTurnAngle < 0) ? (leftTurnAngle + 360) : leftTurnAngle);
+
+    if (userBearing.heading != intendedHeading) {
+      if (rightTurnAngle < leftTurnAngle) {
+        return 'Right';
+      } else {
+        return 'Left';
+      }
+    }
+    // indicates correct orientation
+    else {
+      return 'Forward';
+    }
+  }
+
+  /// ======== For Localisation ========
   /// Create estimate output.
   ///
   /// Inputs:
@@ -760,7 +867,7 @@ class Localisation {
       // Case: last circle do not overlap or intercept at all
       else {
         // print(
-        //     'Performing Case 3: Only the two smallest circles intercept but the last do not.');
+        // 'Performing Case 3: Only the two smallest circles intercept but the last do not.');
         estimate = _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
           interceptA,
           circles[0][2],
@@ -781,7 +888,7 @@ class Localisation {
     // Case: Circles with two smallest circles are tangential to each other
     else {
       // print(
-      //     'Performing Case 5: Two smallest circles are tangential to each other.');
+      // 'Performing Case 5: Two smallest circles are tangential to each other.');
 
       List<double> interceptA = _interceptOfTwoTangentialCircles(
         circles[0],
@@ -817,11 +924,11 @@ class Localisation {
   ///
   /// Inputs:
   /// 1) rawData [LinkedHashMap<String,dynamic] - keys include 'rssi', 'accelerometer',
-  ///                                   and 'magnetometer'.
+  ///                                             and 'magnetometer'.
   ///
   /// Returns:
   /// 1) result [LinkedHashMap<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y,
-  ///                                   'direction':direction}
+  ///                                             'direction':direction}
   LinkedHashMap<String, dynamic> localisation(
     LinkedHashMap<String, dynamic> rawData,
   ) {
@@ -838,20 +945,35 @@ class Localisation {
       }
       // TODO: add in additional features
       else if (key == 'magnetometer') {
+        // initialise hashmap
+        Map<String, String> tempDirection = {
+          'zone': '',
+          'angle': '',
+          'compass_heading': '',
+          'suggested_direction': '',
+        };
+
+        // using zones to determine direction
+        Zone currZone = _determineZone(estPosition: [
+          result['x_coordinate'],
+          result['y_coordinate'],
+        ]);
+
+        // compass prototype
         List<num> currMagneto = value;
-        num bearing = -1.0;
-        try {
-          bearing = Compass(
-            magx: currMagneto[0],
-            magy: currMagneto[1],
-            magz: currMagneto[2],
-          ).toNum();
-        } on NoPossibleSolution catch (error) {
-          print(error.what());
-          bearing = -1.0;
-        }
-        result['direction'] = bearing;
-      } else if (key == 'accelerometer') {
+        Compass compass = Compass(
+          magx: currMagneto[0],
+          magy: currMagneto[1],
+        );
+
+        // store result
+        tempDirection['zone'] = _zoneToString(currZone);
+        tempDirection['angle'] = compass.getBearing().getAngleString();
+        tempDirection['compass_heading'] =
+            compass.getBearing().getHeadingString();
+        tempDirection['suggested_direction'] =
+            determineDirection(currZone, compass.getBearing());
+        result['direction'] = tempDirection;
       } else {
         // Do nothing
       }

@@ -24,7 +24,6 @@ class OnsightLocalisationScreen extends StatelessWidget {
                 discoveredDevices: [],
                 result: [],
                 magnetometer: [],
-                acceleration: [],
                 scanIsInProgress: false,
               ),
           startScan: bleScanner.startScan,
@@ -136,28 +135,6 @@ class _DeviceListState extends State<_DeviceList> {
             ),
           ),
 
-          // For accelerometer
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text('Accelerometer'),
-              ),
-            ],
-          ),
-          Flexible(
-            child: ListView(
-              children: widget.sensorScannerState.acceleration
-                  .map(
-                    (sensorValue) => ListTile(
-                      title: Text(sensorValue.name),
-                      subtitle: Text(sensorValue.value.toString()),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-
           // For magnetometer
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -201,9 +178,7 @@ class _DeviceListState extends State<_DeviceList> {
                   .map(
                     (result) => ListTile(
                       title: Text(result.name),
-                      subtitle: Text((result.name == 'direction')
-                          ? convertToDirection(result.value)
-                          : result.value.toString()),
+                      subtitle: Text(result.value.toString()),
                     ),
                   )
                   .toList(),
@@ -213,32 +188,4 @@ class _DeviceListState extends State<_DeviceList> {
       ),
     );
   }
-}
-
-/// Function to convert numbered direction to its corresponding string value.
-///
-/// Inputs:
-/// 1) direction [num] - direction in double.
-///
-/// Return:
-/// 1) [String].
-String convertToDirection(num direction) {
-  if (direction == 1.0)
-    return 'North';
-  else if (direction == 2.0)
-    return 'South';
-  else if (direction == 3.0)
-    return 'East';
-  else if (direction == 4.0)
-    return 'West';
-  else if (direction == 5.0)
-    return 'North-East';
-  else if (direction == 6.0)
-    return 'South-East';
-  else if (direction == 7.0)
-    return 'South-West';
-  else if (direction == 8.0)
-    return 'North-West';
-  else
-    return "Error";
 }

@@ -67,7 +67,6 @@ void main() async {
           initialData: const SensorScannerState(
             discoveredDevices: [],
             result: [],
-            acceleration: [],
             magnetometer: [],
             scanIsInProgress: false,
           ),
