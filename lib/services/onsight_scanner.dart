@@ -78,7 +78,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     );
 
     performLocalisation(
-      _hasUpdated,
+      hasUpdate: _hasUpdated,
       // TODO: true if in debug mode, false if in actual test mode
       isDebugMode: true,
     );
@@ -96,7 +96,10 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     await _bleStreamController.close();
   }
 
-  void performLocalisation(bool hasUpdate, {required bool isDebugMode}) {
+  void performLocalisation({
+    required bool hasUpdate,
+    required bool isDebugMode,
+  }) {
     if (_magnetometerValues.isEmpty) return;
 
     DateTime currTime = DateTime.now();
