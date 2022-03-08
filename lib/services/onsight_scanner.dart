@@ -64,7 +64,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       _hasUpdated =
           _areDevicesUpdated(device); // updates if there are new devices
     }, onError: (Object e) => print('Device scan fails with error: $e')));
-    _pushState();
   }
 
   void _pushState() {
