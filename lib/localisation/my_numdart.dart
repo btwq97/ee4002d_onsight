@@ -7,15 +7,15 @@ class MyNumDart {
   /// Adds two vector and returns the result.
   ///
   /// Input:
-  /// 1) vector1 [List<double>]
-  /// 2) vector2 [List<double>]
+  /// 1) vector1 [List<num>]
+  /// 2) vector2 [List<num>]
   ///
   /// Returns:
-  /// 1) result [List<double>] - Resultant addition of the two vector.
-  List<double> vectorAdd(List<double> vector1, List<double> vector2) {
+  /// 1) result [List<num>] - Resultant addition of the two vector.
+  List<num> vectorAdd(List<num> vector1, List<num> vector2) {
     assert(vector1.length == vector2.length);
 
-    List<double> result = [];
+    List<num> result = [];
     for (int i = 0; i < vector1.length; i++) {
       result.add(vector1[i] + vector2[i]);
     }
@@ -25,30 +25,30 @@ class MyNumDart {
   /// Find the magnitude of the vector.
   ///
   /// Input:
-  /// 1) vector [List<double>]
+  /// 1) vector [List<num>]
   ///
   /// Returns:
-  /// 1) Magnitude of the vector [double].
-  double vectorMagnitude(List<double> vector) {
+  /// 1) Magnitude of the vector [num].
+  num vectorMagnitude(List<num> vector) {
     return sqrt(pow(vector[0], 2).toDouble() + pow(vector[1], 2).toDouble());
   }
 
   /// Find the roots to a quadratic equation using the quadratic equation.
   ///
   /// Input:
-  /// 1) a [double]
-  /// 2) b [double]
-  /// 3) c [double]
+  /// 1) a [num]
+  /// 2) b [num]
+  /// 3) c [num]
   ///
   /// Results:
-  /// 1) Roots [List<double]
-  List<double> vectorRoots(double a, double b, double c) {
-    List<double> roots = [
+  /// 1) Roots [List<num]
+  List<num> vectorRoots(num a, num b, num c) {
+    List<num> roots = [
       (-b + sqrt((pow(b, 2) - (4 * a * c)))) / (2 * a),
       (-b - sqrt((pow(b, 2) - (4 * a * c)))) / (2 * a)
     ];
 
-    if (roots.contains(double.nan)) {
+    if (roots[0].isNaN || roots[1].isNaN) {
       throw ZeroDivisionError(errMsg: '[vectorRoots]: Zero Division Error');
     }
 
@@ -58,12 +58,12 @@ class MyNumDart {
   /// Convert elements in List to its negative form.
   ///
   /// Input:
-  /// 1) array [List<double>].
+  /// 1) array [List<num>].
   ///
   /// Returns:
-  /// 1) negativeArray [List<double>].
-  List<double> negateList(List<double> array) {
-    List<double> negativeArray = [];
+  /// 1) negativeArray [List<num>].
+  List<num> negateList(List<num> array) {
+    List<num> negativeArray = [];
     for (int i = 0; i < array.length; i++) {
       negativeArray.add(-array[i]);
     }
@@ -89,15 +89,15 @@ class MyNumDart {
   /// https://numpy.org/doc/stable/reference/generated/numpy.isclose.html
   ///
   /// Input:
-  /// 1) A [double].
-  /// 2) B [double].
-  /// 3) rtol [double] - relative tolerance parameter (default = 1e-05).
-  /// 4) atol [double] - absolute tolerance parameter (default = 1e-08).
+  /// 1) A [num].
+  /// 2) B [num].
+  /// 3) rtol [num] - relative tolerance parameter (default = 1e-05).
+  /// 4) atol [num] - absolute tolerance parameter (default = 1e-08).
   ///
   /// Returns:
   /// 1) result [bool].
-  bool isClose(double A, double B, {double rtol = 1e-05, double atol = 1e-08}) {
-    double difference = A - B;
+  bool isClose(num A, num B, {num rtol = 1e-05, num atol = 1e-08}) {
+    num difference = A - B;
     return (difference.abs() <= (atol + rtol * B.abs()));
   }
 

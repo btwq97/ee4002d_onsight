@@ -89,7 +89,14 @@ class Mqtt {
               result += '\"$key\":${value},';
               break;
             case 'direction':
-              result += '\"$key\":\"${value}\"';
+              Map<String, String> direction = value;
+              direction.forEach((dkey, dvalue) {
+                result += '\"$dkey\":\"${dvalue}\",';
+              });
+              result = result.substring(
+                0,
+                result.length - 1,
+              ); // to remove last comma
               break;
             default:
               break;

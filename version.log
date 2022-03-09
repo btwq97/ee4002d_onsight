@@ -5,4 +5,9 @@ Version 0.1.0
 4. Application can connect to ESP32 and send characteristic values over BLE.
 5. Phased out Flutter_Blue package.
 
+Version 0.2.0
+1. Phased out [double] and used [num] instead.
+2. Localisation now stores previous values and display them in the event of ZeroDivisionError.
+3. _bleDevices now clears itself after each localisation --> this is to ensure that the beacons received are the closest beacons.
+4. Navigatino based on compass heading is integrated but algorithm is still buggy.
  

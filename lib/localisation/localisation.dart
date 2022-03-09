@@ -42,7 +42,7 @@ class Localisation {
   Zone currZone = Zone.start;
 
   // TODO: update baseline RSSI as necessary
-  static double BASELINERSSI = -55.0;
+  static num BASELINERSSI = -55.0;
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -58,11 +58,14 @@ class Localisation {
   /// 'OVERLAP': 2,
   /// 'NO INTERCEPT': 3,
   /// 'EXACT': 4
-  Map<String, int> _circleConditions = {};
+  Map<String, num> _circleConditions = {};
 
   /// Known locations of beacons
   /// key: macAddr, value: [x_coordinate, y_coordinate]
-  Map<String, List<double>> _knownBeacons = {};
+  Map<String, List<num>> _knownBeacons = {};
+
+  num prev_x = 0.0;
+  num prev_y = 0.0;
 
   /// ========  For Navigations  ========
   /// To convert estimated position from localisation to zones.
@@ -89,13 +92,13 @@ class Localisation {
 
   String _zoneToString(Zone userZone) {
     if (userZone == Zone.start)
-      return 'start';
+      return 'Start';
     else if (userZone == Zone.corner)
-      return 'corner';
+      return 'Corner';
     else if (userZone == Zone.end)
-      return 'end';
+      return 'End';
     else
-      return 'stalls';
+      return 'Stalls';
   }
 
   /// Retrieve the lower and upper limits of the heading
@@ -172,14 +175,14 @@ class Localisation {
   /// Create estimate output.
   ///
   /// Inputs:
-  /// 1) xCoor [double] - x coordinate.
-  /// 2) yCoor [double] - y coordinate.
+  /// 1) xCoor [num] - x coordinate.
+  /// 2) yCoor [num] - y coordinate.
   ///
   /// Returns:
   /// 1) Map of estimated position [Map<String,dynamic>].
-  Map<String, dynamic> _formatEstimateOutput(
-    double xCoor,
-    double yCoor,
+  Map<String, num> _formatEstimateOutput(
+    num xCoor,
+    num yCoor,
   ) {
     return {'x_coordinate': xCoor, 'y_coordinate': yCoor};
   }
@@ -188,14 +191,14 @@ class Localisation {
   /// to List.
   ///
   /// Input:
-  /// 1) inputMap [Map<String, double>] - {key:macAddr, value:distances in meters}.
+  /// 1) inputMap [Map<String, num>] - {key:macAddr, value:distances in meters}.
   ///
   /// Returns:
-  /// 1) circles [List<List<double>>] (ascending order by radius).
+  /// 1) circles [List<List<num>>] (ascending order by radius).
 
-  List<List<double>> _mapToList(Map<String, double> inputMap) {
-    int metersToCentimeters = 100;
-    double x1, x2, x3, y1, y2, y3, r1, r2, r3;
+  List<List<num>> _mapToList(Map<String, num> inputMap) {
+    num metersToCentimeters = 100;
+    num x1, x2, x3, y1, y2, y3, r1, r2, r3;
     List<String> macAddr = [];
 
     inputMap.forEach((key, value) {
@@ -213,7 +216,7 @@ class Localisation {
     r2 = inputMap[macAddr[1]]! * metersToCentimeters;
     r3 = inputMap[macAddr[2]]! * metersToCentimeters;
 
-    List<List<double>> circles = [
+    List<List<num>> circles = [
       [x1, y1, r1],
       [x2, y2, r2],
       [x3, y3, r3]
@@ -229,22 +232,22 @@ class Localisation {
   /// points), or has no intercept at all.
   ///
   /// Input:
-  /// 1) circleA [List<List<double>>] - details of circle e.g. X coordinate,
+  /// 1) circleA [List<List<num>>] - details of circle e.g. X coordinate,
   ///                                   Y coordinate, and Radius.
-  /// 2) circleB [List<List<double>>] - details of circle e.g. X coordinate,
+  /// 2) circleB [List<List<num>>] - details of circle e.g. X coordinate,
   ///                                   Y coordinate, and Radius.
   ///
   /// Returns:
   /// 1) Statuses of circles [String] - 'TANGENTIAL', 'OVERLAP',
   ///                                   or 'NO INTERCEPT'.
-  int _statusOfTwoCircles(List<double> circleA, List<double> circleB) {
-    List<double> vectorA = [circleA[0], circleA[1]];
-    List<double> vectorB = [circleB[0], circleB[1]];
+  num _statusOfTwoCircles(List<num> circleA, List<num> circleB) {
+    List<num> vectorA = [circleA[0], circleA[1]];
+    List<num> vectorB = [circleB[0], circleB[1]];
 
-    double radius = _nd.vectorAdd([circleA[2]], [circleB[2]])[0];
+    num radius = _nd.vectorAdd([circleA[2]], [circleB[2]])[0];
 
-    List<double> vectorAB = _nd.vectorAdd(_nd.negateList(vectorA), vectorB);
-    double magnitude = _nd.vectorMagnitude(vectorAB);
+    List<num> vectorAB = _nd.vectorAdd(_nd.negateList(vectorA), vectorB);
+    num magnitude = _nd.vectorMagnitude(vectorAB);
 
     if ((radius == magnitude) || _nd.isClose(radius, magnitude)) {
       return _circleConditions['TANGENTIAL'] ?? 1;
@@ -261,42 +264,42 @@ class Localisation {
   /// Find the intercepts of two circles.
   ///
   /// Inputs:
-  /// 1) circleA [List<double>] - details of circle e.g. X coordinate,
+  /// 1) circleA [List<num>] - details of circle e.g. X coordinate,
   ///                             Y coordinate, and Radius.
-  /// 1) circleB [List<double>] - details of circle e.g. X coordinate,
+  /// 1) circleB [List<num>] - details of circle e.g. X coordinate,
   ///                             Y coordinate, and Radius.
   ///
   /// Returns:
-  /// 1) intercepts [List<double>]
-  List<List<double>> _interceptOfTwoCircles(
-    List<double> circleA,
-    List<double> circleB,
+  /// 1) intercepts [List<num>]
+  List<List<num>> _interceptOfTwoCircles(
+    List<num> circleA,
+    List<num> circleB,
   ) {
-    double x1 = circleA[0];
-    double x2 = circleB[0];
-    double y1 = circleA[1];
-    double y2 = circleB[1];
-    double r1 = circleA[2];
-    double r2 = circleB[2];
-    List<List<double>> intercepts = [[]];
+    num x1 = circleA[0];
+    num x2 = circleB[0];
+    num y1 = circleA[1];
+    num y2 = circleB[1];
+    num r1 = circleA[2];
+    num r2 = circleB[2];
+    List<List<num>> intercepts = [[]];
 
     if (y1 == y2) {
       // solving for x
-      double x = (pow(r1, 2).toDouble() -
+      num x = (pow(r1, 2).toDouble() -
               pow(r2, 2).toDouble() -
               pow(x1, 2).toDouble() +
               pow(x2, 2).toDouble()) /
           (-2 * x1 + 2 * x2);
       // solving quadratically for y
-      double a = 1;
-      double b = -2 * y1;
-      double c = pow(y1, 2).toDouble() +
+      num a = 1;
+      num b = -2 * y1;
+      num c = pow(y1, 2).toDouble() +
           pow(x, 2).toDouble() -
           2 * x1 * x +
           pow(x1, 2).toDouble() -
           pow(r1, 2).toDouble();
 
-      List<double> yRoots = [];
+      List<num> yRoots = [];
 
       try {
         yRoots = _nd.vectorRoots(a, b, c);
@@ -310,21 +313,21 @@ class Localisation {
       ];
     } else if (x1 == x2) {
       // solving for y
-      double y = (pow(r1, 2).toDouble() -
+      num y = (pow(r1, 2).toDouble() -
               pow(r2, 2).toDouble() -
               pow(y1, 2).toDouble() +
               pow(y2, 2).toDouble()) /
           (-2 * y1 + 2 * y2);
       // solving quadratically for x
-      double a = 1;
-      double b = -2 * x1;
-      double c = pow(x1, 2).toDouble() +
+      num a = 1;
+      num b = -2 * x1;
+      num c = pow(x1, 2).toDouble() +
           pow(y, 2).toDouble() -
           2 * y1 * y +
           pow(y1, 2).toDouble() -
           pow(r1, 2).toDouble();
 
-      List<double> xRoots = [];
+      List<num> xRoots = [];
       try {
         xRoots = _nd.vectorRoots(a, b, c);
       } on ZeroDivisionError catch (error) {
@@ -336,9 +339,9 @@ class Localisation {
         [xRoots[1], y]
       ];
     } else {
-      double A = -2 * x1 + 2 * x2;
-      double B = -2 * y1 + 2 * y2;
-      double C = pow(y1, 2).toDouble() -
+      num A = -2 * x1 + 2 * x2;
+      num B = -2 * y1 + 2 * y2;
+      num C = pow(y1, 2).toDouble() -
           pow(y2, 2).toDouble() +
           pow(x1, 2).toDouble() -
           pow(x2, 2).toDouble() -
@@ -346,15 +349,15 @@ class Localisation {
           pow(r2, 2).toDouble();
 
       // solving quadratically
-      double a = pow(B, 2).toDouble() + pow(A, 2).toDouble();
-      double b = -2 * x1 * pow(B, 2).toDouble() + 2 * A * C + 2 * y1 * B * A;
-      double c = pow(B, 2).toDouble() * pow(x1, 2).toDouble() +
+      num a = pow(B, 2).toDouble() + pow(A, 2).toDouble();
+      num b = -2 * x1 * pow(B, 2).toDouble() + 2 * A * C + 2 * y1 * B * A;
+      num c = pow(B, 2).toDouble() * pow(x1, 2).toDouble() +
           pow(C, 2).toDouble() +
           2 * y1 * B * C +
           pow(B, 2).toDouble() * pow(y1, 2).toDouble() -
           pow(B, 2).toDouble() * pow(r1, 2).toDouble();
 
-      List<double> xRoots = [];
+      List<num> xRoots = [];
 
       try {
         xRoots = _nd.vectorRoots(a, b, c);
@@ -362,9 +365,9 @@ class Localisation {
         throw ZeroDivisionError(errMsg: error.what());
       }
 
-      List<double> yRoots = [];
+      List<num> yRoots = [];
       for (int i = 0; i < xRoots.length; i++) {
-        double temp;
+        num temp;
         temp = (-C - (A * xRoots[i])) / B;
         yRoots.add(temp);
       }
@@ -385,32 +388,32 @@ class Localisation {
   /// intial circles.
   ///
   /// Input:
-  /// 1) circleC [List<double>] - details of circle e.g. X coordinate,
+  /// 1) circleC [List<num>] - details of circle e.g. X coordinate,
   ///                             Y coordinate, and Radius.
-  /// 2) overlapIntercepts [List<List<double>>] - Used when two
+  /// 2) overlapIntercepts [List<List<num>>] - Used when two
   ///                                             circles with smallest two
   ///                                             radiuses overlaps with each other.
-  /// 3) tangentialIntercepts [List<double>] - Used when two
+  /// 3) tangentialIntercepts [List<num>] - Used when two
   ///                                          circles with smallest two
   ///                                          radiuses is tangential to each other.
   /// Return:
-  /// 1) Status [int] - 'OVERLAP', 'NO INTERCEPT', or 'EXACT'.
-  int _statusOfThirdCircle(
-    List<double> circleC, {
-    required List<List<double>> overlapIntercepts,
-    required List<double> tangentialIntercept,
+  /// 1) Status [num] - 'OVERLAP', 'NO INTERCEPT', or 'EXACT'.
+  num _statusOfThirdCircle(
+    List<num> circleC, {
+    required List<List<num>> overlapIntercepts,
+    required List<num> tangentialIntercept,
   }) {
     // For overlap
     if ((overlapIntercepts.isNotEmpty) && (tangentialIntercept.isEmpty)) {
-      List<double> vectorA = overlapIntercepts[0];
-      List<double> vectorB = overlapIntercepts[1];
-      List<double> vectorC = circleC.sublist(0, 2);
-      double radiusC = circleC[2];
+      List<num> vectorA = overlapIntercepts[0];
+      List<num> vectorB = overlapIntercepts[1];
+      List<num> vectorC = circleC.sublist(0, 2);
+      num radiusC = circleC[2];
 
-      List<double> vectorAC = _nd.vectorAdd(_nd.negateList(vectorA), vectorC);
-      double magnitudeAC = _nd.vectorMagnitude(vectorAC);
-      List<double> vectorBC = _nd.vectorAdd(_nd.negateList(vectorB), vectorC);
-      double magnitudeBC = _nd.vectorMagnitude(vectorBC);
+      List<num> vectorAC = _nd.vectorAdd(_nd.negateList(vectorA), vectorC);
+      num magnitudeAC = _nd.vectorMagnitude(vectorAC);
+      List<num> vectorBC = _nd.vectorAdd(_nd.negateList(vectorB), vectorC);
+      num magnitudeBC = _nd.vectorMagnitude(vectorBC);
 
       if (_nd.isClose(magnitudeAC, radiusC) ||
           (magnitudeAC == radiusC) ||
@@ -427,12 +430,12 @@ class Localisation {
 
     // For tangential
     else if ((overlapIntercepts.isEmpty) && (tangentialIntercept.isNotEmpty)) {
-      List<double> vectorC = circleC.sublist(0, 2);
-      double radiusC = circleC[2];
+      List<num> vectorC = circleC.sublist(0, 2);
+      num radiusC = circleC[2];
 
-      List<double> vectorAC =
+      List<num> vectorAC =
           _nd.vectorAdd(_nd.negateList(tangentialIntercept), vectorC);
-      double magnitudeAC = _nd.vectorMagnitude(vectorAC);
+      num magnitudeAC = _nd.vectorMagnitude(vectorAC);
 
       if (_nd.isClose(magnitudeAC, radiusC) || (magnitudeAC == radiusC)) {
         return _circleConditions['EXACT'] ?? 4;
@@ -452,46 +455,46 @@ class Localisation {
   /// https://www.101computing.net/cell-phone-trilateration-algorithm/
   ///
   /// Input:
-  /// 1) circles [List<List<double>>] - details of circles e.g. X coordinate,
+  /// 1) circles [List<List<num>>] - details of circles e.g. X coordinate,
   ///                                   Y coordinate, and Radius.
   ///
   /// Return:
-  /// 1) estimate [Map<String, dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}
-  Map<String, dynamic> _exactInterceptWithThreeCircles(
-      {required List<List<double>> circles}) {
-    List<double> circleA = circles[0];
-    List<double> circleB = circles[1];
-    List<double> circleC = circles[2];
+  /// 1) estimate [Map<String, num>] - {'x_coordinate': X, 'y_coordinate': Y}
+  Map<String, num> _exactInterceptWithThreeCircles(
+      {required List<List<num>> circles}) {
+    List<num> circleA = circles[0];
+    List<num> circleB = circles[1];
+    List<num> circleC = circles[2];
 
-    double x1 = circleA[0];
-    double y1 = circleA[1];
-    double r1 = circleA[2];
-    double x2 = circleB[0];
-    double y2 = circleB[1];
-    double r2 = circleB[2];
-    double x3 = circleC[0];
-    double y3 = circleC[1];
-    double r3 = circleC[2];
+    num x1 = circleA[0];
+    num y1 = circleA[1];
+    num r1 = circleA[2];
+    num x2 = circleB[0];
+    num y2 = circleB[1];
+    num r2 = circleB[2];
+    num x3 = circleC[0];
+    num y3 = circleC[1];
+    num r3 = circleC[2];
 
-    double A = -2 * x1 + 2 * x2;
-    double B = -2 * y1 + 2 * y2;
-    double C = pow(r1, 2).toDouble() -
+    num A = -2 * x1 + 2 * x2;
+    num B = -2 * y1 + 2 * y2;
+    num C = pow(r1, 2).toDouble() -
         pow(r2, 2).toDouble() -
         pow(x1, 2).toDouble() +
         pow(x2, 2).toDouble() -
         pow(y1, 2).toDouble() +
         pow(y2, 2).toDouble();
-    double D = -2 * x2 + 2 * x3;
-    double E = -2 * y2 + 2 * y3;
-    double F = pow(r2, 2).toDouble() -
+    num D = -2 * x2 + 2 * x3;
+    num E = -2 * y2 + 2 * y3;
+    num F = pow(r2, 2).toDouble() -
         pow(r3, 2).toDouble() -
         pow(x2, 2).toDouble() +
         pow(x3, 2).toDouble() -
         pow(y2, 2).toDouble() +
         pow(y3, 2).toDouble();
 
-    double X = (C * E - F * B) / (E * A - B * D);
-    double Y = (C * D - A * F) / (B * D - A * E);
+    num X = (C * E - F * B) / (E * A - B * D);
+    num Y = (C * D - A * F) / (B * D - A * E);
 
     return _formatEstimateOutput(X, Y);
   }
@@ -500,23 +503,23 @@ class Localisation {
   /// directly across the coordinate.
   ///
   /// Inputs:
-  /// 1) interceptA [List<double>].
-  /// 2) interceptB [List<double>].
-  /// 3) center [List<double>] - center of circle that is not related to
+  /// 1) interceptA [List<num>].
+  /// 2) interceptB [List<num>].
+  /// 3) center [List<num>] - center of circle that is not related to
   ///                            interceptA and interceptB.
   ///
   /// Return:
-  /// 1) innerCoor [List<double>].
-  List<double> _innerIntersection(
-    List<double> interceptA,
-    List<double> interceptB,
-    List<double> center,
+  /// 1) innerCoor [List<num>].
+  List<num> _innerIntersection(
+    List<num> interceptA,
+    List<num> interceptB,
+    List<num> center,
   ) {
-    List<double> vectorAC = _nd.vectorAdd(_nd.negateList(interceptA), center);
-    List<double> vectorBC = _nd.vectorAdd(_nd.negateList(interceptB), center);
+    List<num> vectorAC = _nd.vectorAdd(_nd.negateList(interceptA), center);
+    List<num> vectorBC = _nd.vectorAdd(_nd.negateList(interceptB), center);
 
-    double magAC = _nd.vectorMagnitude(vectorAC);
-    double magBC = _nd.vectorMagnitude(vectorBC);
+    num magAC = _nd.vectorMagnitude(vectorAC);
+    num magBC = _nd.vectorMagnitude(vectorBC);
 
     if (magAC > magBC) {
       return interceptB;
@@ -528,31 +531,29 @@ class Localisation {
   /// other and forms an area of triangle.
   ///
   /// Inputs:
-  /// 1) circles [List<List<double>>] - details of circles e.g. X coordinate,
+  /// 1) circles [List<List<num>>] - details of circles e.g. X coordinate,
   ///                                   Y coordinate, and Radius.
-  /// 2) interceptA [List<List<double>>] - intercepts between circleA and
+  /// 2) interceptA [List<List<num>>] - intercepts between circleA and
   ///                                      circleB.
   ///
   /// Returns:
-  /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}
-  Map<String, dynamic> _estimatedInterceptWhenThreeCirclesOverlap(
-    List<List<double>> circle,
-    List<List<double>> interceptA,
+  /// 1) estimate [Map<String,num>] - {'x_coordinate': X, 'y_coordinate': Y}
+  Map<String, num> _estimatedInterceptWhenThreeCirclesOverlap(
+    List<List<num>> circle,
+    List<List<num>> interceptA,
   ) {
-    List<List<double>> interceptB =
-        _interceptOfTwoCircles(circle[0], circle[2]);
-    List<List<double>> interceptC =
-        _interceptOfTwoCircles(circle[1], circle[2]);
+    List<List<num>> interceptB = _interceptOfTwoCircles(circle[0], circle[2]);
+    List<List<num>> interceptC = _interceptOfTwoCircles(circle[1], circle[2]);
 
-    List<double> innerA = _innerIntersection(
+    List<num> innerA = _innerIntersection(
         interceptA[0], interceptA[1], circle[2].sublist(0, 2));
-    List<double> innerB = _innerIntersection(
+    List<num> innerB = _innerIntersection(
         interceptB[0], interceptB[1], circle[1].sublist(0, 2));
-    List<double> innerC = _innerIntersection(
+    List<num> innerC = _innerIntersection(
         interceptC[0], interceptC[1], circle[0].sublist(0, 2));
 
-    double X = (innerA[0] + innerB[0] + innerC[0]) / 3;
-    double Y = (innerA[1] + innerB[1] + innerC[1]) / 3;
+    num X = (innerA[0] + innerB[0] + innerC[0]) / 3;
+    num Y = (innerA[1] + innerB[1] + innerC[1]) / 3;
 
     return _formatEstimateOutput(X, Y);
   }
@@ -561,41 +562,43 @@ class Localisation {
   /// to the center of the last circle.
   ///
   /// Input:
-  /// 1) gradient [double] - gradient of line intersecting the two centers of
+  /// 1) gradient [num] - gradient of line intersecting the two centers of
   ///                        two circles.
-  /// 2) constant [double] - constant in Y = mX + C.
-  /// 3) centerX [double] - x coordinate of center of circle.
-  /// 4) circle [<List<double>] - details of circle e.g. X coordinate,
+  /// 2) constant [num] - constant in Y = mX + C.
+  /// 3) centerX [num] - x coordinate of center of circle.
+  /// 4) circle [<List<num>] - details of circle e.g. X coordinate,
   ///                             Y coordinate, and Radius.
   /// Return:
-  /// 1) intercept [List<double>].
-  List<double> _coordinateClosestToCircle(
-    double gradient,
-    double constant,
-    double centerX,
-    List<double> circle,
+  /// 1) intercept [List<num>].
+  List<num> _coordinateClosestToCircle(
+    num gradient,
+    num constant,
+    num centerX,
+    List<num> circle,
   ) {
-    double X = circle[0];
-    double Y = circle[1];
-    double R = circle[2];
+    num X = circle[0];
+    num Y = circle[1];
+    num R = circle[2];
 
-    double A = 1 + pow(gradient, 2).toDouble();
-    double B = -2 * X + 2 * gradient * constant - 2 * Y * gradient;
-    double C = pow(X, 2).toDouble() +
+    num A = 1 + pow(gradient, 2).toDouble();
+    num B = -2 * X + 2 * gradient * constant - 2 * Y * gradient;
+    num C = pow(X, 2).toDouble() +
         pow(constant, 2).toDouble() -
         2 * Y * constant +
         pow(Y, 2).toDouble() -
         pow(R, 2).toDouble();
-    List<double> xRoots = [];
+    List<num> xRoots = [];
 
     try {
       xRoots = _nd.vectorRoots(A, B, C);
     } on ZeroDivisionError catch (error) {
       throw ZeroDivisionError(errMsg: error.what());
+    } on RangeError catch (error) {
+      throw RangeError(error.message);
     }
 
     xRoots.sort((a, b) => b.compareTo(a)); // sort in descending order
-    List<double> xRootsCopy = List.from(xRoots); // create a deep copy
+    List<num> xRootsCopy = List.from(xRoots); // create a deep copy
 
     for (int i = 0; i < xRootsCopy.length; i++) {
       xRootsCopy[i] = pow(xRootsCopy[i] - centerX, 2).toDouble();
@@ -604,11 +607,7 @@ class Localisation {
     int index = xRootsCopy.indexOf(
         xRootsCopy.reduce(min)); // returning the index of the smallest x root
 
-    try {
-      return [xRoots[index], (gradient * xRoots[index]) + constant];
-    } on RangeError catch (error) {
-      throw RangeError(error.message);
-    }
+    return [xRoots[index], (gradient * xRoots[index]) + constant];
   }
 
   /// Used when the two circles with the smallest radiuses do not intersect
@@ -621,46 +620,46 @@ class Localisation {
   /// The last estimate would be the estimated location.
   ///
   /// Input:
-  /// 1) circles [List<List<double>>] - details of circles e.g. X coordinate,
+  /// 1) circles [List<List<num>>] - details of circles e.g. X coordinate,
   ///                                   Y coordinate, and Radius.
   /// Return:
-  /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
-  Map<String, dynamic> _estimatedPositionWhenTwoSmallestCirclesDoNotIntercept(
-    List<List<double>> circles,
+  /// 1) estimate [Map<String,num>] - {'x_coordinate': X, 'y_coordinate': Y}.
+  Map<String, num> _estimatedPositionWhenTwoSmallestCirclesDoNotIntercept(
+    List<List<num>> circles,
   ) {
-    List<double> circleA = circles[0];
-    List<double> circleB = circles[1];
-    List<double> circleC = circles[2];
+    List<num> circleA = circles[0];
+    List<num> circleB = circles[1];
+    List<num> circleC = circles[2];
 
-    double x1 = circleA[0];
-    double y1 = circleA[1];
-    double r1 = circleA[2];
-    double x2 = circleB[0];
-    double y2 = circleB[1];
-    double r2 = circleB[2];
-    double x3 = circleC[0];
-    double y3 = circleC[1];
-    double r3 = circleC[2];
+    num x1 = circleA[0];
+    num y1 = circleA[1];
+    num r1 = circleA[2];
+    num x2 = circleB[0];
+    num y2 = circleB[1];
+    num r2 = circleB[2];
+    num x3 = circleC[0];
+    num y3 = circleC[1];
+    num r3 = circleC[2];
 
-    double gradient = (y1 - y2) / (x1 - x2);
-    double constant = y1 - gradient * x1;
+    num gradient = (y1 - y2) / (x1 - x2);
+    num constant = y1 - gradient * x1;
 
     // For circleA
-    List<double> closestInterceptA = _coordinateClosestToCircle(
+    List<num> closestInterceptA = _coordinateClosestToCircle(
       gradient,
       constant,
       x2,
       circles[0],
     );
     // For circleB
-    List<double> closestInterceptB = _coordinateClosestToCircle(
+    List<num> closestInterceptB = _coordinateClosestToCircle(
       gradient,
       constant,
       x1,
       circles[1],
     );
     // estimate AB
-    List<double> vectorAB = [
+    List<num> vectorAB = [
       (r1 * closestInterceptB[0] + r2 * closestInterceptA[0]) / (r1 + r2),
       (r1 * closestInterceptB[1] + r2 * closestInterceptA[1]) / (r1 + r2)
     ];
@@ -669,7 +668,7 @@ class Localisation {
     constant = y3 - gradient * x3;
 
     // For circleC
-    List<double> closestInterceptC = _coordinateClosestToCircle(
+    List<num> closestInterceptC = _coordinateClosestToCircle(
       gradient,
       constant,
       vectorAB[0],
@@ -692,39 +691,38 @@ class Localisation {
   /// the closest value.
   ///
   /// Input:
-  /// 1) intercepts [List<double>] - intercepts of the two circles with the
+  /// 1) intercepts [List<num>] - intercepts of the two circles with the
   ///                                smallest radiuses.
-  /// 2) radiusA [double] - radius of circle A.
-  /// 3) radiusB [double] - radius of circle B.
-  /// 4) circleC [List<double>] - details of circles e.g. X coordinate,
+  /// 2) radiusA [num] - radius of circle A.
+  /// 3) radiusB [num] - radius of circle B.
+  /// 4) circleC [List<num>] - details of circles e.g. X coordinate,
   ///                             Y coordinate, and Radius.
   ///
   /// Return:
-  /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
-  Map<String, dynamic>
-      _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
-    List<List<double>> intercepts,
-    double radiusA,
-    double radiusB,
-    List<double> circleC,
+  /// 1) estimate [Map<String,num>] - {'x_coordinate': X, 'y_coordinate': Y}.
+  Map<String, num> _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
+    List<List<num>> intercepts,
+    num radiusA,
+    num radiusB,
+    List<num> circleC,
   ) {
-    List<double> interceptA = intercepts[0];
-    List<double> interceptB = intercepts[1];
-    double x3 = circleC[0];
-    double y3 = circleC[1];
-    double r3 = circleC[2];
+    List<num> interceptA = intercepts[0];
+    List<num> interceptB = intercepts[1];
+    num x3 = circleC[0];
+    num y3 = circleC[1];
+    num r3 = circleC[2];
 
     // Estimated position AB
-    List<double> vectorAB = [
+    List<num> vectorAB = [
       (radiusA * interceptB[0] + radiusB * interceptA[0]) / (radiusA + radiusB),
       (radiusA * interceptB[1] + radiusB * interceptA[1]) / (radiusA + radiusB)
     ];
 
     // Finding best estimated position
-    double gradient = (vectorAB[1] - y3) / (vectorAB[0] - x3);
-    double constant = y3 - gradient * x3;
+    num gradient = (vectorAB[1] - y3) / (vectorAB[0] - x3);
+    num constant = y3 - gradient * x3;
 
-    List<double> closestCoord = _coordinateClosestToCircle(
+    List<num> closestCoord = _coordinateClosestToCircle(
       gradient,
       constant,
       vectorAB[0],
@@ -739,17 +737,17 @@ class Localisation {
   /// Find the intercept of two tangential circles.
   ///
   /// Inputs:
-  /// 1) circleA [List<double>].
-  /// 1) circleB [List<double>].
+  /// 1) circleA [List<num>].
+  /// 1) circleB [List<num>].
   ///
   /// Returns:
-  /// 1) intercept of circle A and B [List<double>].
-  List<double> _interceptOfTwoTangentialCircles(
-    List<double> circleA,
-    List<double> circleB,
+  /// 1) intercept of circle A and B [List<num>].
+  List<num> _interceptOfTwoTangentialCircles(
+    List<num> circleA,
+    List<num> circleB,
   ) {
-    double radiusA = circleA[2];
-    double radiusB = circleB[2];
+    num radiusA = circleA[2];
+    num radiusB = circleB[2];
 
     return [
       (radiusB * circleA[0] + radiusA * circleB[0]) / (radiusA + radiusB),
@@ -760,28 +758,28 @@ class Localisation {
   /// Used when the two smallest circles are tangential to each other.
   ///
   /// Input:
-  /// 1) interceptA [List<double>] - intercepts of the two circles with the
+  /// 1) interceptA [List<num>] - intercepts of the two circles with the
   ///                                smallest radiuses.
-  /// 2) radiusA [double] - radius of the smallest circle A.
-  /// 3) circleC [List<double>] - details of circles e.g. X coordinate,
+  /// 2) radiusA [num] - radius of the smallest circle A.
+  /// 3) circleC [List<num>] - details of circles e.g. X coordinate,
   ///                             Y coordinate, and Radius.
   ///
   /// Return:
-  /// 1) estimate [Map<String,dynamic>] - {'x_coordinate': X, 'y_coordinate': Y}.
-  Map<String, dynamic> _estimatedPositionWhenSmallestTwoCirclesAreTangential(
-    List<double> interceptA,
-    double radiusA,
-    List<double> circleC,
+  /// 1) estimate [Map<String,num>] - {'x_coordinate': X, 'y_coordinate': Y}.
+  Map<String, num> _estimatedPositionWhenSmallestTwoCirclesAreTangential(
+    List<num> interceptA,
+    num radiusA,
+    List<num> circleC,
   ) {
-    double x3 = circleC[0];
-    double y3 = circleC[1];
-    double r3 = circleC[2];
+    num x3 = circleC[0];
+    num y3 = circleC[1];
+    num r3 = circleC[2];
 
     // Finding best estimated position
-    double gradient = (interceptA[1] - y3) / (interceptA[0] - x3);
-    double constant = y3 - gradient * x3;
+    num gradient = (interceptA[1] - y3) / (interceptA[0] - x3);
+    num constant = y3 - gradient * x3;
 
-    List<double> closestCoord =
+    List<num> closestCoord =
         _coordinateClosestToCircle(gradient, constant, interceptA[0], circleC);
 
     return _formatEstimateOutput(
@@ -805,18 +803,18 @@ class Localisation {
   /// 2) https://mdpi-res.com/d_attachment/sensors/sensors-17-02927/article_deploy/sensors-17-02927-v2.pdf
   ///
   /// Input:
-  /// 1) rssi [double]
+  /// 1) rssi [num]
   ///
   /// Returns:
-  /// 1) estDistance [double] - estimated diatances converted from RSSI in meters.
-  double _rssiToDistance(double rssi) {
-    double RSSId0 =
+  /// 1) estDistance [num] - estimated diatances converted from RSSI in meters.
+  num _rssiToDistance(num rssi) {
+    num RSSId0 =
         (BASELINERSSI).abs(); // #TODO: maybe can modify this in RUNTIME.
-    int n = 3;
-    int d0 = 1;
-    int x = 0;
-    double exponent = (rssi.abs() - RSSId0 - x) / (10 * n);
-    double distance = (d0 * (pow(10, exponent))).toDouble();
+    num n = 3;
+    num d0 = 1;
+    num x = 0;
+    num exponent = (rssi.abs() - RSSId0 - x) / (10 * n);
+    num distance = (d0 * (pow(10, exponent))).toDouble();
 
     return distance;
   }
@@ -837,19 +835,19 @@ class Localisation {
   /// 2) https://mdpi-res.com/d_attachment/sensors/sensors-17-02927/article_deploy/sensors-17-02927-v2.pdf
   ///
   /// Input:
-  /// 1) distance [double] - distance in meters.
+  /// 1) distance [num] - distance in meters.
   ///
   /// Returns:
-  /// 1) estRssi [double] - estimated diatances converted from RSSI.
-  double _distanceToRssi(double distance) {
-    double RSSId0 =
+  /// 1) estRssi [num] - estimated diatances converted from RSSI.
+  num _distanceToRssi(num distance) {
+    num RSSId0 =
         (BASELINERSSI).abs(); // #TODO: maybe can modify this in RUNTIME.
-    int n = 3;
-    int d0 = 1;
-    int x = 0;
+    num n = 3;
+    num d0 = 1;
+    num x = 0;
 
     // Note: log10(0) = undefined
-    double estRssi = -(RSSId0 + 10 * n * _nd.logBase(distance / d0, 10) + x);
+    num estRssi = -(RSSId0 + 10 * n * _nd.logBase(distance / d0, 10) + x);
 
     return estRssi;
   }
@@ -857,25 +855,25 @@ class Localisation {
   /// Trilateration
   ///
   /// Input:
-  /// 1) distances [Map<String,double>] - {key:macAddr, value: radius distances in meters}.
+  /// 1) distances [Map<String,num>] - {key:macAddr, value: radius distances in meters}.
   ///
   /// Returns:
-  /// 1) estimate [Map<String, dynamic>] - {'x_coordinate':<>, 'y_coordinate':<>}
-  Map<String, dynamic> _trilateration(Map<String, double> distances) {
-    Map<String, dynamic> estimate = {}; // final estimate
-    List<List<double>> circles = _mapToList(distances);
+  /// 1) estimate [Map<String, num>] - {'x_coordinate':<>, 'y_coordinate':<>}
+  Map<String, num> _trilateration(Map<String, num> distances) {
+    Map<String, num> estimate = {}; // final estimate
+    List<List<num>> circles = _mapToList(distances);
 
     // Case: circles with the two smallest radiuses overlaps
-    int statusOfTwoSmallestCircles =
+    num statusOfTwoSmallestCircles =
         _statusOfTwoCircles(circles[0], circles[1]);
     if (statusOfTwoSmallestCircles == (_circleConditions['OVERLAP'] ?? 2)) {
-      List<List<double>> interceptA = _interceptOfTwoCircles(
+      List<List<num>> interceptA = _interceptOfTwoCircles(
         circles[0],
         circles[1],
       );
 
       // Case: last circle overlaps exactly with interceptA
-      int statusOfLastCircles = _statusOfThirdCircle(
+      num statusOfLastCircles = _statusOfThirdCircle(
         circles[2],
         overlapIntercepts: interceptA,
         tangentialIntercept: [],
@@ -918,11 +916,11 @@ class Localisation {
       // print(
       //     'Performing Case 5: Two smallest circles are tangential to each other.');
 
-      List<double> interceptA = _interceptOfTwoTangentialCircles(
+      List<num> interceptA = _interceptOfTwoTangentialCircles(
         circles[0],
         circles[1],
       );
-      int statusOfLastCircle = _statusOfThirdCircle(
+      num statusOfLastCircle = _statusOfThirdCircle(
         circles[2],
         overlapIntercepts: [],
         tangentialIntercept: interceptA,
@@ -948,8 +946,13 @@ class Localisation {
       return estimate;
     } on RangeError {
       return {
-        'x_coordinate': -1.0,
-        'y_coordinate': -1.0,
+        'x_coordinate': prev_x,
+        'y_coordinate': prev_y,
+      };
+    } on ZeroDivisionError {
+      return {
+        'x_coordinate': prev_x,
+        'y_coordinate': prev_y,
       };
     }
   }
@@ -968,7 +971,7 @@ class Localisation {
     LinkedHashMap<String, dynamic> rawData,
   ) {
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
-    LinkedHashMap<String, double> distances = LinkedHashMap();
+    LinkedHashMap<String, num> distances = LinkedHashMap();
 
     rawData.forEach((key, value) {
       if (key == 'rssi') {
@@ -978,21 +981,35 @@ class Localisation {
         });
 
         try {
-          result.addEntries(_trilateration(distances).entries);
+          Map<String, num> tmpResult = _trilateration(distances);
+          // storing of prev values
+          prev_x = tmpResult['x_coordinate'] ?? -1.0;
+          prev_y = tmpResult['y_coordinate'] ?? -1.0;
+          result.addEntries(tmpResult.entries);
         } on ZeroDivisionError {
-          Map<String, num> rssi = rawData['rssi'];
-          List<String> uuid = rssi.keys.toList();
-          print(
-              '[ZeroDivisionError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
-          result
-              .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
+          // TODO: Uncomment for debug purposes
+          // Map<String, num> rssi = rawData['rssi'];
+          // List<String> uuid = rssi.keys.toList();
+          // print(
+          //     '[ZeroDivisionError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
+
+          // display prev values on error
+          result.addEntries({
+            'x_coordinate': prev_x,
+            'y_coordinate': prev_y,
+          }.entries);
         } on RangeError {
-          Map<String, num> rssi = rawData['rssi'];
-          List<String> uuid = rssi.keys.toList();
-          print(
-              '[RangeError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
-          result
-              .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
+          // TODO: Uncomment for debug purposes
+          // Map<String, num> rssi = rawData['rssi'];
+          // List<String> uuid = rssi.keys.toList();
+          // print(
+          //     '[RangeError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
+
+          // display prev values on error
+          result.addEntries({
+            'x_coordinate': prev_x,
+            'y_coordinate': prev_y,
+          }.entries);
         }
       } else if (key == 'magnetometer') {
         // initialise hashmap
@@ -1003,37 +1020,27 @@ class Localisation {
           'suggested_direction': '',
         };
 
-        // When on Error, result is -1.0
-        if (result.containsValue(-1.0)) {
-          // store result
-          tempDirection['zone'] = 'Error';
-          tempDirection['angle'] = 'Error';
-          tempDirection['compass_heading'] = 'Error';
-          tempDirection['suggested_direction'] = 'Error';
-          result['direction'] = tempDirection;
-        } else {
-          // using zones to determine direction
-          Zone currZone = _determineZone(estPosition: [
-            result['x_coordinate'],
-            result['y_coordinate'],
-          ]);
+        // using zones to determine direction
+        Zone currZone = _determineZone(estPosition: [
+          result['x_coordinate'],
+          result['y_coordinate'],
+        ]);
 
-          // compass prototype
-          List<num> currMagneto = value;
-          Compass compass = Compass(
-            magx: currMagneto[0],
-            magy: currMagneto[1],
-          );
+        // compass prototype
+        List<num> currMagneto = value;
+        Compass compass = Compass(
+          magx: currMagneto[0],
+          magy: currMagneto[1],
+        );
 
-          // store result
-          tempDirection['zone'] = _zoneToString(currZone);
-          tempDirection['angle'] = compass.getBearing().getAngleString();
-          tempDirection['compass_heading'] =
-              compass.getBearing().getHeadingString();
-          tempDirection['suggested_direction'] =
-              determineDirection(currZone, compass.getBearing());
-          result['direction'] = tempDirection;
-        }
+        // store result
+        tempDirection['zone'] = _zoneToString(currZone);
+        tempDirection['angle'] = compass.getBearing().getAngleString();
+        tempDirection['compass_heading'] =
+            compass.getBearing().getHeadingString();
+        tempDirection['suggested_direction'] =
+            determineDirection(currZone, compass.getBearing());
+        result['direction'] = tempDirection;
       } else {
         // Do nothing
       }

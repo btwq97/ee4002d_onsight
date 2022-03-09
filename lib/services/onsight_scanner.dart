@@ -120,7 +120,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     bool isReady = (hasUpdate && (_bleDevices.length >= 3));
 
     // update magnetometer
-    List<double> tempMag = [
+    List<num> tempMag = [
       _magnetometerValues[0].value,
       _magnetometerValues[1].value,
       _magnetometerValues[2].value,
@@ -273,7 +273,7 @@ class SensorScannerState {
       result[1].value,
     ];
 
-    List<double> mag = [
+    List<num> mag = [
       magnetometer[0].value,
       magnetometer[1].value,
       magnetometer[2].value,
@@ -291,7 +291,7 @@ class SensorCharacteristics {
   });
 
   final String name;
-  final double value;
+  final num value;
 }
 
 class ResultCharactersitics {
