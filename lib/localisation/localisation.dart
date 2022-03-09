@@ -986,6 +986,7 @@ class Localisation {
           prev_x = tmpResult['x_coordinate'] ?? -1.0;
           prev_y = tmpResult['y_coordinate'] ?? -1.0;
           result.addEntries(tmpResult.entries);
+          result['is_error'] = 'F';
         } on ZeroDivisionError {
           // TODO: Uncomment for debug purposes
           // Map<String, num> rssi = rawData['rssi'];
@@ -997,6 +998,7 @@ class Localisation {
           result.addEntries({
             'x_coordinate': prev_x,
             'y_coordinate': prev_y,
+            'is_error': 'T',
           }.entries);
         } on RangeError {
           // TODO: Uncomment for debug purposes
@@ -1009,6 +1011,7 @@ class Localisation {
           result.addEntries({
             'x_coordinate': prev_x,
             'y_coordinate': prev_y,
+            'is_error': 'T',
           }.entries);
         }
       } else if (key == 'magnetometer') {

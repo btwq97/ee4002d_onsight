@@ -76,6 +76,9 @@ class Mqtt {
                 count -= 1;
               });
               break;
+            case 'is_error':
+              result += '\"$key\":\"${value}\",';
+              break;
             case 'accelerometer':
               result += '\"$key\":[${value[0]}, ${value[1]}, ${value[2]}],';
               break;
