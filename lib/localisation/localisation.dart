@@ -296,7 +296,13 @@ class Localisation {
           pow(x1, 2).toDouble() -
           pow(r1, 2).toDouble();
 
-      List<double> yRoots = _nd.vectorRoots(a, b, c);
+      List<double> yRoots = [];
+
+      try {
+        yRoots = _nd.vectorRoots(a, b, c);
+      } on ZeroDivisionError catch (error) {
+        throw ZeroDivisionError(errMsg: error.what());
+      }
 
       intercepts = [
         [x, yRoots[0]],
@@ -318,7 +324,12 @@ class Localisation {
           pow(y1, 2).toDouble() -
           pow(r1, 2).toDouble();
 
-      List<double> xRoots = _nd.vectorRoots(a, b, c);
+      List<double> xRoots = [];
+      try {
+        xRoots = _nd.vectorRoots(a, b, c);
+      } on ZeroDivisionError catch (error) {
+        throw ZeroDivisionError(errMsg: error.what());
+      }
 
       intercepts = [
         [xRoots[0], y],
@@ -343,7 +354,14 @@ class Localisation {
           pow(B, 2).toDouble() * pow(y1, 2).toDouble() -
           pow(B, 2).toDouble() * pow(r1, 2).toDouble();
 
-      List<double> xRoots = _nd.vectorRoots(a, b, c);
+      List<double> xRoots = [];
+
+      try {
+        xRoots = _nd.vectorRoots(a, b, c);
+      } on ZeroDivisionError catch (error) {
+        throw ZeroDivisionError(errMsg: error.what());
+      }
+
       List<double> yRoots = [];
       for (int i = 0; i < xRoots.length; i++) {
         double temp;
@@ -568,8 +586,14 @@ class Localisation {
         2 * Y * constant +
         pow(Y, 2).toDouble() -
         pow(R, 2).toDouble();
+    List<double> xRoots = [];
 
-    List<double> xRoots = _nd.vectorRoots(A, B, C);
+    try {
+      xRoots = _nd.vectorRoots(A, B, C);
+    } on ZeroDivisionError catch (error) {
+      throw ZeroDivisionError(errMsg: error.what());
+    }
+
     xRoots.sort((a, b) => b.compareTo(a)); // sort in descending order
     List<double> xRootsCopy = List.from(xRoots); // create a deep copy
 
@@ -580,7 +604,11 @@ class Localisation {
     int index = xRootsCopy.indexOf(
         xRootsCopy.reduce(min)); // returning the index of the smallest x root
 
-    return [xRoots[index], (gradient * xRoots[index]) + constant];
+    try {
+      return [xRoots[index], (gradient * xRoots[index]) + constant];
+    } on RangeError catch (error) {
+      throw RangeError(error.message);
+    }
   }
 
   /// Used when the two circles with the smallest radiuses do not intersect
@@ -867,7 +895,7 @@ class Localisation {
       // Case: last circle do not overlap or intercept at all
       else {
         // print(
-        // 'Performing Case 3: Only the two smallest circles intercept but the last do not.');
+        //     'Performing Case 3: Only the two smallest circles intercept but the last do not.');
         estimate = _estimatedPositionWhenTwoCirclesInterceptButLastCircleDoNot(
           interceptA,
           circles[0][2],
@@ -888,7 +916,7 @@ class Localisation {
     // Case: Circles with two smallest circles are tangential to each other
     else {
       // print(
-      // 'Performing Case 5: Two smallest circles are tangential to each other.');
+      //     'Performing Case 5: Two smallest circles are tangential to each other.');
 
       List<double> interceptA = _interceptOfTwoTangentialCircles(
         circles[0],
@@ -916,7 +944,16 @@ class Localisation {
         );
       }
     }
-    return estimate;
+    try {
+      return estimate;
+    } on RangeError catch (error) {
+      print('circles = $circles');
+      print('Error = ${error.message}');
+      return {
+        'x_coordinate': -1.0,
+        'y_coordinate': -1.0,
+      };
+    }
   }
 
   //==== Public Methods ====
@@ -941,7 +978,20 @@ class Localisation {
         rssiData.forEach((macAddr, rssi) {
           distances[macAddr] = _rssiToDistance(rssi.toDouble());
         });
-        result.addEntries(_trilateration(distances).entries);
+
+        try {
+          result.addEntries(_trilateration(distances).entries);
+        } on ZeroDivisionError catch (error) {
+          print('[ZeroDivisionError] error = ${error.what}');
+          print('[ZeroDivisionError] rawData = ${rawData}');
+          result
+              .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
+        } on RangeError catch (error) {
+          print('[RangeError] error = ${error.message}');
+          print('[RangeError] rawData = ${rawData}');
+          result
+              .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
+        }
       }
       // TODO: add in additional features
       else if (key == 'magnetometer') {
@@ -953,27 +1003,37 @@ class Localisation {
           'suggested_direction': '',
         };
 
-        // using zones to determine direction
-        Zone currZone = _determineZone(estPosition: [
-          result['x_coordinate'],
-          result['y_coordinate'],
-        ]);
+        // When on Error, result is -1.0
+        if (result.containsValue(-1.0)) {
+          // store result
+          tempDirection['zone'] = 'Error';
+          tempDirection['angle'] = 'Error';
+          tempDirection['compass_heading'] = 'Error';
+          tempDirection['suggested_direction'] = 'Error';
+          result['direction'] = tempDirection;
+        } else {
+          // using zones to determine direction
+          Zone currZone = _determineZone(estPosition: [
+            result['x_coordinate'],
+            result['y_coordinate'],
+          ]);
 
-        // compass prototype
-        List<num> currMagneto = value;
-        Compass compass = Compass(
-          magx: currMagneto[0],
-          magy: currMagneto[1],
-        );
+          // compass prototype
+          List<num> currMagneto = value;
+          Compass compass = Compass(
+            magx: currMagneto[0],
+            magy: currMagneto[1],
+          );
 
-        // store result
-        tempDirection['zone'] = _zoneToString(currZone);
-        tempDirection['angle'] = compass.getBearing().getAngleString();
-        tempDirection['compass_heading'] =
-            compass.getBearing().getHeadingString();
-        tempDirection['suggested_direction'] =
-            determineDirection(currZone, compass.getBearing());
-        result['direction'] = tempDirection;
+          // store result
+          tempDirection['zone'] = _zoneToString(currZone);
+          tempDirection['angle'] = compass.getBearing().getAngleString();
+          tempDirection['compass_heading'] =
+              compass.getBearing().getHeadingString();
+          tempDirection['suggested_direction'] =
+              determineDirection(currZone, compass.getBearing());
+          result['direction'] = tempDirection;
+        }
       } else {
         // Do nothing
       }

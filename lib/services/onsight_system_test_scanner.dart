@@ -43,13 +43,13 @@ class OnsightSystemTestScanner
         .scanForDevices(
       withServices: serviceIds,
       // TODO: change scanMode as necessary
-      scanMode: ScanMode.balanced,
+      scanMode: ScanMode.lowLatency,
     )
         .listen((device) {
       storeBleData(
         areDevicesUpdated(device),
         // TODO: edit true/false to indicate if we are testing or not
-        isDebugMode: true,
+        isDebugMode: false,
       );
     }, onError: (Object e) => print('Device scan fails with error: $e')));
     _pushState();

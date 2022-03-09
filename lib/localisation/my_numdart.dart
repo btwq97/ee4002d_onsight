@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:on_sight/error_handling/my_exceptions.dart';
 
 class MyNumDart {
   MyNumDart();
@@ -46,6 +47,10 @@ class MyNumDart {
       (-b + sqrt((pow(b, 2) - (4 * a * c)))) / (2 * a),
       (-b - sqrt((pow(b, 2) - (4 * a * c)))) / (2 * a)
     ];
+
+    if (roots.contains(double.nan)) {
+      throw ZeroDivisionError(errMsg: '[vectorRoots]: Zero Division Error');
+    }
 
     return roots;
   }

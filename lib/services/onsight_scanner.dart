@@ -80,7 +80,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     performLocalisation(
       hasUpdate: _hasUpdated,
       // TODO: true if in debug mode, false if in actual test mode
-      isDebugMode: true,
+      isDebugMode: false,
     );
   }
 
