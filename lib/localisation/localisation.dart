@@ -946,9 +946,7 @@ class Localisation {
     }
     try {
       return estimate;
-    } on RangeError catch (error) {
-      print('circles = $circles');
-      print('Error = ${error.message}');
+    } on RangeError {
       return {
         'x_coordinate': -1.0,
         'y_coordinate': -1.0,
@@ -981,20 +979,22 @@ class Localisation {
 
         try {
           result.addEntries(_trilateration(distances).entries);
-        } on ZeroDivisionError catch (error) {
-          print('[ZeroDivisionError] error = ${error.what}');
-          print('[ZeroDivisionError] rawData = ${rawData}');
+        } on ZeroDivisionError {
+          Map<String, num> rssi = rawData['rssi'];
+          List<String> uuid = rssi.keys.toList();
+          print(
+              '[ZeroDivisionError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
           result
               .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
-        } on RangeError catch (error) {
-          print('[RangeError] error = ${error.message}');
-          print('[RangeError] rawData = ${rawData}');
+        } on RangeError {
+          Map<String, num> rssi = rawData['rssi'];
+          List<String> uuid = rssi.keys.toList();
+          print(
+              '[RangeError] mosquitto_pub -h localhost -t "test/sub" -u "mqtt-server" -P "onsight!" -m "{\\"rssi\\":{\\"${uuid[0]}\\":${rssi[uuid[0]]}, \\"${uuid[1]}\\":${rssi[uuid[1]]}, \\"${uuid[2]}\\":${rssi[uuid[2]]}}, \\"accelerometer\\":5, \\"magnetometer\\":[-33.57, 86.31]}"');
           result
               .addEntries({'x_coordinate': -1.0, 'y_coordinate': -1.0}.entries);
         }
-      }
-      // TODO: add in additional features
-      else if (key == 'magnetometer') {
+      } else if (key == 'magnetometer') {
         // initialise hashmap
         Map<String, String> tempDirection = {
           'zone': '',

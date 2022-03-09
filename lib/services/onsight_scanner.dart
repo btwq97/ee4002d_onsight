@@ -204,6 +204,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
       // publish to mqtt
       publishMqttPayload(allRawData, result);
+
+      _bleDevices.clear(); // clear foud devices
     }
   }
 
