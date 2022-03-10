@@ -1,6 +1,6 @@
 # on_sight
 
-EE4002D App component
+EE4002D App Component.
 
 # Configuring the application
 
