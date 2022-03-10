@@ -5,6 +5,8 @@ import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
+import 'package:on_sight/setuppages/CaneOrNot.dart';
+import 'package:on_sight/uipagestoreowner/storeownerdemopage.dart';
 
 enum Role {
   customer,
@@ -48,59 +50,63 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CaneChoicePage(
+                        onSight: onSight,
+                      )));
+            },
             child: ReusableCard(
-                onPress: () {
-                  setState(() {
-                    chosen = Role.customer;
-                  });
-                },
-                colour: chosen == Role.customer
-                    ? kActiveCardColour
-                    : kInactiveCardColour,
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.userFriends,
-                  label: 'CUSTOMER',
-                )),
-          ),
-          Expanded(
-            child: ReusableCard(
-                onPress: () {
-                  setState(() {
-                    chosen = Role.storeowner;
-                  });
-                },
-                colour: chosen == Role.storeowner
-                    ? kActiveCardColour
-                    : kInactiveCardColour,
-                cardChild: IconContent(
-                  icon: FontAwesomeIcons.store,
-                  label: 'STOREOWNER',
-                )),
+              cardChild: IconContent(
+                icon: FontAwesomeIcons.userFriends,
+                label: 'CUSTOMER',
+              ),
+              colour: Color(0xFF301934),
+            ),
           ),
           GestureDetector(
             onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(
-                            onSight: onSight,
-                          )));
+                      builder: (context) => StoreownerMainPage(
+                        onSight: onSight,
+                      )));
             },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'NEXT',
-                  style: kBottomButtonTextStyle,
-                ),
+            child: ReusableCard(
+              cardChild: IconContent(
+                icon: FontAwesomeIcons.store,
+                label: 'STOREOWNER',
               ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              padding: EdgeInsets.only(bottom: 20.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
+              colour: Color(0xFF301934),
             ),
           ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => VegetarianPage(
+          //                   onSight: onSight,
+          //                 )));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text(
+          //         'NEXT',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kBottomContainerColour,
+          //     margin: EdgeInsets.only(top: 10.0),
+          //     padding: EdgeInsets.only(bottom: 20.0),
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ), //Remove this gesture detector once all of the pages have been added
         ],
       ),
     );
