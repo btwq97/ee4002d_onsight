@@ -107,8 +107,7 @@ class _DeviceListState extends State<_DeviceList> {
                           ? 'Tap start to begin localisation'
                           : 'Localisation in process...'),
                     ),
-                    if (widget.sensorScannerState.scanIsInProgress &&
-                        widget.sensorScannerState.discoveredDevices.isNotEmpty)
+                    if (widget.sensorScannerState.scanIsInProgress)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 18.0),
                         child: Text(
@@ -164,8 +163,7 @@ class _DeviceListState extends State<_DeviceList> {
               Expanded(
                 child: Text('Results'),
               ),
-              if (widget.sensorScannerState.scanIsInProgress &&
-                  widget.sensorScannerState.discoveredDevices.isNotEmpty)
+              if (widget.sensorScannerState.scanIsInProgress)
                 Padding(
                   padding: const EdgeInsetsDirectional.only(start: 18.0),
                   child: Text('Processing...'),

@@ -128,18 +128,18 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
     // update location
     if (isDebugMode) {
-      // Placeholder values
+      // Case: all three intercept
       // used in localisation
       tempRssi.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -67.0),
-        MapEntry("DC:A6:32:A0:C8:30", -72.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -73.0),
+        MapEntry("DC:A6:32:A0:C9:9E", -73.0),
+        MapEntry("DC:A6:32:A0:C8:30", -69.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -68.0),
       ]);
       // store to csv
       tempAllRssi.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -67.0),
-        MapEntry("DC:A6:32:A0:C8:30", -72.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -73.0),
+        MapEntry("DC:A6:32:A0:C9:9E", -73.0),
+        MapEntry("DC:A6:32:A0:C8:30", -69.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -68.0),
       ]);
     } else {
       // updates only when 3 or more devices are found
@@ -202,10 +202,10 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         ),
       ];
 
-      // publish to mqtt
+      // TODO: remove MQTT if not needed
       publishMqttPayload(allRawData, result);
 
-      _bleDevices.clear(); // clear foud devices
+      _bleDevices.clear(); // clear found devices
     }
   }
 
