@@ -42,7 +42,7 @@ class Localisation {
   Zone currZone = Zone.start;
 
   // TODO: update baseline RSSI as necessary
-  static num BASELINERSSI = -55.0;
+  static num BASELINERSSI = -60.0;
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -814,7 +814,7 @@ class Localisation {
     num d0 = 1;
     num x = 0;
     num exponent = (rssi.abs() - RSSId0 - x) / (10 * n);
-    num distance = (d0 * (pow(10, exponent))).toDouble();
+    num distance = d0 * (pow(10, exponent));
 
     return distance;
   }

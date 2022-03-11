@@ -29,6 +29,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
+  num counter = 0; // to force our own duty cycle
+
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
 
@@ -43,11 +45,33 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     _streamSubscriptions.add(
       magnetometerEvents.listen(
         (MagnetometerEvent event) {
-          _magnetometerValues = <SensorCharacteristics>[
-            SensorCharacteristics(name: 'mag_x', value: event.x),
-            SensorCharacteristics(name: 'mag_y', value: event.y),
-            SensorCharacteristics(name: 'mag_z', value: event.z),
-          ];
+          if (_magnetometerValues.isEmpty) {
+            _magnetometerValues = <SensorCharacteristics>[
+              SensorCharacteristics(name: 'mag_x', value: event.x),
+              SensorCharacteristics(name: 'mag_y', value: event.y),
+              SensorCharacteristics(name: 'mag_z', value: event.z),
+            ];
+          } else {
+            // finding average
+            List<SensorCharacteristics> prev_mag_value = _magnetometerValues;
+            List<SensorCharacteristics> avg_mag_value = <SensorCharacteristics>[
+              SensorCharacteristics(
+                name: 'mag_x',
+                value: ((prev_mag_value[0].value + event.x) / 2),
+              ),
+              SensorCharacteristics(
+                name: 'mag_y',
+                value: ((prev_mag_value[1].value + event.y) / 2),
+              ),
+              SensorCharacteristics(
+                name: 'mag_z',
+                value: ((prev_mag_value[2].value + event.z) / 2),
+              ),
+            ];
+            // update average value
+            _magnetometerValues = avg_mag_value;
+          }
+
           _pushState();
         },
       ),
@@ -117,7 +141,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
-    bool isReady = (hasUpdate && (_bleDevices.length >= 3));
+    bool isReady = (hasUpdate && (_bleDevices.length >= 3) && (counter >= 10));
 
     // update magnetometer
     List<num> tempMag = [
@@ -131,15 +155,15 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // Case: all three intercept
       // used in localisation
       tempRssi.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -73.0),
-        MapEntry("DC:A6:32:A0:C8:30", -69.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -68.0),
+        MapEntry("DC:A6:32:A0:C9:9E", -53.0),
+        MapEntry("DC:A6:32:A0:C8:30", -49.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -48.0),
       ]);
       // store to csv
       tempAllRssi.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -73.0),
-        MapEntry("DC:A6:32:A0:C8:30", -69.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -68.0),
+        MapEntry("DC:A6:32:A0:C9:9E", -53.0),
+        MapEntry("DC:A6:32:A0:C8:30", -49.0),
+        MapEntry("DC:A6:32:A0:B7:4D", -48.0),
       ]);
     } else {
       // updates only when 3 or more devices are found
@@ -205,7 +229,15 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // TODO: remove MQTT if not needed
       publishMqttPayload(allRawData, result);
 
-      _bleDevices.clear(); // clear found devices
+      // reset all storage containters
+      _bleDevices.clear();
+      _magnetometerValues.clear();
+    }
+
+    counter += 1;
+    if (isReady) {
+      print(stringTime);
+      counter = 0; // reset counter
     }
   }
 
@@ -214,7 +246,17 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     bool hasUpdate = false;
 
     if (knownDeviceIndex >= 0) {
-      _bleDevices[knownDeviceIndex] = device;
+      DiscoveredDevice prev_device = _bleDevices[knownDeviceIndex];
+      // getting avg rssi
+      DiscoveredDevice avgDevice = DiscoveredDevice(
+        id: prev_device.id,
+        name: prev_device.name,
+        serviceData: prev_device.serviceData,
+        serviceUuids: prev_device.serviceUuids,
+        rssi: (prev_device.rssi + device.rssi) ~/ 2,
+        manufacturerData: prev_device.manufacturerData,
+      );
+      _bleDevices[knownDeviceIndex] = avgDevice;
       hasUpdate = true; // update prev rssi value
     } else {
       if (_knownDevices.contains(device.id)) {

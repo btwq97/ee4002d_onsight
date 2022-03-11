@@ -120,41 +120,41 @@ class _DeviceListState extends State<_DeviceList> {
           ),
 
           // For discovery
-          // Flexible(
-          //   child: ListView(
-          //     children: widget.sensorScannerState.discoveredDevices
-          //         .map(
-          //           (device) => ListTile(
-          //             title: Text(device.name),
-          //             subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-          //             leading: const BluetoothIcon(),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
+          Flexible(
+            child: ListView(
+              children: widget.sensorScannerState.discoveredDevices
+                  .map(
+                    (device) => ListTile(
+                      title: Text(device.name),
+                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                      leading: const BluetoothIcon(),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
 
           // For magnetometer
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Expanded(
-          //       child: Text('Magnetometer'),
-          //     ),
-          //   ],
-          // ),
-          // Flexible(
-          //   child: ListView(
-          //     children: widget.sensorScannerState.magnetometer
-          //         .map(
-          //           (sensorValue) => ListTile(
-          //             title: Text(sensorValue.name),
-          //             subtitle: Text(sensorValue.value.toString()),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text('Magnetometer'),
+              ),
+            ],
+          ),
+          Flexible(
+            child: ListView(
+              children: widget.sensorScannerState.magnetometer
+                  .map(
+                    (sensorValue) => ListTile(
+                      title: Text(sensorValue.name),
+                      subtitle: Text(sensorValue.value.toString()),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
 
           // For results
           Row(
