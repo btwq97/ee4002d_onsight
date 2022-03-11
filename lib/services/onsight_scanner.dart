@@ -7,6 +7,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
+const num FIVE_SEC = 25;
+
 class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   OnsightServicesScanner({
     required FlutterReactiveBle ble,
@@ -29,7 +31,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
-  num counter = 0; // to force our own duty cycle
+  num timer = 0; // to force our own duty cycle
 
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
@@ -71,7 +73,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
             // update average value
             _magnetometerValues = avg_mag_value;
           }
-
           _pushState();
         },
       ),
@@ -104,7 +105,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     performLocalisation(
       hasUpdate: _hasUpdated,
       // TODO: true if in debug mode, false if in actual test mode
-      isDebugMode: false,
+      isDebugMode: true,
     );
   }
 
@@ -141,7 +142,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
-    bool isReady = (hasUpdate && (_bleDevices.length >= 3) && (counter >= 10));
+    bool isReady =
+        (hasUpdate && (_bleDevices.length >= 3) && (timer >= FIVE_SEC));
 
     // update magnetometer
     List<num> tempMag = [
@@ -196,7 +198,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       MapEntry('magnetometer', tempMag),
     ]);
 
-    if (isDebugMode || isReady) {
+    if ((isDebugMode && timer >= FIVE_SEC) || isReady) {
       result = _onSight.localisation(rawData);
 
       _results = <ResultCharactersitics>[
@@ -232,13 +234,10 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // reset all storage containters
       _bleDevices.clear();
       _magnetometerValues.clear();
+      timer = 0;
     }
 
-    counter += 1;
-    if (isReady) {
-      print(stringTime);
-      counter = 0; // reset counter
-    }
+    timer += 1;
   }
 
   bool _areDevicesUpdated(DiscoveredDevice device) {
