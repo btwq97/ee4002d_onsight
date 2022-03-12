@@ -92,7 +92,10 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     }, onError: (Object e) => print('Device scan fails with error: $e')));
   }
 
-  void _pushState({required bool isBleScanner}) {
+  void _pushState({
+    // checks if _pushState is being called from bleScanner event
+    required bool isBleScanner,
+  }) {
     _bleStreamController.add(
       SensorScannerState(
           discoveredDevices: _bleDevices,
