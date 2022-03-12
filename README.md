@@ -101,17 +101,60 @@ Note: This was a remedy for Flutter_Blue Package. It may or may not work for Flu
    ```
    mosquitto_sub -h localhost -t "<insert topic>" -u "<insert username>" -P "<insert password>"
    ```
-3. (For MQTT) Redirects the TCP connection to port 1883.
+
+# Wireless connection over Wi-Fi (Android 10 and lower)
+
+1. Read more [here](https://developer.android.com/studio/command-line/adb).
+2. Connect your Android device and adb host computer to a common Wi-Fi network accessible to both. Beware that not all access points are suitable; you might need to use an access point whose firewall is configured properly to support adb.
+3. If you are connecting to a Wear OS device, turn off Bluetooth on the phone that's paired with the device.
+4. Connect the device to the host computer with a USB cable.
+5. Set the target device to listen for a TCP/IP connection on port 5555.
+
+```
+adb tcpip 5555
+```
+
+6. Disconnect the USB cable from the target device.
+7. Find the IP address of the Android device. For example, on a Nexus device, you can find the IP address at Settings > About tablet (or About phone) > Status > IP address. Or, on a Wear OS device, you can find the IP address at Settings > Wi-Fi Settings > Advanced > IP address.
+8. Connect to the device by its IP address.
+
+```
+adb connect <device_ip_address>:5555
+```
+
+9. Confirm that your host computer is connected to the target device.
+
+```
+adb devices
+```
+
+### To Connect to Local Database and Server
+
+1. (For MQTT) Redirects the TCP connection to port 1883.
 
 ```
 adb reverse tcp:1883 tcp:1883
 ```
 
-4. (For DynamoDB) Redirects the TCP connection to port 8000.
+2. (For DynamoDB) Redirects the TCP connection to port 8000.
 
 ```
 adb reverse tcp:8000 tcp:8000
 ```
+
+### Hotfix
+
+If the adb connection is ever lost:
+
+1. Make sure that your host is still connected to the same Wi-Fi network your Android device is.
+2. Reconnect by executing the adb connect step again.
+3. Or if that doesn't work, reset your adb host:
+
+```
+adb kill-server
+```
+
+Then start over from the beginning.
 
 # Notes
 
