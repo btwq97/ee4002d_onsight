@@ -7,7 +7,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
-const num FIVE_SEC = 25;
+const num DATA_READ = 25;
 
 class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   OnsightServicesScanner({
@@ -16,6 +16,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   })  : _ble = ble,
         _onSight = onSight {
     _knownDevices = _onSight.getKnownMac();
+    _data_counter = 0;
   }
 
   final FlutterReactiveBle _ble;
@@ -31,7 +32,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
-  num timer = 0; // to force our own duty cycle
+  num _data_counter = 0; // to force our own duty cycle
 
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
@@ -54,7 +55,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
               SensorCharacteristics(name: 'mag_z', value: event.z),
             ];
           } else {
-            // finding average
+            // finding moving average
             List<SensorCharacteristics> prev_mag_value = _magnetometerValues;
             List<SensorCharacteristics> avg_mag_value = <SensorCharacteristics>[
               SensorCharacteristics(
@@ -73,7 +74,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
             // update average value
             _magnetometerValues = avg_mag_value;
           }
-          _pushState();
+          _pushState(isBleScanner: false);
         },
       ),
     );
@@ -91,7 +92,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     }, onError: (Object e) => print('Device scan fails with error: $e')));
   }
 
-  void _pushState() {
+  void _pushState({required bool isBleScanner}) {
     _bleStreamController.add(
       SensorScannerState(
           discoveredDevices: _bleDevices,
@@ -106,6 +107,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       hasUpdate: _hasUpdated,
       // TODO: true if in debug mode, false if in actual test mode
       isDebugMode: true,
+      isBleScanner: isBleScanner,
     );
   }
 
@@ -114,7 +116,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       subscription.cancel();
     }
     _streamSubscriptions.clear();
-    _pushState();
+    _pushState(isBleScanner: false);
   }
 
   Future<void> dispose() async {
@@ -124,6 +126,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   void performLocalisation({
     required bool hasUpdate,
     required bool isDebugMode,
+    required bool isBleScanner,
   }) {
     if (_magnetometerValues.isEmpty) return;
 
@@ -142,8 +145,9 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
-    bool isReady =
-        (hasUpdate && (_bleDevices.length >= 3) && (timer >= FIVE_SEC));
+    bool isReady = (hasUpdate &&
+        (_bleDevices.length >= 3) &&
+        (_data_counter >= DATA_READ));
 
     // update magnetometer
     List<num> tempMag = [
@@ -198,7 +202,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       MapEntry('magnetometer', tempMag),
     ]);
 
-    if ((isDebugMode && timer >= FIVE_SEC) || isReady) {
+    if ((isDebugMode && _data_counter >= DATA_READ) || isReady) {
       result = _onSight.localisation(rawData);
 
       _results = <ResultCharactersitics>[
@@ -234,10 +238,13 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // reset all storage containters
       _bleDevices.clear();
       _magnetometerValues.clear();
-      timer = 0;
+      _data_counter = 0;
     }
 
-    timer += 1;
+    if (isBleScanner || isDebugMode) {
+      // updates counter only when _pushState is called from a bleDevice update
+      _data_counter += 1;
+    }
   }
 
   bool _areDevicesUpdated(DiscoveredDevice device) {
@@ -246,7 +253,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
     if (knownDeviceIndex >= 0) {
       DiscoveredDevice prev_device = _bleDevices[knownDeviceIndex];
-      // getting avg rssi
+      // getting moving avg rssi
       DiscoveredDevice avgDevice = DiscoveredDevice(
         id: prev_device.id,
         name: prev_device.name,
@@ -267,7 +274,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     if (hasUpdate) {
       _bleDevices.sort((curr, next) =>
           next.rssi.compareTo(curr.rssi)); // sort the rssi in descending order
-      _pushState();
+      _pushState(isBleScanner: true);
     }
 
     return hasUpdate;
