@@ -1,4 +1,4 @@
-# on_sight
+# OnSight App
 
 EE4002D App Component.
 
