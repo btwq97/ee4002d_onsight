@@ -20,7 +20,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
-  bool _hasUpdated = false;
+
   List<String> _knownDevices = [];
   final StreamController<SensorScannerState> _bleStreamController =
       StreamController();
@@ -31,6 +31,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
+  bool _hasUpdated = false;
   num _ble_counter = 0; // force ble duty cycle
   num _mag_counter = 0; // force mag duty cycle
 
