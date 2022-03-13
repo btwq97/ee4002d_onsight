@@ -5,7 +5,7 @@ import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/reuseablecard.dart';
-import 'package:on_sight/setuppages/Allergy.dart';
+import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:provider/provider.dart';
@@ -174,7 +174,6 @@ class _DeviceListState extends State<_DeviceList> {
                         subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
                         leading: const BluetoothIcon(),
                         onTap: () async {
-                          //widget.stopScan();
                           await Navigator.push<void>(
                               context,
                               MaterialPageRoute(
@@ -186,29 +185,29 @@ class _DeviceListState extends State<_DeviceList> {
                     .toList(),
               ),
             ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => AllergyPage(
-                              onSight: onSight,
-                            )));
-              },
-              child: Container(
-                child: Center(
-                  child: Text(
-                    'CONTINUE',
-                    style: kBottomButtonTextStyle,
-                  ),
-                ),
-                color: kBottomContainerColour,
-                margin: EdgeInsets.only(top: 10.0),
-                padding: EdgeInsets.only(bottom: 20.0),
-                width: double.infinity,
-                height: kBottomContainerHeight,
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //             builder: (context) => AllergyPage(
+            //                   onSight: onSight,
+            //                 )));
+            //   },
+            //   child: Container(
+            //     child: Center(
+            //       child: Text(
+            //         'CONTINUE',
+            //         style: kBottomButtonTextStyle,
+            //       ),
+            //     ),
+            //     color: kBottomContainerColour,
+            //     margin: EdgeInsets.only(top: 10.0),
+            //     padding: EdgeInsets.only(bottom: 20.0),
+            //     width: double.infinity,
+            //     height: kBottomContainerHeight,
+            //   ),
+            // ),
             //KIV if the gesture detector above is needed. If not, delete. Commented out first (lines 186-208)
           ],
         ),
