@@ -40,6 +40,12 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   void startScan(List<Uuid> serviceIds) {
     // reset all subscriptions
     _bleDevices.clear();
+    _streamSubscriptions.clear();
+    _ble_counter = 0;
+    _bleDevices.clear();
+    _mag_counter = 0;
+    _magnetometerValues.clear();
+    _results.clear();
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
@@ -120,6 +126,11 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       subscription.cancel();
     }
     _streamSubscriptions.clear();
+    _ble_counter = 0;
+    _bleDevices.clear();
+    _mag_counter = 0;
+    _magnetometerValues.clear();
+    _results.clear();
     _pushState(fromBle: false, fromMag: false);
   }
 
