@@ -133,4 +133,8 @@ class OnSight {
   Future<void> ConnnectToMqttServer() async {
     await _mq.init();
   }
+
+  void resetLocalisation() {
+    _lc.reset();
+  }
 }

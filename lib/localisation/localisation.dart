@@ -100,8 +100,15 @@ class Localisation {
       return 'Corner';
     else if (userZone == Zone.end)
       return 'End';
-    else
+    else if (userZone == Zone.stalls)
       return 'Stalls';
+    else
+      return 'Unknown';
+  }
+
+  void reset() {
+    prev_x = double.negativeInfinity;
+    prev_y = double.negativeInfinity;
   }
 
   /// Retrieve the lower and upper limits of the heading

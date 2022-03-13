@@ -46,6 +46,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     _mag_counter = 0;
     _magnetometerValues.clear();
     _results.clear();
+    _onSight.resetLocalisation();
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
@@ -131,6 +132,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     _mag_counter = 0;
     _magnetometerValues.clear();
     _results.clear();
+    _onSight.resetLocalisation();
     _pushState(fromBle: false, fromMag: false);
   }
 
@@ -263,7 +265,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // duty cycle for ble devices
     final num _BLE_READ = 30;
     // duty cycle for magnetometer
-    final num _MAG_READ = 15;
+    final num _MAG_READ = 5;
 
     LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
     LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
