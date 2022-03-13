@@ -137,14 +137,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     String stringTime =
         '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
 
-    // for localisation
-    LinkedHashMap<String, num> tempRssi = LinkedHashMap();
-    // for writing to csv
-    LinkedHashMap<String, num> tempAllRssi = LinkedHashMap();
-    // for localisation use
-    LinkedHashMap<String, dynamic> rawData = LinkedHashMap();
-    // for storing to csv
-    LinkedHashMap<String, dynamic> allRawData = LinkedHashMap();
+    LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
+    LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
@@ -153,7 +147,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         (_data_counter >= DATA_READ));
 
     // update magnetometer
-    List<num> tempMag = [
+    List<num> currMag = [
       _magnetometerValues[0].value,
       _magnetometerValues[1].value,
       _magnetometerValues[2].value,
@@ -161,31 +155,20 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
     // update location
     if (isDebugMode) {
-      // Case: all three intercept
-      // used in localisation
-      tempRssi.addEntries([
+      // using placeholder values
+      currRssiAll.addEntries([
         MapEntry("DC:A6:32:A0:C9:9E", -53.0),
         MapEntry("DC:A6:32:A0:C8:30", -49.0),
         MapEntry("DC:A6:32:A0:B7:4D", -48.0),
-      ]);
-      // store to csv
-      tempAllRssi.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -53.0),
-        MapEntry("DC:A6:32:A0:C8:30", -49.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -48.0),
+        MapEntry("DC:A6:32:A0:C6:17", -70.0),
+        MapEntry("DC:A6:32:A0:C9:3B", -65.0),
+        MapEntry("DC:A6:32:A0:C9:5C", -66.0),
       ]);
     } else {
-      // updates only when 3 or more devices are found
+      // using actual values
       if (isReady) {
-        // for localisation use
-        tempRssi.addEntries([
-          MapEntry(_bleDevices[0].id, _bleDevices[0].rssi),
-          MapEntry(_bleDevices[1].id, _bleDevices[1].rssi),
-          MapEntry(_bleDevices[2].id, _bleDevices[2].rssi),
-        ]);
-        // for writing to csv
         for (int i = 0; i < _bleDevices.length; i++) {
-          tempAllRssi.addEntries([
+          currRssiAll.addEntries([
             MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
           ]);
         }
@@ -193,20 +176,14 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     }
 
     // for localisation use
-    rawData.addEntries([
-      MapEntry('rssi', tempRssi),
-      MapEntry('magnetometer', tempMag),
-    ]);
-
-    // for storing to csv
-    allRawData.addEntries([
+    currRawDataAll.addEntries([
       MapEntry('time', stringTime),
-      MapEntry('rssi', tempAllRssi),
-      MapEntry('magnetometer', tempMag),
+      MapEntry('rssi', currRssiAll),
+      MapEntry('magnetometer', currMag),
     ]);
 
     if ((isDebugMode && _data_counter >= DATA_READ) || isReady) {
-      result = _onSight.localisation(rawData);
+      result = _onSight.localisation(currRawDataAll);
 
       _results = <ResultCharactersitics>[
         ResultCharactersitics(
@@ -236,7 +213,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       ];
 
       // TODO: remove MQTT if not needed
-      publishMqttPayload(allRawData, result);
+      publishMqttPayload(currRawDataAll, result);
 
       // reset all storage containters
       _bleDevices.clear();
