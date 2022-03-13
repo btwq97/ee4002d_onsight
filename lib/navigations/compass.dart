@@ -120,7 +120,7 @@ class Compass {
   /// Calibrate magnetometer readings.
   ///
   /// How to calibrate?
-  /// 1) Uncomment line 170.
+  /// 1) Uncomment line 142.
   /// 2) Compare readings with a compass and find offset.
   /// 3) Compass is now calibrated.
   ///
@@ -130,7 +130,7 @@ class Compass {
   /// Return:
   /// 1) calibratedAngle [num] - calibrated angle value (in degree).
   num _calibrate(num rawAngle) {
-    num offset = 80.0; // based on calibration with iPhone 12 mini
+    num offset = 100.0; // based on calibration with iPhone 12 mini
     num calibratedAngle = rawAngle;
 
     // convert to all positive bearings

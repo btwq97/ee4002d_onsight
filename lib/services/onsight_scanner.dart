@@ -31,7 +31,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<ResultCharactersitics> _results = [];
 
   num _data_counter = 0; // to force our own duty cycle
-  final num _DATA_READ = 25;
 
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
@@ -73,7 +72,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
             // update average value
             _magnetometerValues = avg_mag_value;
           }
-          _pushState(isBleScanner: false);
+          _pushState(isBleScanner: false, isMagnetometer: true);
         },
       ),
     );
@@ -93,6 +92,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
   void _pushState({
     // checks if _pushState is being called from bleScanner event
+    required bool isMagnetometer,
     required bool isBleScanner,
   }) {
     _bleStreamController.add(
@@ -110,6 +110,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // TODO: true if in debug mode, false if in actual test mode
       isDebugMode: true,
       isBleScanner: isBleScanner,
+      isMagnetometer: isMagnetometer,
     );
   }
 
@@ -118,17 +119,128 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       subscription.cancel();
     }
     _streamSubscriptions.clear();
-    _pushState(isBleScanner: false);
+    _pushState(isBleScanner: false, isMagnetometer: false);
   }
 
   Future<void> dispose() async {
     await _bleStreamController.close();
   }
 
+  // TODO: Delete if testing for the new performLocalisation function is successful
+  // void performLocalisation({
+  //   required bool hasUpdate,
+  //   required bool isDebugMode,
+  //   required bool isBleScanner,
+  //   required bool isMagnetometer,
+  // }) {
+  //   if (_magnetometerValues.isEmpty) return;
+
+  //   DateTime currTime = DateTime.now();
+  //   String stringTime =
+  //       '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
+
+  //   final num _DATA_READ = (isDebugMode ? 0 : 25);
+  //   LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
+  //   LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
+  //   // for storing of result of localisation
+  //   LinkedHashMap<String, dynamic> result = LinkedHashMap();
+  //   // to check if system is ready
+  //   bool isReady = (hasUpdate &&
+  //       (_bleDevices.length >= 3) &&
+  //       (_data_counter >= _DATA_READ));
+  //   // update magnetometer
+  //   List<num> currMag = [
+  //     _magnetometerValues[0].value,
+  //     _magnetometerValues[1].value,
+  //     _magnetometerValues[2].value,
+  //   ];
+
+  //   // update location
+  //   if (isDebugMode) {
+  //     // using placeholder values
+  //     currRssiAll.addEntries([
+  //       MapEntry("DC:A6:32:A0:C9:9E", -53.0),
+  //       MapEntry("DC:A6:32:A0:C8:30", -49.0),
+  //       MapEntry("DC:A6:32:A0:B7:4D", -48.0),
+  //       MapEntry("DC:A6:32:A0:C6:17", -70.0),
+  //       MapEntry("DC:A6:32:A0:C9:3B", -65.0),
+  //       MapEntry("DC:A6:32:A0:C9:5C", -66.0),
+  //     ]);
+  //   } else {
+  //     // using actual values
+  //     if (isReady) {
+  //       for (int i = 0; i < _bleDevices.length; i++) {
+  //         currRssiAll.addEntries([
+  //           MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
+  //         ]);
+  //       }
+  //     }
+  //   }
+
+  //   if ((isDebugMode && _data_counter >= _DATA_READ) || isReady) {
+  //     // update both bearing and est position
+  //     currRawDataAll.addEntries([
+  //       MapEntry('time', stringTime),
+  //       MapEntry('rssi', currRssiAll),
+  //       MapEntry('magnetometer', currMag),
+  //     ]);
+  //   } else {
+  //     // update bearing only
+  //     currRawDataAll.addEntries([
+  //       MapEntry('time', stringTime),
+  //       MapEntry('magnetometer', currMag),
+  //     ]);
+  //   }
+
+  //   result = _onSight.localisation(currRawDataAll);
+
+  //   _results = <ResultCharactersitics>[
+  //     ResultCharactersitics(
+  //       name: 'x_coor',
+  //       value: result['x_coordinate']?.toString() ?? 'Error',
+  //     ),
+  //     ResultCharactersitics(
+  //       name: 'y_coor',
+  //       value: result['y_coordinate']?.toString() ?? 'Error',
+  //     ),
+  //     ResultCharactersitics(
+  //       name: 'zone',
+  //       value: result['direction']['zone'] ?? 'Error',
+  //     ),
+  //     ResultCharactersitics(
+  //       name: 'angle',
+  //       value: result['direction']['angle'] ?? 'Error',
+  //     ),
+  //     ResultCharactersitics(
+  //       name: 'compass_heading',
+  //       value: result['direction']['compass_heading'] ?? 'Error',
+  //     ),
+  //     ResultCharactersitics(
+  //       name: 'suggested_direction',
+  //       value: result['direction']['suggested_direction'] ?? 'Error',
+  //     ),
+  //   ];
+
+  //   if ((isDebugMode && _data_counter >= _DATA_READ) || isReady) {
+  //     // TODO: remove MQTT if not needed
+  //     publishMqttPayload(currRawDataAll, result);
+  //     // reset all storage containters
+  //     _bleDevices.clear();
+  //     _magnetometerValues.clear();
+  //     _data_counter = 0;
+  //   }
+
+  //   if (isBleScanner || isDebugMode) {
+  //     // updates counter only when _pushState is called from a bleDevice update
+  //     _data_counter += 1;
+  //   }
+  // }
+
   void performLocalisation({
     required bool hasUpdate,
     required bool isDebugMode,
     required bool isBleScanner,
+    required bool isMagnetometer,
   }) {
     if (_magnetometerValues.isEmpty) return;
 
@@ -136,6 +248,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     String stringTime =
         '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
 
+    final num _DATA_READ = 25;
     LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
     LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
     // for storing of result of localisation
@@ -144,7 +257,6 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     bool isReady = (hasUpdate &&
         (_bleDevices.length >= 3) &&
         (_data_counter >= _DATA_READ));
-
     // update magnetometer
     List<num> currMag = [
       _magnetometerValues[0].value,
@@ -152,9 +264,9 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       _magnetometerValues[2].value,
     ];
 
-    // update location
+    // In debugMode
     if (isDebugMode) {
-      // using placeholder values
+      // create placeholder rssi values
       currRssiAll.addEntries([
         MapEntry("DC:A6:32:A0:C9:9E", -53.0),
         MapEntry("DC:A6:32:A0:C8:30", -49.0),
@@ -163,7 +275,30 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         MapEntry("DC:A6:32:A0:C9:3B", -65.0),
         MapEntry("DC:A6:32:A0:C9:5C", -66.0),
       ]);
-    } else {
+
+      // update rawData
+      if (_data_counter >= _DATA_READ) {
+        // update both bearing and est position
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('rssi', currRssiAll),
+          MapEntry('magnetometer', currMag),
+        ]);
+      } else {
+        // update bearing only
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('magnetometer', currMag),
+        ]);
+      }
+
+      // perform localisation
+      LinkedHashMap<String, dynamic> tmpResult =
+          _onSight.localisation(currRawDataAll);
+      _results = _formatResult(tmpResult);
+    }
+    // In non-debugMode
+    else {
       // using actual values
       if (isReady) {
         for (int i = 0; i < _bleDevices.length; i++) {
@@ -171,49 +306,29 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
             MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
           ]);
         }
+        // update both bearing and est position
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('rssi', currRssiAll),
+          MapEntry('magnetometer', currMag),
+        ]);
+      } else {
+        // update bearing only
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('magnetometer', currMag),
+        ]);
       }
+
+      // perform localisation
+      LinkedHashMap<String, dynamic> tmpResult =
+          _onSight.localisation(currRawDataAll);
+      _results = _formatResult(tmpResult);
     }
 
-    // for localisation use
-    currRawDataAll.addEntries([
-      MapEntry('time', stringTime),
-      MapEntry('rssi', currRssiAll),
-      MapEntry('magnetometer', currMag),
-    ]);
-
     if ((isDebugMode && _data_counter >= _DATA_READ) || isReady) {
-      result = _onSight.localisation(currRawDataAll);
-
-      _results = <ResultCharactersitics>[
-        ResultCharactersitics(
-          name: 'x_coor',
-          value: result['x_coordinate']?.toString() ?? 'Error',
-        ),
-        ResultCharactersitics(
-          name: 'y_coor',
-          value: result['y_coordinate']?.toString() ?? 'Error',
-        ),
-        ResultCharactersitics(
-          name: 'zone',
-          value: result['direction']['zone'] ?? 'Error',
-        ),
-        ResultCharactersitics(
-          name: 'angle',
-          value: result['direction']['angle'] ?? 'Error',
-        ),
-        ResultCharactersitics(
-          name: 'compass_heading',
-          value: result['direction']['compass_heading'] ?? 'Error',
-        ),
-        ResultCharactersitics(
-          name: 'suggested_direction',
-          value: result['direction']['suggested_direction'] ?? 'Error',
-        ),
-      ];
-
       // TODO: remove MQTT if not needed
       publishMqttPayload(currRawDataAll, result);
-
       // reset all storage containters
       _bleDevices.clear();
       _magnetometerValues.clear();
@@ -224,6 +339,36 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       // updates counter only when _pushState is called from a bleDevice update
       _data_counter += 1;
     }
+  }
+
+  List<ResultCharactersitics> _formatResult(
+      LinkedHashMap<String, dynamic> result) {
+    return <ResultCharactersitics>[
+      ResultCharactersitics(
+        name: 'x_coor',
+        value: result['x_coordinate'].toString(),
+      ),
+      ResultCharactersitics(
+        name: 'y_coor',
+        value: result['y_coordinate'].toString(),
+      ),
+      ResultCharactersitics(
+        name: 'zone',
+        value: result['direction']['zone'] ?? 'Error',
+      ),
+      ResultCharactersitics(
+        name: 'angle',
+        value: result['direction']['angle'] ?? 'Error',
+      ),
+      ResultCharactersitics(
+        name: 'compass_heading',
+        value: result['direction']['compass_heading'] ?? 'Error',
+      ),
+      ResultCharactersitics(
+        name: 'suggested_direction',
+        value: result['direction']['suggested_direction'] ?? 'Error',
+      ),
+    ];
   }
 
   bool _areDevicesUpdated(DiscoveredDevice device) {
@@ -253,7 +398,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     if (hasUpdate) {
       _bleDevices.sort((curr, next) =>
           next.rssi.compareTo(curr.rssi)); // sort the rssi in descending order
-      _pushState(isBleScanner: true);
+      _pushState(isBleScanner: true, isMagnetometer: false);
     }
 
     return hasUpdate;
