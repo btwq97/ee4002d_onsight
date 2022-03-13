@@ -7,8 +7,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
-const num DATA_READ = 25;
-
 class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   OnsightServicesScanner({
     required FlutterReactiveBle ble,
@@ -33,6 +31,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<ResultCharactersitics> _results = [];
 
   num _data_counter = 0; // to force our own duty cycle
+  final num _DATA_READ = 25;
 
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
@@ -144,7 +143,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     // to check if system is ready
     bool isReady = (hasUpdate &&
         (_bleDevices.length >= 3) &&
-        (_data_counter >= DATA_READ));
+        (_data_counter >= _DATA_READ));
 
     // update magnetometer
     List<num> currMag = [
@@ -182,7 +181,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
       MapEntry('magnetometer', currMag),
     ]);
 
-    if ((isDebugMode && _data_counter >= DATA_READ) || isReady) {
+    if ((isDebugMode && _data_counter >= _DATA_READ) || isReady) {
       result = _onSight.localisation(currRawDataAll);
 
       _results = <ResultCharactersitics>[
