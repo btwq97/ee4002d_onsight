@@ -10,7 +10,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:provider/provider.dart';
 import 'package:on_sight/services/reactive_packages/widgets.dart';
-import 'package:on_sight/services/reactive_packages/device_detail_screen.dart';
+
 
 
 

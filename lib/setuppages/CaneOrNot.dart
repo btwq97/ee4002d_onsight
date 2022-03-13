@@ -5,6 +5,8 @@ import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
+import 'package:on_sight/setuppages/Vegetarianism.dart';
+import 'package:on_sight/uipagecustomer/connecttocane.dart';
 // import 'package:on_sight/uipagecustomer/connecttocane.dart';
 
 enum CaneChoice {
@@ -52,7 +54,7 @@ class _CaneChoicePageState extends State<CaneChoicePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AllergyPage(
+                      builder: (context) => ConnectToCane(
                             onSight: onSight,
                           )));
             },
@@ -69,7 +71,7 @@ class _CaneChoicePageState extends State<CaneChoicePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => AllergyPage(
+                      builder: (context) => VegetarianPage(
                             onSight: onSight,
                           )));
             },
