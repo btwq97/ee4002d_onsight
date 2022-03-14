@@ -31,6 +31,8 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
+  //final characteristic = QualifiedCharacteristic(serviceId: serviceUuid, characteristicId: characteristicUuid, deviceId: foundDeviceId);
+
   bool _hasUpdated = false;
   num _ble_counter = 0; // force ble duty cycle
   num _mag_counter = 0; // force mag duty cycle
@@ -309,7 +311,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         _results = _formatResult(tmpResult);
 
         // TODO: remove MQTT if not needed
-        publishMqttPayload(currRawDataAll, result);
+        // publishMqttPayload(currRawDataAll, result); //IMTIAZ LOOK HERE FOR MQTT
         _bleDevices.clear(); // reset container
         _ble_counter = 0; // reset counter
       } else {
@@ -386,7 +388,16 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         }
       }
     }
+    //SEND DIRECTION TO ESP32
+    // if(_results[5].value == "Left"){
+    //   _ble.writeCharacteristicWithoutResponse(characteristic, value: [0x02]);
+    // }
+    // else if(_results[5].value == "Right"){}
+    // else {}
   }
+
+
+
 
   List<ResultCharactersitics> _formatResult(
       LinkedHashMap<String, dynamic> result) {

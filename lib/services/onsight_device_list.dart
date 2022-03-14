@@ -6,8 +6,6 @@ import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
 
-import 'package:on_sight/cane_connection_necessities/cane_direction_sender.dart';
-
 class OnsightLocalisationScreen extends StatelessWidget {
   OnsightLocalisationScreen({
     Key? key,
