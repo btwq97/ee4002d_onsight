@@ -13,15 +13,14 @@ import 'package:on_sight/services/onsight_device_list.dart';
 
 //import '../onsight.dart';
 
-//part 'device_interaction_tab.g.dart';
 //ignore_for_file: annotate_overrides
 
 //made a copy to edit the package. necessary for cane connection
 
-class DeviceInteractionTab extends StatelessWidget {
+class CaneConnectionDeviceInteractionTab extends StatelessWidget {
   final DiscoveredDevice device;
 
-  const DeviceInteractionTab({
+  const CaneConnectionDeviceInteractionTab({
     required this.device,
     Key? key,
     required this.onSight,
@@ -33,7 +32,7 @@ class DeviceInteractionTab extends StatelessWidget {
       Consumer3<BleDeviceConnector, ConnectionStateUpdate, BleDeviceInteractor>(
         builder: (_, deviceConnector, connectionStateUpdate, serviceDiscoverer,
                 __) =>
-            _DeviceInteractionTab(
+            _CaneConnectionDeviceInteractionTab(
           viewModel: DeviceInteractionViewModel(
               deviceId: device.id,
               connectionStatus: connectionStateUpdate.connectionState,
@@ -76,8 +75,8 @@ class DeviceInteractionViewModel extends $DeviceInteractionViewModel {
   }
 }
 
-class _DeviceInteractionTab extends StatefulWidget {
-  const _DeviceInteractionTab({
+class _CaneConnectionDeviceInteractionTab extends StatefulWidget {
+  const _CaneConnectionDeviceInteractionTab({
     required this.viewModel,
     Key? key, required this.onSight,
   }) : super(key: key);
@@ -85,13 +84,13 @@ class _DeviceInteractionTab extends StatefulWidget {
   final DeviceInteractionViewModel viewModel;
   final OnSight onSight;
   @override
-  _DeviceInteractionTabState createState() => _DeviceInteractionTabState(
+  _CaneConnectionDeviceInteractionTabState createState() => _CaneConnectionDeviceInteractionTabState(
     onSight: onSight,
   );
 }
 
-class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
-  _DeviceInteractionTabState({
+class _CaneConnectionDeviceInteractionTabState extends State<_CaneConnectionDeviceInteractionTab> {
+  _CaneConnectionDeviceInteractionTabState({
     required this.onSight,
   });
 

@@ -190,7 +190,7 @@ class _DeviceListState extends State<_DeviceList> {
             //     Navigator.push(
             //         context,
             //         MaterialPageRoute(
-            //             builder: (context) => AllergyPage(
+            //             builder: (context) => VegetarianPage(
             //                   onSight: onSight,
             //                 )));
             //   },

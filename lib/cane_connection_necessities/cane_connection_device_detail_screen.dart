@@ -6,11 +6,6 @@ import 'package:on_sight/services/reactive_packages/device_log_tab.dart';
 import 'package:provider/provider.dart';
 import 'cane_connection_device_interaction_tab.dart';
 
-import '../../constants.dart';
-import '../../setuppages/Allergy.dart';
-//import '../onsight.dart';
-//import 'device_interaction_tab.dart';
-
 
 class CaneConnectionDeviceDetailScreen extends StatelessWidget {
   final DiscoveredDevice device;
@@ -67,7 +62,7 @@ class _DeviceDetail extends StatelessWidget {
         ),
         body: TabBarView(
           children: [
-            DeviceInteractionTab(
+            CaneConnectionDeviceInteractionTab(
               device: device, onSight: onSight,
             ),
             const DeviceLogTab(),
