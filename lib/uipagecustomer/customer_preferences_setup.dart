@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:on_sight/keypages/customerhomepage.dart';
 import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontenttwo.dart';
 import 'package:on_sight/components/reuseablecard.dart';
+
+//Toggle pages for preferences
+import 'package:on_sight/uipagecustomer/setup_page_toggles/AllergyToggle.dart';
+import 'package:on_sight/uipagecustomer/setup_page_toggles/CuisineToggle.dart';
+import 'package:on_sight/uipagecustomer/setup_page_toggles/HalalOrNotToggle.dart';
+import 'package:on_sight/uipagecustomer/setup_page_toggles/SpiceLevelToggle.dart';
+import 'package:on_sight/uipagecustomer/setup_page_toggles/VegetarianismToggle.dart';
+
+//KIV
 import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:on_sight/setuppages/SpiceLevel.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
@@ -20,9 +30,10 @@ class CustomerPreferencesSetup extends StatefulWidget {
   final OnSight onSight;
 
   @override
-  _CustomerPreferencesSetupState createState() => _CustomerPreferencesSetupState(
-    onSight: onSight,
-  );
+  _CustomerPreferencesSetupState createState() =>
+      _CustomerPreferencesSetupState(
+        onSight: onSight,
+      );
 }
 
 class _CustomerPreferencesSetupState extends State<CustomerPreferencesSetup> {
@@ -32,86 +43,96 @@ class _CustomerPreferencesSetupState extends State<CustomerPreferencesSetup> {
 
   final OnSight onSight;
 
-  Color eggCardColour = kInactiveCardColour;
-  Color nutsCardColour = kInactiveCardColour;
-  Color milkCardColour = kInactiveCardColour;
-  Color soyCardColour = kInactiveCardColour;
+  Widget build(BuildContext context) =>  Scaffold(
+    appBar: AppBar(
+      title: const Text('PREFERENCES', style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),),
+      backgroundColor: Color(0xFF702963),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(8),
+      child: Center(
+        child: ListView(
+          //mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildHeader(
+              title: 'VEGETARIAN?',
+              child: //Text("INSERT VEGETARIAN TOGGLE HERE"),
+              VegetarianToggle(),
+            ),
+            const SizedBox(height: 32),
+            buildHeader(
+              title: 'HALAL OPTION?',
+              child: //Text("INSERT HALAL TOGGLE HERE"),
+              HalalOrNotToggle(),
+            ),
+            const SizedBox(height: 32),
+            buildHeader(
+              title: 'SPICINESS LEVEL?',
+              child: Text("INSERT SPICINESS TOGGLE HERE"),
+              //HalalOrNotToggle(),
+            ),
+            const SizedBox(height: 32),
+            buildHeader(
+              title: 'ANY ALLERGIES?',
+              child: Text("INSERT ALLERGY TOGGLE HERE"),
+              //HalalOrNotToggle(),
+            ),
+            const SizedBox(height: 32),
+            buildHeader(
+              title: 'CUISINE PREFERENCES?',
+              child: Text("INSERT CUISINE TOGGLE HERE"),
+              //HalalOrNotToggle(),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CustomerHomePage(
+                          onSight: onSight,
+                        )));
+              },
+              child: Container(
+                child: Center(
+                  child: Text(
+                    'SAVE',
+                    style: kBottomButtonTextStyle,
+                  ),
+                ),
+                color: kBottomContainerColour,
+                margin: EdgeInsets.only(top: 10.0),
+                padding: EdgeInsets.only(bottom: 10.0),
+                width: double.infinity,
+                height: kBottomContainerHeight,
+              ),
+            ),
 
-  //1 = egg, 2 = nuts, 3 = milk, 4 = soy
-  void updateColour(int chosen) {
-    if (chosen == 1) {
-      if (eggCardColour == kInactiveCardColour) {
-        eggCardColour = kActiveCardColour;
-      } else {
-        eggCardColour = kInactiveCardColour;
-      }
-    }
-    if (chosen == 2) {
-      if (nutsCardColour == kInactiveCardColour) {
-        nutsCardColour = kActiveCardColour;
-      } else {
-        nutsCardColour = kInactiveCardColour;
-      }
-    }
-    if (chosen == 3) {
-      if (milkCardColour == kInactiveCardColour) {
-        milkCardColour = kActiveCardColour;
-      } else {
-        milkCardColour = kInactiveCardColour;
-      }
-    }
-    if (chosen == 4) {
-      if (soyCardColour == kInactiveCardColour) {
-        soyCardColour = kActiveCardColour;
-      } else {
-        soyCardColour = kInactiveCardColour;
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'SELECT CHOICES',
-          style: TextStyle(fontSize: 30),
+          ],
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  updateColour(1);
-                });
-              },
-              child: ReusableCard(
-                  colour: eggCardColour,
-                  cardChild: IconContentTwo(
-                    label: 'VEGETARIAN?',
-                  )),
-            ),
+    ),
+  );
+
+  Widget buildHeader({
+    required Widget child,
+    required String title,
+  }) =>
+      Column(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  updateColour(2);
-                });
-              },
-              child: ReusableCard(
-                  colour: nutsCardColour,
-                  cardChild: IconContentTwo(
-                    label: 'TEST THE PAGE',
-                  )),
-            ),
-          ),
+          const SizedBox(height: 16),
+          child,
         ],
-      ),
-    );
-  }
+      );
+      // Container(
+      // margin: EdgeInsets.all(5.0),
+      // height: 295.0,
+      // width: 333.0,
+      // child: ListView(shrinkWrap: true, children: [
+      //   //Text('VEGETARIAN?'),
+      //   VegetarianToggle(),
+      // ]));
 }

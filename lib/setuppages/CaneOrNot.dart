@@ -7,7 +7,7 @@ import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:on_sight/uipagecustomer/connecttocane.dart';
-// import 'package:on_sight/uipagecustomer/connecttocane.dart';
+import 'package:on_sight/keypages/customerhomepage.dart';
 
 enum CaneChoice {
   Yes,
@@ -42,8 +42,9 @@ class _CaneChoicePageState extends State<CaneChoicePage> {
       appBar: AppBar(
         title: Text(
           'CANE MODULE?',
-          style: TextStyle(fontSize: 40),
+          style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),
         ),
+        backgroundColor: Color(0xFF702963),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -71,7 +72,7 @@ class _CaneChoicePageState extends State<CaneChoicePage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(
+                      builder: (context) => CustomerHomePage(
                             onSight: onSight,
                           )));
             },
