@@ -13,8 +13,10 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   OnsightLocalisationScanner({
     required FlutterReactiveBle ble,
     required OnSight onSight,
+    required Function(String message) logMessage,
   })  : _ble = ble,
-        _onSight = onSight {
+        _onSight = onSight,
+        _logMessage = logMessage {
     _knownDevices = _onSight.getKnownMac();
     _ble_counter = 0;
     _mag_counter = 0;
@@ -23,18 +25,19 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   final FlutterReactiveBle _ble;
   final OnSight _onSight;
 
-  List<String> _knownDevices = [];
+  final void Function(String message) _logMessage;
   final StreamController<SensorScannerState> _bleStreamController =
       StreamController();
   // for subscriptions
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
+  List<String> _knownDevices = [];
   Map<String, List<DiscoveredDevice>> _bleDevices = {};
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
+  final _devices = <DiscoveredDevice>[];
 
-  //final characteristic = QualifiedCharacteristic(serviceId: serviceUuid, characteristicId: characteristicUuid, deviceId: foundDeviceId);
-
+  Random _rand = Random();
   bool _hasUpdated = false;
   num _ble_counter = 0; // force ble duty cycle
   num _mag_counter = 0; // force mag duty cycle
@@ -42,9 +45,44 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
 
-  void startScan(List<Uuid> serviceIds) {
+  void connect(List<Uuid> serviceIds) {
     // reset all subscriptions
     _bleDevices.clear();
+    _devices.clear();
+    _streamSubscriptions.clear();
+    _ble_counter = 0;
+    _bleDevices.clear();
+    _mag_counter = 0;
+    _magnetometerValues.clear();
+    _results.clear();
+    _onSight.resetLocalisation();
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+
+    // for bluetooth
+    _streamSubscriptions.add(_ble
+        .scanForDevices(
+      withServices: serviceIds,
+      // TODO: change scanMode as necessary
+      scanMode: ScanMode.balanced,
+    )
+        .listen((device) {
+      final knownDeviceIndex = _devices.indexWhere((d) => d.id == device.id);
+      if (knownDeviceIndex >= 0) {
+        _devices[knownDeviceIndex] = device;
+      } else {
+        _devices.add(device);
+      }
+      _pushState(fromMag: false, fromBle: false, isConnect: true);
+    }, onError: (Object e) => _logMessage('Device scan fails with error: $e')));
+    _pushState(fromMag: false, fromBle: false, isConnect: true);
+  }
+
+  void startLocalisation(List<Uuid> serviceIds) {
+    // reset all subscriptions
+    _bleDevices.clear();
+    _devices.clear();
     _streamSubscriptions.clear();
     _ble_counter = 0;
     _bleDevices.clear();
@@ -86,7 +124,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
             // update average value
             _magnetometerValues = avg_mag_value;
           }
-          _pushState(fromMag: true, fromBle: false);
+          _pushState(fromMag: true, fromBle: false, isConnect: false);
         },
       ),
     );
@@ -107,24 +145,29 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   void _pushState({
     required bool fromMag,
     required bool fromBle,
+    required bool isConnect,
   }) {
     _bleStreamController.add(
       SensorScannerState(
-          discoveredDevices: _bleDevices,
-          result: _results,
-          magnetometer: _magnetometerValues,
-          // startscan is called in init, resulting in streams being subscribed automatically.
-          // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
-          scanIsInProgress: _streamSubscriptions.isNotEmpty),
+        discoveredDevices: _bleDevices,
+        result: _results,
+        magnetometer: _magnetometerValues,
+        // startscan is called in init, resulting in streams being subscribed automatically.
+        // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
+        connectDiscoveredDevices: _devices,
+        scanIsInProgress: _streamSubscriptions.isNotEmpty,
+      ),
     );
 
-    performLocalisation(
-      hasUpdate: _hasUpdated,
-      // TODO: true if in debug mode, false if in actual test mode
-      isDebugMode: true,
-      fromBle: fromBle,
-      fromMag: fromMag,
-    );
+    if (!isConnect) {
+      performLocalisation(
+        hasUpdate: _hasUpdated,
+        // TODO: true if in debug mode, false if in actual test mode
+        isDebugMode: true,
+        fromBle: fromBle,
+        fromMag: fromMag,
+      );
+    }
   }
 
   Future<void> stopScan() async {
@@ -138,7 +181,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     _magnetometerValues.clear();
     _results.clear();
     _onSight.resetLocalisation();
-    _pushState(fromBle: false, fromMag: false);
+    _pushState(fromBle: false, fromMag: false, isConnect: false);
   }
 
   Future<void> dispose() async {
@@ -161,13 +204,39 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     return sortedRssi;
   }
 
-  // TODO: figure out how to send data before averaging
-  void performLocalisation({
+  Future<void> _writeWithResponse() async {
+    // TODO: add in interation with esp here
+    if (_onSight.connectionState) {
+      final characteristic = QualifiedCharacteristic(
+          serviceId: _onSight.serviceId,
+          characteristicId: _onSight.characteristicId,
+          deviceId: _onSight.deviceId);
+      await _ble.writeCharacteristicWithResponse(characteristic, value: [0x1]);
+    } else {
+      print('[_writeWithResponse] Device is not connected!!');
+    }
+  }
+
+  /// This wrapper function does four things:
+  /// 1) Tracks the counters for mag and ble.
+  /// 2) Performs localisation when the counters reached a threshold.
+  /// 3) Sync data over MQTT.
+  /// 4) Write characteristics to ESP32.
+  ///
+  /// Inputs:
+  /// 1) hasUpdate [bool] - indicates if there is an update in the bleDevice containter.
+  /// 2) isDebugMode [bool] - indicates if we are debugging or using actual data collected in real time.
+  /// 3) fromMag [bool] - indicates if performLocalisation is called from magnetometer sensor.
+  /// 4) fromBle [bool] - indicates if performLocalisation is called from ble sensor.
+  ///
+  /// Returns:
+  /// 1) None.
+  Future<void> performLocalisation({
     required bool hasUpdate,
     required bool isDebugMode,
     required bool fromMag,
     required bool fromBle,
-  }) {
+  }) async {
     if (_magnetometerValues.isEmpty) return;
 
     DateTime currTime = DateTime.now();
@@ -198,10 +267,9 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       LinkedHashMap<String, num> tmpUnsortedRssi = LinkedHashMap();
 
       // create placeholder rssi values
-      Random rand = Random();
       LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
       _knownDevices.forEach((mac) {
-        tmpUnsortedRssi[mac] = -(rand.nextInt(20) + 60);
+        tmpUnsortedRssi[mac] = -(_rand.nextInt(20) + 60);
       });
       // sort placeholder values and store to map container
       currRssiAll = _sort(tmpUnsortedRssi);
@@ -219,6 +287,8 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           tmpResult = _onSight.localisation(currRawDataAll);
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
+
+          _writeWithResponse();
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -328,6 +398,8 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
 
+          // TODO: add in interation with esp here
+
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
         } else {
@@ -335,6 +407,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
         }
       }
     }
+    print('ble = $_ble_counter, mag = $_mag_counter');
   }
 
   List<ResultCharactersitics> _formatResult(
@@ -383,7 +456,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     }
 
     if (hasUpdate) {
-      _pushState(fromBle: true, fromMag: false);
+      _pushState(fromBle: true, fromMag: false, isConnect: false);
     }
 
     return hasUpdate;
@@ -409,12 +482,14 @@ class SensorScannerState {
     required this.result, // results from localisation
     required this.magnetometer, // magneto value
     required this.scanIsInProgress, // checks if scanning is in progress
+    required this.connectDiscoveredDevices,
   });
 
   final Map<String, List<DiscoveredDevice>> discoveredDevices;
   final List<ResultCharactersitics> result;
   final List<SensorCharacteristics> magnetometer;
   final bool scanIsInProgress;
+  final List<DiscoveredDevice> connectDiscoveredDevices;
 }
 
 class SensorCharacteristics {

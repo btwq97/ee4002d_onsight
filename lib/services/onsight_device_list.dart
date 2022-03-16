@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:provider/provider.dart';
 
-import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
-import 'package:on_sight/services/reactive_packages/onsight_device_detail_screen.dart';
+import 'package:on_sight/services/onsight_cane_device_detail_screen.dart';
+
+class BluetoothIcon extends StatelessWidget {
+  const BluetoothIcon({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 64,
+        height: 64,
+        child: Align(alignment: Alignment.center, child: Icon(Icons.bluetooth)),
+      );
+}
 
 class OnsightLocalisationScreen extends StatelessWidget {
   OnsightLocalisationScreen({
@@ -26,31 +36,36 @@ class OnsightLocalisationScreen extends StatelessWidget {
                 result: [],
                 magnetometer: [],
                 scanIsInProgress: false,
+                connectDiscoveredDevices: [],
               ),
-          startScan: bleScanner.startScan,
+          startLocalisation: bleScanner.startLocalisation,
           stopScan: bleScanner.stopScan,
+          connect: bleScanner.connect,
         ),
       );
 }
 
 class _DeviceList extends StatefulWidget {
-  _DeviceList(
-      {required this.onSight,
-      required this.sensorScannerState,
-      required this.startScan,
-      required this.stopScan});
+  _DeviceList({
+    required this.onSight,
+    required this.sensorScannerState,
+    required this.startLocalisation,
+    required this.stopScan,
+    required this.connect,
+  });
 
   final OnSight onSight;
   final SensorScannerState sensorScannerState;
-  final void Function(List<Uuid>) startScan;
+  final void Function(List<Uuid>) startLocalisation;
   final VoidCallback stopScan;
+  final void Function(List<Uuid>) connect;
 
   @override
   _DeviceListState createState() => _DeviceListState();
 }
 
 class _DeviceListState extends State<_DeviceList> {
-  List<Uuid> knownUuid = [];
+  List<Uuid> _knownUuid = [];
 
   @override
   void initState() {
@@ -63,8 +78,12 @@ class _DeviceListState extends State<_DeviceList> {
     widget.stopScan();
   }
 
-  void _startScanning() {
-    widget.startScan(knownUuid);
+  void _startLocalising() {
+    widget.startLocalisation(_knownUuid);
+  }
+
+  void _connect() {
+    widget.connect(_knownUuid);
   }
 
   @override
@@ -86,9 +105,16 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                      child: const Text('Start'),
+                      child: const Text('Localise'),
                       onPressed: !widget.sensorScannerState.scanIsInProgress
-                          ? _startScanning
+                          ? _startLocalising
+                          : null,
+                    ),
+                    ElevatedButton(
+                      child: const Text('Cane'),
+                      onPressed: (!widget.sensorScannerState.scanIsInProgress &&
+                              !widget.onSight.connectionState)
+                          ? _connect
                           : null,
                     ),
                     ElevatedButton(
@@ -119,20 +145,30 @@ class _DeviceListState extends State<_DeviceList> {
             ),
           ),
 
-          // // For discovery
-          // Flexible(
-          //   child: ListView(
-          //     children: widget.sensorScannerState.discoveredDevices
-          //         .map(
-          //           (device) => ListTile(
-          //             title: Text(device.name),
-          //             subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-          //             leading: const BluetoothIcon(),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
+          // For discovery
+          Flexible(
+            child: ListView(
+              children: widget.sensorScannerState.connectDiscoveredDevices
+                  .map(
+                    (device) => ListTile(
+                      title: Text(device.name),
+                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                      leading: const BluetoothIcon(),
+                      onTap: () async {
+                        widget.stopScan();
+                        await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => DeviceDetailScreen(
+                                      onSight: widget.onSight,
+                                      device: device,
+                                    )));
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
 
           // For magnetometer
           Row(

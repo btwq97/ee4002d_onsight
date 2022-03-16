@@ -61,49 +61,29 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
 
-          // Connect to ESP32
-          // GestureDetector(
-          //   onTap: () {
-          //     Navigator.push(context,
-          //         MaterialPageRoute(builder: (context) => OnsightCaneScreen()));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text(
-          //         'CONNECT TO ESP32',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
-
           // System Characteristics Testing
-          // GestureDetector(
-          //   onTap: () {
-          //     Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //             builder: (context) => OnsightSystemTestScreen(
-          //                   onSight: this.onSight,
-          //                 )));
-          //   },
-          //   child: Container(
-          //     child: Center(
-          //       child: Text(
-          //         'CHARACTERISTICS TESTING',
-          //         style: kBottomButtonTextStyle,
-          //       ),
-          //     ),
-          //     color: kBottomContainerColour,
-          //     margin: EdgeInsets.only(top: 10.0),
-          //     width: double.infinity,
-          //     height: kBottomContainerHeight,
-          //   ),
-          // ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => OnsightSystemTestScreen(
+                            onSight: this.onSight,
+                          )));
+            },
+            child: Container(
+              child: Center(
+                child: Text(
+                  'CHARACTERISTICS TESTING',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
 
           // Localisation Screen
           GestureDetector(
@@ -118,7 +98,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  'LOCALISATION TESTING',
+                  'LOCALISATION',
                   style: kBottomButtonTextStyle,
                 ),
               ),
