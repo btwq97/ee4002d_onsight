@@ -86,7 +86,11 @@ class Localisation {
       if (currY >= 1200 && currX <= 900) {
         return Zone.corner;
       } else {
-        return Zone.start;
+        if (!hasTurned) {
+          return Zone.start;
+        } else {
+          return Zone.end;
+        }
       }
     } else {
       return Zone.end;
@@ -180,6 +184,9 @@ class Localisation {
     }
     // indicates correct orientation
     else {
+      if (userZone == Zone.corner) {
+        hasTurned = true;
+      }
       return 'Forward';
     }
   }
