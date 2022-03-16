@@ -145,6 +145,22 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     await _bleStreamController.close();
   }
 
+  LinkedHashMap<String, num> _sort(
+    LinkedHashMap<String, dynamic> unsortedRssi,
+  ) {
+    SplayTreeMap currSortedRssi = SplayTreeMap();
+    LinkedHashMap<String, num> sortedRssi = LinkedHashMap();
+
+    // sort placeholder values and store to map container
+    currSortedRssi = SplayTreeMap.from(unsortedRssi,
+        (prev, next) => unsortedRssi[next]!.compareTo(unsortedRssi[prev] ?? 0));
+    currSortedRssi.forEach((mac, rssi) {
+      sortedRssi[mac] = rssi;
+    });
+
+    return sortedRssi;
+  }
+
   // TODO: figure out how to send data before averaging
   void performLocalisation({
     required bool hasUpdate,
@@ -179,20 +195,16 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     // In debugMode
     if (isDebugMode) {
       LinkedHashMap<String, dynamic> tmpResult = LinkedHashMap();
-      SplayTreeMap currSortedRssi = SplayTreeMap();
+      LinkedHashMap<String, num> tmpUnsortedRssi = LinkedHashMap();
 
       // create placeholder rssi values
       Random rand = Random();
       LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
       _knownDevices.forEach((mac) {
-        currRssiAll[mac] = -(rand.nextInt(20) + 60);
+        tmpUnsortedRssi[mac] = -(rand.nextInt(20) + 60);
       });
       // sort placeholder values and store to map container
-      currSortedRssi = SplayTreeMap.from(currRssiAll,
-          (prev, next) => currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
-      currSortedRssi.forEach((mac, rssi) {
-        currRssiAll[mac] = rssi;
-      });
+      currRssiAll = _sort(tmpUnsortedRssi);
 
       // magneto only
       if (fromMag) {
@@ -253,7 +265,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       // localisation
       if (fromBle) {
         LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
-        SplayTreeMap currSortedRssi = SplayTreeMap();
+        LinkedHashMap<String, num> tmpUnsortedRssi = LinkedHashMap();
 
         // using actual values
         if (isReady) {
@@ -262,16 +274,10 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
             details.forEach((device) {
               rssiSum += device.rssi;
             });
-            currRssiAll[mac] = rssiSum / details.length;
+            tmpUnsortedRssi[mac] = rssiSum / details.length;
           });
           // sort avg rssi and store to map container
-          currSortedRssi = SplayTreeMap.from(
-              currRssiAll,
-              (prev, next) =>
-                  currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
-          currSortedRssi.forEach((mac, rssi) {
-            currRssiAll[mac] = rssi;
-          });
+          currRssiAll = _sort(tmpUnsortedRssi);
 
           // update both bearing and est position
           currRawDataAll.addEntries([
@@ -289,16 +295,10 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _ble_counter = 0; // reset counter
         } else {
           _bleDevices.forEach((mac, details) {
-            currRssiAll[mac] = details.last.rssi;
+            tmpUnsortedRssi[mac] = details.last.rssi;
           });
           // sort avg rssi and store to map container
-          currSortedRssi = SplayTreeMap.from(
-              currRssiAll,
-              (prev, next) =>
-                  currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
-          currSortedRssi.forEach((mac, rssi) {
-            currRssiAll[mac] = rssi;
-          });
+          currRssiAll = _sort(tmpUnsortedRssi);
 
           // update both bearing and est position
           currRawDataAll.addEntries([
