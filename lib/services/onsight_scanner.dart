@@ -204,14 +204,34 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     return sortedRssi;
   }
 
-  Future<void> _writeWithResponse() async {
-    // TODO: add in interation with esp here
+  /// BLE write value to characteristics.
+  ///
+  /// Input:
+  /// 1) direction [String]
+  Future<void> _writeWithResponse(String direction) async {
+    print(direction);
+
     if (_onSight.connectionState) {
       final characteristic = QualifiedCharacteristic(
           serviceId: _onSight.serviceId,
           characteristicId: _onSight.characteristicId,
           deviceId: _onSight.deviceId);
-      await _ble.writeCharacteristicWithResponse(characteristic, value: [0x1]);
+      switch (direction) {
+        case 'Forward':
+          await _ble
+              .writeCharacteristicWithResponse(characteristic, value: [0x1]);
+          break;
+        case 'Left':
+          await _ble
+              .writeCharacteristicWithResponse(characteristic, value: [0x2]);
+          break;
+        case 'Right':
+          await _ble
+              .writeCharacteristicWithResponse(characteristic, value: [0x3]);
+          break;
+        default:
+          break;
+      }
     } else {
       print('[_writeWithResponse] Device is not connected!!');
     }
@@ -288,7 +308,8 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
 
-          _writeWithResponse();
+          // index of 'suggested_direction' is 5
+          await _writeWithResponse(_results[5].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -398,7 +419,8 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
 
-          // TODO: add in interation with esp here
+          // index of 'suggested_direction' is 5
+          await _writeWithResponse(_results[5].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -407,7 +429,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
         }
       }
     }
-    print('ble = $_ble_counter, mag = $_mag_counter');
+    // print('ble = $_ble_counter, mag = $_mag_counter');
   }
 
   List<ResultCharactersitics> _formatResult(

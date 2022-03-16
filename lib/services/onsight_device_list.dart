@@ -66,6 +66,7 @@ class _DeviceList extends StatefulWidget {
 
 class _DeviceListState extends State<_DeviceList> {
   List<Uuid> _knownUuid = [];
+  bool isCane = false;
 
   @override
   void initState() {
@@ -80,10 +81,28 @@ class _DeviceListState extends State<_DeviceList> {
 
   void _startLocalising() {
     widget.startLocalisation(_knownUuid);
+    setState(() {
+      isCane = false;
+    });
   }
 
   void _connect() {
     widget.connect(_knownUuid);
+    setState(() {
+      isCane = true;
+    });
+  }
+
+  String display() {
+    if (!widget.sensorScannerState.scanIsInProgress) {
+      return 'Tap start to begin localisation. Tap Cane to connect to cane.';
+    } else {
+      if (isCane) {
+        return 'Searching for cane...';
+      } else {
+        return 'Performing localisation...';
+      }
+    }
   }
 
   @override
@@ -129,9 +148,7 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(!widget.sensorScannerState.scanIsInProgress
-                          ? 'Tap start to begin localisation'
-                          : 'Localisation in process...'),
+                      child: Text(display()),
                     ),
                     if (widget.sensorScannerState.scanIsInProgress)
                       Padding(
