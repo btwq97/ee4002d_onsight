@@ -12,6 +12,7 @@ enum Zone {
   corner,
   end,
   stalls,
+  unknown,
 }
 
 class Localisation {
@@ -42,7 +43,7 @@ class Localisation {
   Zone currZone = Zone.start;
 
   // TODO: update baseline RSSI as necessary
-  static num BASELINERSSI = -55.0;
+  static num BASELINERSSI = -60.0;
 
   /// Note: conditions here differs from the four cases that we have.
   /// Case 1: All three circles intercept at exactly one point.
@@ -64,8 +65,8 @@ class Localisation {
   /// key: macAddr, value: [x_coordinate, y_coordinate]
   Map<String, List<num>> _knownBeacons = {};
 
-  num prev_x = 0.0;
-  num prev_y = 0.0;
+  num prev_x = double.negativeInfinity;
+  num prev_y = double.negativeInfinity;
 
   /// ========  For Navigations  ========
   /// To convert estimated position from localisation to zones.
@@ -76,6 +77,8 @@ class Localisation {
   /// Returns:
   /// 1) [Zone]
   Zone _determineZone({required List<num> estPosition}) {
+    if (estPosition.contains(double.negativeInfinity)) return Zone.unknown;
+
     num currX = estPosition[0];
     num currY = estPosition[1];
 
@@ -97,12 +100,19 @@ class Localisation {
       return 'Corner';
     else if (userZone == Zone.end)
       return 'End';
-    else
+    else if (userZone == Zone.stalls)
       return 'Stalls';
+    else
+      return 'Unknown';
+  }
+
+  void reset() {
+    prev_x = double.negativeInfinity;
+    prev_y = double.negativeInfinity;
   }
 
   /// Retrieve the lower and upper limits of the heading
-  num _retrieveHeadingAngleRange(Heading heading) {
+  num _retrieveHeadingAngleRange(Heading? heading) {
     // precision to 4 d.p
     if (heading == Heading.NE) {
       return 45.0;
@@ -120,11 +130,11 @@ class Localisation {
       return 315.0;
     } else if (heading == Heading.N) {
       // special since North points from a negative range to a positive range (-22.5, 22.5)
-      return 0.0;
+      return 360.0;
     } else {
       throw NoPossibleSolution(
           errMsg:
-              "[_retrieveHeadingAngleRange]: Unable to retrieve heading angle");
+              "[_retrieveHeadingAngleRange]: Estimated position is unknown");
     }
   }
 
@@ -136,10 +146,6 @@ class Localisation {
   ///
   /// Returns:
   /// 1) [String] - direction for the user to move.
-  ///
-  /// TODO: Logic is buggy. It can direct the user to a particular direction.
-  ///       However, when the user is at the direct opposite direction,
-  ///       the direction given keeps jumping back and forth.
   String determineDirection(Zone userZone, Bearing userBearing) {
     // TODO: Placeholder values for now. Change headings to actual headings.
     Map<Zone, Heading> FIXED_ROUTES_HEADING = {
@@ -149,20 +155,27 @@ class Localisation {
     };
 
     Heading? intendedHeading = FIXED_ROUTES_HEADING[userZone];
-    num intendedAngle = _retrieveHeadingAngleRange(userBearing.heading);
-    num rightTurnAngle = userBearing.angle - intendedAngle;
-    num leftTurnAngle = intendedAngle - userBearing.angle;
+    num intendedAngle = -1.0;
 
-    rightTurnAngle =
-        ((rightTurnAngle < 0) ? (rightTurnAngle + 360) : rightTurnAngle);
-    leftTurnAngle =
-        ((leftTurnAngle < 0) ? (leftTurnAngle + 360) : leftTurnAngle);
+    try {
+      intendedAngle = _retrieveHeadingAngleRange(intendedHeading);
+    } on NoPossibleSolution catch (error) {
+      return error.what();
+    }
 
+    // indicates wrong orientation
     if (userBearing.heading != intendedHeading) {
-      if (rightTurnAngle < leftTurnAngle) {
-        return 'Right';
-      } else {
+      num leftTurn = userBearing.angle - intendedAngle;
+      num rightTurn = intendedAngle - userBearing.angle;
+
+      // make angle > 0
+      if (leftTurn < 0.0) leftTurn += 360.0;
+      if (rightTurn < 0.0) rightTurn += 360.0;
+
+      if (leftTurn < rightTurn) {
         return 'Left';
+      } else {
+        return 'Right';
       }
     }
     // indicates correct orientation
@@ -814,7 +827,7 @@ class Localisation {
     num d0 = 1;
     num x = 0;
     num exponent = (rssi.abs() - RSSId0 - x) / (10 * n);
-    num distance = (d0 * (pow(10, exponent))).toDouble();
+    num distance = d0 * (pow(10, exponent));
 
     return distance;
   }
@@ -977,14 +990,14 @@ class Localisation {
       if (key == 'rssi') {
         LinkedHashMap<String, num> rssiData = rawData[key];
         rssiData.forEach((macAddr, rssi) {
-          distances[macAddr] = _rssiToDistance(rssi.toDouble());
+          distances[macAddr] = _rssiToDistance(rssi);
         });
 
         try {
           Map<String, num> tmpResult = _trilateration(distances);
           // storing of prev values
-          prev_x = tmpResult['x_coordinate'] ?? -1.0;
-          prev_y = tmpResult['y_coordinate'] ?? -1.0;
+          prev_x = tmpResult['x_coordinate'] ?? prev_x;
+          prev_y = tmpResult['y_coordinate'] ?? prev_y;
           result.addEntries(tmpResult.entries);
           result['is_error'] = 'F';
         } on ZeroDivisionError {
@@ -1015,6 +1028,17 @@ class Localisation {
           }.entries);
         }
       } else if (key == 'magnetometer') {
+        // result container resets at every function call --> if result is empty,
+        // then rawData does not contain 'rssi', and we are just computing direction.
+        // hence, we store prev est position during computation of just magnetometer.
+        if (result.isEmpty) {
+          result.addEntries({
+            'x_coordinate': prev_x,
+            'y_coordinate': prev_y,
+            'is_error': 'T',
+          }.entries);
+        }
+
         // initialise hashmap
         Map<String, String> tempDirection = {
           'zone': '',
@@ -1025,8 +1049,8 @@ class Localisation {
 
         // using zones to determine direction
         Zone currZone = _determineZone(estPosition: [
-          result['x_coordinate'],
-          result['y_coordinate'],
+          result['x_coordinate'] ?? prev_x,
+          result['y_coordinate'] ?? prev_y,
         ]);
 
         // compass prototype

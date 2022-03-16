@@ -1,17 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 
 class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
   BleDeviceConnector({
     required FlutterReactiveBle ble,
     required Function(String message) logMessage,
+    required OnSight onSight,
   })  : _ble = ble,
-        _logMessage = logMessage;
+        _logMessage = logMessage,
+        _onSight = onSight;
 
   final FlutterReactiveBle _ble;
   final void Function(String message) _logMessage;
+  final OnSight _onSight;
 
   @override
   Stream<ConnectionStateUpdate> get state => _deviceConnectionController.stream;

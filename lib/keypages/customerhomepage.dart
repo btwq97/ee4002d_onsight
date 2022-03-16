@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
-import 'package:on_sight/services/onsight_cane.dart';
+// import 'package:on_sight/services/onsight_cane.txt';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
 import 'package:on_sight/services/onsight_system_test_device_list.dart';
@@ -61,26 +61,6 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
 
-          // Connect to ESP32
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => OnsightCaneScreen()));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'CONNECT TO ESP32',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
-
           // System Characteristics Testing
           GestureDetector(
             onTap: () {
@@ -118,7 +98,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  'LOCALISATION TESTING',
+                  'LOCALISATION',
                   style: kBottomButtonTextStyle,
                 ),
               ),

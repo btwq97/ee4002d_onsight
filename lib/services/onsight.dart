@@ -14,11 +14,26 @@ enum Mode {
 
 class OnSight {
   // ==== Private Methods ====
-  OnSight();
+  OnSight() {
+    connectionState = false;
+  }
 
   late MyDatabase _db;
   late Localisation _lc;
   late Mqtt _mq;
+
+  /// DiscoveredService(
+  ///   serviceId: 6e400001-b5a3-f393-e0a9-e50e24dcca9e,
+  ///   characteristicIds: [6e400003-b5a3-f393-e0a9-e50e24dcca9e, 6e400002-b5a3-f393-e0a9-e50e24dcca9e],
+  ///   characteristics: [DiscoveredCharacteristic(characteristicId: 6e400003-b5a3-f393-e0a9-e50e24dcca9e,
+  ///                     serviceId: 6e400001-b5a3-f393-e0a9-e50e24dcca9e),
+  ///                     DiscoveredCharacteristic(characteristicId: 6e400002-b5a3-f393-e0a9-e50e24dcca9e, serviceId: 6e400001-b5a3-f393-e0a9-e50e24dcca9e)],
+  ///                     includedServices: []
+  /// )
+  late Uuid characteristicId;
+  late Uuid serviceId;
+  late String deviceId;
+  late bool connectionState;
 
   // ==== Public Methods ====
   /// Runs the localisation algorithm
@@ -132,5 +147,9 @@ class OnSight {
 
   Future<void> ConnnectToMqttServer() async {
     await _mq.init();
+  }
+
+  void resetLocalisation() {
+    _lc.reset();
   }
 }

@@ -3,20 +3,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:functional_data/functional_data.dart';
+import 'package:on_sight/services/onsight.dart';
 import 'package:provider/provider.dart';
 
+import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/reactive_packages/ble_device_connector.dart';
 import 'package:on_sight/services/reactive_packages/onsight_characteristics_interaction_dialogue.dart';
 import 'package:on_sight/services/reactive_packages/onsight_ble_device_interactor.dart';
+import 'package:on_sight/services/onsight_device_list.dart';
 
 part 'device_interaction_tab.g.dart';
 //ignore_for_file: annotate_overrides
 
 class DeviceInteractionTab extends StatelessWidget {
   final DiscoveredDevice device;
+  final OnSight onSight;
 
   const DeviceInteractionTab({
     required this.device,
+    required this.onSight,
     Key? key,
   }) : super(key: key);
 
@@ -26,6 +31,7 @@ class DeviceInteractionTab extends StatelessWidget {
         builder: (_, deviceConnector, connectionStateUpdate, serviceDiscoverer,
                 __) =>
             _DeviceInteractionTab(
+          onSight: onSight,
           viewModel: DeviceInteractionViewModel(
               deviceId: device.id,
               connectionStatus: connectionStateUpdate.connectionState,
@@ -67,9 +73,11 @@ class DeviceInteractionViewModel extends $DeviceInteractionViewModel {
 class _DeviceInteractionTab extends StatefulWidget {
   const _DeviceInteractionTab({
     required this.viewModel,
+    required this.onSight,
     Key? key,
   }) : super(key: key);
 
+  final OnSight onSight;
   final DeviceInteractionViewModel viewModel;
 
   @override
@@ -90,6 +98,22 @@ class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
     setState(() {
       discoveredServices = result;
     });
+
+    widget.onSight.connectionState = widget.viewModel.deviceConnected;
+    widget.onSight.serviceId = result[2].serviceId;
+    widget.onSight.characteristicId = result[2].characteristicIds[1];
+    widget.onSight.deviceId = widget.viewModel.deviceId;
+
+    // final characteristic = QualifiedCharacteristic(
+    //     serviceId: result[2].serviceId,
+    //     characteristicId: result[2].characteristicIds[1],
+    //     deviceId: widget.viewModel.deviceId);
+    // await _ble.writeCharacteristicWithResponse(characteristic, value: [0x1]);
+  }
+
+  void _disconnectWrapper() {
+    widget.viewModel.disconnect();
+    widget.onSight.connectionState = false;
   }
 
   @override
@@ -126,24 +150,56 @@ class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
                       ),
                       ElevatedButton(
                         onPressed: widget.viewModel.deviceConnected
-                            ? widget.viewModel.disconnect
+                            ? _disconnectWrapper
                             : null,
                         child: const Text("Disconnect"),
                       ),
-                      ElevatedButton(
-                        onPressed: widget.viewModel.deviceConnected
-                            ? discoverServices
-                            : null,
-                        child: const Text("Discover Services"),
-                      ),
+                      // ElevatedButton(
+                      //   onPressed: widget.viewModel.deviceConnected
+                      //       ? discoverServices
+                      //       : null,
+                      //   child: const Text("Discover Services"),
+                      // ),
                     ],
                   ),
                 ),
-                if (widget.viewModel.deviceConnected)
-                  _ServiceDiscoveryList(
-                    deviceId: widget.viewModel.deviceId,
-                    discoveredServices: discoveredServices,
+                // if (widget.viewModel.deviceConnected)
+                //   _ServiceDiscoveryList(
+                //     deviceId: widget.viewModel.deviceId,
+                //     discoveredServices: discoveredServices,
+                //   ),
+                GestureDetector(
+                  onTap: () {
+                    if (widget.viewModel.deviceConnected) {
+                      discoverServices();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OnsightLocalisationScreen(
+                            onSight: widget.onSight,
+                          ),
+                        ),
+                      );
+                    } else {
+                      null;
+                    }
+                  },
+                  child: Container(
+                    child: Center(
+                      child: Text(
+                        widget.viewModel.deviceConnected ? 'CONTINUE' : '',
+                        style: kBottomButtonTextStyle,
+                      ),
+                    ),
+                    color: widget.viewModel.deviceConnected
+                        ? kBottomContainerColour
+                        : Color(0xFF301934),
+                    margin: EdgeInsets.only(top: 10.0),
+                    padding: EdgeInsets.only(bottom: 10.0),
+                    width: double.infinity,
+                    height: kBottomContainerHeight,
                   ),
+                ),
               ],
             ),
           ),

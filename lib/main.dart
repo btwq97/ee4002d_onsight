@@ -9,7 +9,6 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/ble_device_connector.dart';
 import 'package:on_sight/services/reactive_packages/onsight_ble_device_interactor.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
-import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_monitor.dart';
 import 'package:on_sight/services/reactive_packages/ble_status_screen.dart';
 import 'package:on_sight/services/reactive_packages/ble_logger.dart';
@@ -26,20 +25,18 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final _bleLogger = BleLogger();
   final _ble = FlutterReactiveBle();
-  final _servicesScanner = OnsightServicesScanner(
+  final _onsightLocalisationScanner = OnsightLocalisationScanner(
     ble: _ble,
     onSight: onSight,
+    logMessage: _bleLogger.addToLog,
   );
   final _systemTestScanner = OnsightSystemTestScanner(
     ble: _ble,
     onSight: onSight,
   );
-  final _espScanner = BleScanner(
-    ble: _ble,
-    logMessage: _bleLogger.addToLog,
-  );
   final _monitor = BleStatusMonitor(_ble);
   final _connector = BleDeviceConnector(
+    onSight: onSight,
     ble: _ble,
     logMessage: _bleLogger.addToLog,
   );
@@ -55,32 +52,26 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        Provider.value(value: _servicesScanner),
+        Provider.value(value: _onsightLocalisationScanner),
         Provider.value(value: _systemTestScanner),
-        Provider.value(value: _espScanner),
+        // Provider.value(value: _espScanner),
         Provider.value(value: _monitor),
         Provider.value(value: _connector),
         Provider.value(value: _caneServiceDiscoverer),
         Provider.value(value: _bleLogger),
         StreamProvider<SensorScannerState?>(
-          create: (_) => _servicesScanner.state,
+          create: (_) => _onsightLocalisationScanner.state,
           initialData: const SensorScannerState(
-            discoveredDevices: [],
+            discoveredDevices: {},
             result: [],
             magnetometer: [],
             scanIsInProgress: false,
+            connectDiscoveredDevices: [],
           ),
         ),
         StreamProvider<OnsightSystemTestScannerState?>(
           create: (_) => _systemTestScanner.state,
           initialData: const OnsightSystemTestScannerState(
-            discoveredDevices: [],
-            scanIsInProgress: false,
-          ),
-        ),
-        StreamProvider<BleScannerState?>(
-          create: (_) => _espScanner.state,
-          initialData: const BleScannerState(
             discoveredDevices: [],
             scanIsInProgress: false,
           ),

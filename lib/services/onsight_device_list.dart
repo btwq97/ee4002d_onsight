@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:provider/provider.dart';
 
-import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
+import 'package:on_sight/services/onsight_cane_device_detail_screen.dart';
+
+class BluetoothIcon extends StatelessWidget {
+  const BluetoothIcon({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 64,
+        height: 64,
+        child: Align(alignment: Alignment.center, child: Icon(Icons.bluetooth)),
+      );
+}
 
 class OnsightLocalisationScreen extends StatelessWidget {
   OnsightLocalisationScreen({
@@ -16,45 +27,50 @@ class OnsightLocalisationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Consumer2<OnsightServicesScanner, SensorScannerState?>(
+      Consumer2<OnsightLocalisationScanner, SensorScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
           onSight: onSight,
           sensorScannerState: bleScannerState ??
               const SensorScannerState(
-                discoveredDevices: [],
+                discoveredDevices: {},
                 result: [],
                 magnetometer: [],
                 scanIsInProgress: false,
+                connectDiscoveredDevices: [],
               ),
-          startScan: bleScanner.startScan,
+          startLocalisation: bleScanner.startLocalisation,
           stopScan: bleScanner.stopScan,
+          connect: bleScanner.connect,
         ),
       );
 }
 
 class _DeviceList extends StatefulWidget {
-  _DeviceList(
-      {required this.onSight,
-      required this.sensorScannerState,
-      required this.startScan,
-      required this.stopScan});
+  _DeviceList({
+    required this.onSight,
+    required this.sensorScannerState,
+    required this.startLocalisation,
+    required this.stopScan,
+    required this.connect,
+  });
 
   final OnSight onSight;
   final SensorScannerState sensorScannerState;
-  final void Function(List<Uuid>) startScan;
+  final void Function(List<Uuid>) startLocalisation;
   final VoidCallback stopScan;
+  final void Function(List<Uuid>) connect;
 
   @override
   _DeviceListState createState() => _DeviceListState();
 }
 
 class _DeviceListState extends State<_DeviceList> {
-  List<Uuid> knownUuid = [];
+  List<Uuid> _knownUuid = [];
+  bool isCane = false;
 
   @override
   void initState() {
     super.initState();
-    _startScanning(); // we dont need to stream the devices here as it is taken cared of in ble_scanner
   }
 
   @override
@@ -63,8 +79,30 @@ class _DeviceListState extends State<_DeviceList> {
     widget.stopScan();
   }
 
-  void _startScanning() {
-    widget.startScan(knownUuid);
+  void _startLocalising() {
+    widget.startLocalisation(_knownUuid);
+    setState(() {
+      isCane = false;
+    });
+  }
+
+  void _connect() {
+    widget.connect(_knownUuid);
+    setState(() {
+      isCane = true;
+    });
+  }
+
+  String display() {
+    if (!widget.sensorScannerState.scanIsInProgress) {
+      return 'Tap start to begin localisation. Tap Cane to connect to cane.';
+    } else {
+      if (isCane) {
+        return 'Searching for cane...';
+      } else {
+        return 'Performing localisation...';
+      }
+    }
   }
 
   @override
@@ -86,9 +124,16 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                      child: const Text('Start'),
+                      child: const Text('Localise'),
                       onPressed: !widget.sensorScannerState.scanIsInProgress
-                          ? _startScanning
+                          ? _startLocalising
+                          : null,
+                    ),
+                    ElevatedButton(
+                      child: const Text('Cane'),
+                      onPressed: (!widget.sensorScannerState.scanIsInProgress &&
+                              !widget.onSight.connectionState)
+                          ? _connect
                           : null,
                     ),
                     ElevatedButton(
@@ -103,9 +148,7 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(!widget.sensorScannerState.scanIsInProgress
-                          ? 'Tap start to begin localisation'
-                          : 'Localisation in process...'),
+                      child: Text(display()),
                     ),
                     if (widget.sensorScannerState.scanIsInProgress)
                       Padding(
@@ -120,41 +163,51 @@ class _DeviceListState extends State<_DeviceList> {
           ),
 
           // For discovery
-          // Flexible(
-          //   child: ListView(
-          //     children: widget.sensorScannerState.discoveredDevices
-          //         .map(
-          //           (device) => ListTile(
-          //             title: Text(device.name),
-          //             subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-          //             leading: const BluetoothIcon(),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
+          Flexible(
+            child: ListView(
+              children: widget.sensorScannerState.connectDiscoveredDevices
+                  .map(
+                    (device) => ListTile(
+                      title: Text(device.name),
+                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                      leading: const BluetoothIcon(),
+                      onTap: () async {
+                        widget.stopScan();
+                        await Navigator.push<void>(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => DeviceDetailScreen(
+                                      onSight: widget.onSight,
+                                      device: device,
+                                    )));
+                      },
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
 
           // For magnetometer
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Expanded(
-          //       child: Text('Magnetometer'),
-          //     ),
-          //   ],
-          // ),
-          // Flexible(
-          //   child: ListView(
-          //     children: widget.sensorScannerState.magnetometer
-          //         .map(
-          //           (sensorValue) => ListTile(
-          //             title: Text(sensorValue.name),
-          //             subtitle: Text(sensorValue.value.toString()),
-          //           ),
-          //         )
-          //         .toList(),
-          //   ),
-          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text('Magnetometer'),
+              ),
+            ],
+          ),
+          Flexible(
+            child: ListView(
+              children: widget.sensorScannerState.magnetometer
+                  .map(
+                    (sensorValue) => ListTile(
+                      title: Text(sensorValue.name),
+                      subtitle: Text(sensorValue.value.toString()),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
 
           // For results
           Row(

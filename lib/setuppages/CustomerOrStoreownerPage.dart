@@ -5,6 +5,7 @@ import 'package:on_sight/constants.dart';
 import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
+import 'package:on_sight/uipagestoreowner/storeownerdemopage.dart';
 
 enum Role {
   customer,
@@ -32,6 +33,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
   });
 
   final OnSight onSight;
+  bool isCustomer = false;
 
   Role? chosen;
 
@@ -53,6 +55,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                 onPress: () {
                   setState(() {
                     chosen = Role.customer;
+                    isCustomer = true;
                   });
                 },
                 colour: chosen == Role.customer
@@ -68,6 +71,7 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
                 onPress: () {
                   setState(() {
                     chosen = Role.storeowner;
+                    isCustomer = false;
                   });
                 },
                 colour: chosen == Role.storeowner
@@ -83,9 +87,13 @@ class _CustomerOrStoreownerPageState extends State<CustomerOrStoreOwnerPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => VegetarianPage(
-                            onSight: onSight,
-                          )));
+                      builder: (context) => isCustomer
+                          ? VegetarianPage(
+                              onSight: onSight,
+                            )
+                          : StoreownerMainPage(
+                              onSight: onSight,
+                            )));
             },
             child: Container(
               child: Center(
