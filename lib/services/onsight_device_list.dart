@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:on_sight/services/reactive_packages/widgets.dart';
 import 'package:on_sight/services/onsight_scanner.dart';
 import 'package:on_sight/services/onsight.dart';
+import 'package:on_sight/services/reactive_packages/onsight_device_detail_screen.dart';
 
 class OnsightLocalisationScreen extends StatelessWidget {
   OnsightLocalisationScreen({
@@ -16,12 +17,12 @@ class OnsightLocalisationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Consumer2<OnsightServicesScanner, SensorScannerState?>(
+      Consumer2<OnsightLocalisationScanner, SensorScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
           onSight: onSight,
           sensorScannerState: bleScannerState ??
               const SensorScannerState(
-                discoveredDevices: [],
+                discoveredDevices: {},
                 result: [],
                 magnetometer: [],
                 scanIsInProgress: false,
@@ -65,7 +66,6 @@ class _DeviceListState extends State<_DeviceList> {
   void _startScanning() {
     widget.startScan(knownUuid);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -119,20 +119,20 @@ class _DeviceListState extends State<_DeviceList> {
             ),
           ),
 
-          // For discovery
-          Flexible(
-            child: ListView(
-              children: widget.sensorScannerState.discoveredDevices
-                  .map(
-                    (device) => ListTile(
-                      title: Text(device.name),
-                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-                      leading: const BluetoothIcon(),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
+          // // For discovery
+          // Flexible(
+          //   child: ListView(
+          //     children: widget.sensorScannerState.discoveredDevices
+          //         .map(
+          //           (device) => ListTile(
+          //             title: Text(device.name),
+          //             subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+          //             leading: const BluetoothIcon(),
+          //           ),
+          //         )
+          //         .toList(),
+          //   ),
+          // ),
 
           // For magnetometer
           Row(

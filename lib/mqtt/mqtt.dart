@@ -96,10 +96,6 @@ class Mqtt {
               direction.forEach((dkey, dvalue) {
                 result += '\"$dkey\":\"${dvalue}\",';
               });
-              result = result.substring(
-                0,
-                result.length - 1,
-              ); // to remove last comma
               break;
             default:
               break;
@@ -108,20 +104,15 @@ class Mqtt {
         break;
 
       case Mode.SYSTEM_TESTING:
-        int count = hashMap.length;
         hashMap.forEach((key, value) {
           switch (key) {
             case 'time':
-              result += '\"$key\":\"$value\"';
+              result += '\"$key\":\"$value\",';
               break;
             default:
-              result += '\"$key\":$value';
+              result += '\"$key\":$value,';
               break;
           }
-          if (count != 1) {
-            result += ',';
-          }
-          count -= 1;
         });
         break;
 
@@ -129,6 +120,7 @@ class Mqtt {
         break;
     }
 
+    result = result.substring(0, result.length - 1); // to remove last comma
     result += '}';
     return result;
   }

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
+
 import 'package:meta/meta.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
@@ -7,8 +9,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:on_sight/services/reactive_packages/reactive_state.dart';
 import 'package:on_sight/services/onsight.dart';
 
-class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
-  OnsightServicesScanner({
+class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
+  OnsightLocalisationScanner({
     required FlutterReactiveBle ble,
     required OnSight onSight,
   })  : _ble = ble,
@@ -27,7 +29,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   // for subscriptions
   final _streamSubscriptions = <StreamSubscription<dynamic>>[];
 
-  final _bleDevices = <DiscoveredDevice>[];
+  Map<String, List<DiscoveredDevice>> _bleDevices = {};
   List<SensorCharacteristics> _magnetometerValues = [];
   List<ResultCharactersitics> _results = [];
 
@@ -143,116 +145,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     await _bleStreamController.close();
   }
 
-  // TODO: Delete if testing for the new performLocalisation function is successful
-  // void performLocalisation({
-  //   required bool hasUpdate,
-  //   required bool isDebugMode,
-  //   required bool isBleScanner,
-  //   required bool isMagnetometer,
-  // }) {
-  //   if (_magnetometerValues.isEmpty) return;
-
-  //   DateTime currTime = DateTime.now();
-  //   String stringTime =
-  //       '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
-
-  //   final num _BLE_READ = (isDebugMode ? 0 : 25);
-  //   LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
-  //   LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
-  //   // for storing of result of localisation
-  //   LinkedHashMap<String, dynamic> result = LinkedHashMap();
-  //   // to check if system is ready
-  //   bool isReady = (hasUpdate &&
-  //       (_bleDevices.length >= 3) &&
-  //       (_ble_counter >= _BLE_READ));
-  //   // update magnetometer
-  //   List<num> currMag = [
-  //     _magnetometerValues[0].value,
-  //     _magnetometerValues[1].value,
-  //     _magnetometerValues[2].value,
-  //   ];
-
-  //   // update location
-  //   if (isDebugMode) {
-  //     // using placeholder values
-  //     currRssiAll.addEntries([
-  //       MapEntry("DC:A6:32:A0:C9:9E", -53.0),
-  //       MapEntry("DC:A6:32:A0:C8:30", -49.0),
-  //       MapEntry("DC:A6:32:A0:B7:4D", -48.0),
-  //       MapEntry("DC:A6:32:A0:C6:17", -70.0),
-  //       MapEntry("DC:A6:32:A0:C9:3B", -65.0),
-  //       MapEntry("DC:A6:32:A0:C9:5C", -66.0),
-  //     ]);
-  //   } else {
-  //     // using actual values
-  //     if (isReady) {
-  //       for (int i = 0; i < _bleDevices.length; i++) {
-  //         currRssiAll.addEntries([
-  //           MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
-  //         ]);
-  //       }
-  //     }
-  //   }
-
-  //   if ((isDebugMode && _ble_counter >= _BLE_READ) || isReady) {
-  //     // update both bearing and est position
-  //     currRawDataAll.addEntries([
-  //       MapEntry('time', stringTime),
-  //       MapEntry('rssi', currRssiAll),
-  //       MapEntry('magnetometer', currMag),
-  //     ]);
-  //   } else {
-  //     // update bearing only
-  //     currRawDataAll.addEntries([
-  //       MapEntry('time', stringTime),
-  //       MapEntry('magnetometer', currMag),
-  //     ]);
-  //   }
-
-  //   result = _onSight.localisation(currRawDataAll);
-
-  //   _results = <ResultCharactersitics>[
-  //     ResultCharactersitics(
-  //       name: 'x_coor',
-  //       value: result['x_coordinate']?.toString() ?? 'Error',
-  //     ),
-  //     ResultCharactersitics(
-  //       name: 'y_coor',
-  //       value: result['y_coordinate']?.toString() ?? 'Error',
-  //     ),
-  //     ResultCharactersitics(
-  //       name: 'zone',
-  //       value: result['direction']['zone'] ?? 'Error',
-  //     ),
-  //     ResultCharactersitics(
-  //       name: 'angle',
-  //       value: result['direction']['angle'] ?? 'Error',
-  //     ),
-  //     ResultCharactersitics(
-  //       name: 'compass_heading',
-  //       value: result['direction']['compass_heading'] ?? 'Error',
-  //     ),
-  //     ResultCharactersitics(
-  //       name: 'suggested_direction',
-  //       value: result['direction']['suggested_direction'] ?? 'Error',
-  //     ),
-  //   ];
-
-  //   if ((isDebugMode && _ble_counter >= _BLE_READ) || isReady) {
-  //     // TODO: remove MQTT if not needed
-  //     publishMqttPayload(currRawDataAll, result);
-  //     // reset all storage containters
-  //     _bleDevices.clear();
-  //     _magnetometerValues.clear();
-  //     _ble_counter = 0;
-  //   }
-
-  //   if (isBleScanner || isDebugMode) {
-  //     // updates counter only when _pushState is called from a bleDevice update
-  //     _ble_counter += 1;
-  //   }
-  // }
-
+  // TODO: figure out how to send data before averaging
   void performLocalisation({
     required bool hasUpdate,
     required bool isDebugMode,
@@ -265,16 +158,14 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
     String stringTime =
         '${currTime.hour}:${currTime.minute}:${currTime.second}.${currTime.millisecond}';
 
-    // duty cycle for ble devices
-    final num _BLE_READ = 30;
-    // duty cycle for magnetometer
-    final num _MAG_READ = 5;
+    // TODO: duty cycle for ble devices (zero based counting)
+    final num _BLE_READ = 29;
+    // TODO: duty cycle for magnetometer (zero based counting)
+    final num _MAG_READ = 4;
 
-    LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
     LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
-    LinkedHashMap<String, dynamic> tmpResult = LinkedHashMap();
     // to check if system is ready
     bool isReady =
         (hasUpdate && (_bleDevices.length >= 3) && (_ble_counter >= _BLE_READ));
@@ -287,17 +178,44 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
 
     // In debugMode
     if (isDebugMode) {
-      // create placeholder rssi values
-      currRssiAll.addEntries([
-        MapEntry("DC:A6:32:A0:C9:9E", -53.0),
-        MapEntry("DC:A6:32:A0:C8:30", -49.0),
-        MapEntry("DC:A6:32:A0:B7:4D", -48.0),
-        MapEntry("DC:A6:32:A0:C6:17", -70.0),
-        MapEntry("DC:A6:32:A0:C9:3B", -65.0),
-        MapEntry("DC:A6:32:A0:C9:5C", -66.0),
-      ]);
+      LinkedHashMap<String, dynamic> tmpResult = LinkedHashMap();
+      SplayTreeMap currSortedRssi = SplayTreeMap();
 
-      // update rawData
+      // create placeholder rssi values
+      Random rand = Random();
+      LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
+      _knownDevices.forEach((mac) {
+        currRssiAll[mac] = -(rand.nextInt(20) + 60);
+      });
+      // sort placeholder values and store to map container
+      currSortedRssi = SplayTreeMap.from(currRssiAll,
+          (prev, next) => currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
+      currSortedRssi.forEach((mac, rssi) {
+        currRssiAll[mac] = rssi;
+      });
+
+      // magneto only
+      if (fromMag) {
+        // update bearing only
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('magnetometer', currMag),
+        ]);
+
+        if (_mag_counter >= _MAG_READ) {
+          // perform localisation
+          tmpResult = _onSight.localisation(currRawDataAll);
+          _results = _formatResult(tmpResult);
+          result.addEntries(tmpResult.entries);
+
+          _mag_counter = 0; // reset counter
+          _magnetometerValues.clear(); // reset container
+        } else {
+          _mag_counter += 1;
+        }
+      }
+
+      // localisation
       if (_ble_counter >= _BLE_READ) {
         // update both bearing and est position
         currRawDataAll.addEntries([
@@ -309,45 +227,52 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         // perform localisation
         tmpResult = _onSight.localisation(currRawDataAll);
         _results = _formatResult(tmpResult);
+        result.addEntries(tmpResult.entries);
 
-        // TODO: remove MQTT if not needed
-        // publishMqttPayload(currRawDataAll, result); //IMTIAZ LOOK HERE FOR MQTT
         _bleDevices.clear(); // reset container
         _ble_counter = 0; // reset counter
       } else {
+        // update both bearing and est position
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('rssi', currRssiAll),
+          MapEntry('magnetometer', currMag),
+        ]);
+
         _ble_counter += 1;
       }
 
-      if (fromMag) {
-        if (_mag_counter >= _MAG_READ) {
-          // update bearing only
-          currRawDataAll.addEntries([
-            MapEntry('time', stringTime),
-            MapEntry('magnetometer', currMag),
-          ]);
-
-          // perform localisation
-          LinkedHashMap<String, dynamic> tmpResult =
-              _onSight.localisation(currRawDataAll);
-          _results = _formatResult(tmpResult);
-
-          _mag_counter = 0; // reset counter
-          _magnetometerValues.clear(); // reset container
-        } else {
-          _mag_counter += 1;
-        }
-      }
+      // TODO: uncomment as needed
+      publishMqttPayload(currRawDataAll, result);
     }
+
     // In non-debugMode
     else {
+      LinkedHashMap<String, dynamic> tmpResult = LinkedHashMap();
+
+      // localisation
       if (fromBle) {
+        LinkedHashMap<String, num> currRssiAll = LinkedHashMap();
+        SplayTreeMap currSortedRssi = SplayTreeMap();
+
         // using actual values
         if (isReady) {
-          for (int i = 0; i < _bleDevices.length; i++) {
-            currRssiAll.addEntries([
-              MapEntry(_bleDevices[i].id, _bleDevices[i].rssi),
-            ]);
-          }
+          _bleDevices.forEach((mac, details) {
+            num rssiSum = 0.0;
+            details.forEach((device) {
+              rssiSum += device.rssi;
+            });
+            currRssiAll[mac] = rssiSum / details.length;
+          });
+          // sort avg rssi and store to map container
+          currSortedRssi = SplayTreeMap.from(
+              currRssiAll,
+              (prev, next) =>
+                  currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
+          currSortedRssi.forEach((mac, rssi) {
+            currRssiAll[mac] = rssi;
+          });
+
           // update both bearing and est position
           currRawDataAll.addEntries([
             MapEntry('time', stringTime),
@@ -358,28 +283,50 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
           // perform localisation
           tmpResult = _onSight.localisation(currRawDataAll);
           _results = _formatResult(tmpResult);
+          result.addEntries(tmpResult.entries);
 
-          // TODO: remove MQTT if not needed
-          publishMqttPayload(currRawDataAll, result);
           _bleDevices.clear(); // reset container
           _ble_counter = 0; // reset counter
         } else {
-          _ble_counter += 1;
-        }
-      }
+          _bleDevices.forEach((mac, details) {
+            currRssiAll[mac] = details.last.rssi;
+          });
+          // sort avg rssi and store to map container
+          currSortedRssi = SplayTreeMap.from(
+              currRssiAll,
+              (prev, next) =>
+                  currRssiAll[next]!.compareTo(currRssiAll[prev] ?? 0));
+          currSortedRssi.forEach((mac, rssi) {
+            currRssiAll[mac] = rssi;
+          });
 
-      if (fromMag) {
-        if (_mag_counter >= _MAG_READ) {
-          // update bearing only
+          // update both bearing and est position
           currRawDataAll.addEntries([
             MapEntry('time', stringTime),
+            MapEntry('rssi', currRssiAll),
             MapEntry('magnetometer', currMag),
           ]);
 
+          _ble_counter += 1;
+        }
+
+        // TODO: uncomment as needed
+        publishMqttPayload(currRawDataAll, result);
+      }
+
+      // magneto only
+      if (fromMag) {
+        // update bearing only
+        currRawDataAll.addEntries([
+          MapEntry('time', stringTime),
+          MapEntry('magnetometer', currMag),
+        ]);
+
+        if (_mag_counter >= _MAG_READ) {
           // perform localisation
-          LinkedHashMap<String, dynamic> tmpResult =
-              _onSight.localisation(currRawDataAll);
+          tmpResult = _onSight.localisation(currRawDataAll);
           _results = _formatResult(tmpResult);
+          result.addEntries(tmpResult.entries);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -388,16 +335,7 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
         }
       }
     }
-    //SEND DIRECTION TO ESP32
-    // if(_results[5].value == "Left"){
-    //   _ble.writeCharacteristicWithoutResponse(characteristic, value: [0x02]);
-    // }
-    // else if(_results[5].value == "Right"){}
-    // else {}
   }
-
-
-
 
   List<ResultCharactersitics> _formatResult(
       LinkedHashMap<String, dynamic> result) {
@@ -430,32 +368,21 @@ class OnsightServicesScanner implements ReactiveState<SensorScannerState> {
   }
 
   bool _areDevicesUpdated(DiscoveredDevice device) {
-    int knownDeviceIndex = _bleDevices.indexWhere((d) => d.id == device.id);
     bool hasUpdate = false;
 
-    if (knownDeviceIndex >= 0) {
-      DiscoveredDevice prev_device = _bleDevices[knownDeviceIndex];
-      // getting moving avg rssi
-      DiscoveredDevice avgDevice = DiscoveredDevice(
-        id: prev_device.id,
-        name: prev_device.name,
-        serviceData: prev_device.serviceData,
-        serviceUuids: prev_device.serviceUuids,
-        rssi: (prev_device.rssi + device.rssi) ~/ 2,
-        manufacturerData: prev_device.manufacturerData,
-      );
-      _bleDevices[knownDeviceIndex] = avgDevice;
-      hasUpdate = true; // update prev rssi value
+    if (_bleDevices.containsKey(device.id)) {
+      // add on to current list
+      _bleDevices[device.id]!.add(device);
+      hasUpdate = true;
     } else {
       if (_knownDevices.contains(device.id)) {
-        _bleDevices.add(device);
-        hasUpdate = true; // new rpi found
+        // create a new list
+        _bleDevices[device.id] = [device];
+        hasUpdate = true;
       }
     }
 
     if (hasUpdate) {
-      _bleDevices.sort((curr, next) =>
-          next.rssi.compareTo(curr.rssi)); // sort the rssi in descending order
       _pushState(fromBle: true, fromMag: false);
     }
 
@@ -484,34 +411,10 @@ class SensorScannerState {
     required this.scanIsInProgress, // checks if scanning is in progress
   });
 
-  final List<DiscoveredDevice> discoveredDevices;
+  final Map<String, List<DiscoveredDevice>> discoveredDevices;
   final List<ResultCharactersitics> result;
   final List<SensorCharacteristics> magnetometer;
   final bool scanIsInProgress;
-
-  String toString() {
-    Map<String, int> dd = {};
-    if (discoveredDevices.length >= 3) {
-      dd = {
-        discoveredDevices[0].id: discoveredDevices[0].rssi,
-        discoveredDevices[1].id: discoveredDevices[1].rssi,
-        discoveredDevices[2].id: discoveredDevices[2].rssi,
-      };
-    }
-    List<String> res = [
-      result[0].value,
-      result[1].value,
-    ];
-
-    List<num> mag = [
-      magnetometer[0].value,
-      magnetometer[1].value,
-      magnetometer[2].value,
-    ];
-    String progress = scanIsInProgress ? 'True' : 'False';
-
-    return 'discoveredDevices = ${dd},\nmagnetometer = ${mag},\nresult = ${res},\nscanIsInProgress = ${progress}';
-  }
 }
 
 class SensorCharacteristics {

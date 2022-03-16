@@ -26,7 +26,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final _bleLogger = BleLogger();
   final _ble = FlutterReactiveBle();
-  final _servicesScanner = OnsightServicesScanner(
+  final _onsightLocalisationScanner = OnsightLocalisationScanner(
     ble: _ble,
     onSight: onSight,
   );
@@ -40,6 +40,7 @@ void main() async {
   );
   final _monitor = BleStatusMonitor(_ble);
   final _connector = BleDeviceConnector(
+    onSight: onSight,
     ble: _ble,
     logMessage: _bleLogger.addToLog,
   );
@@ -55,7 +56,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        Provider.value(value: _servicesScanner),
+        Provider.value(value: _onsightLocalisationScanner),
         Provider.value(value: _systemTestScanner),
         Provider.value(value: _espScanner),
         Provider.value(value: _monitor),
@@ -63,9 +64,9 @@ void main() async {
         Provider.value(value: _caneServiceDiscoverer),
         Provider.value(value: _bleLogger),
         StreamProvider<SensorScannerState?>(
-          create: (_) => _servicesScanner.state,
+          create: (_) => _onsightLocalisationScanner.state,
           initialData: const SensorScannerState(
-            discoveredDevices: [],
+            discoveredDevices: {},
             result: [],
             magnetometer: [],
             scanIsInProgress: false,

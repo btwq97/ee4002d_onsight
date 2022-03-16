@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:on_sight/services/onsight.dart';
 import 'package:on_sight/services/reactive_packages/ble_scanner.dart';
 import 'package:provider/provider.dart';
 
 import 'package:on_sight/services/reactive_packages/widgets.dart';
-import 'package:on_sight/services/reactive_packages/device_detail_screen.dart';
+import 'package:on_sight/services/reactive_packages/onsight_device_detail_screen.dart';
 
 class OnsightCaneScreen extends StatelessWidget {
-  const OnsightCaneScreen({Key? key}) : super(key: key);
+  const OnsightCaneScreen({Key? key, required this.onSight}) : super(key: key);
+
+  final OnSight onSight;
 
   @override
   Widget build(BuildContext context) => Consumer2<BleScanner, BleScannerState?>(
         builder: (_, bleScanner, bleScannerState, __) => _DeviceList(
+          onSight: onSight,
           scannerState: bleScannerState ??
               const BleScannerState(
                 discoveredDevices: [],
@@ -24,14 +28,17 @@ class OnsightCaneScreen extends StatelessWidget {
 }
 
 class _DeviceList extends StatefulWidget {
-  const _DeviceList(
-      {required this.scannerState,
-      required this.startScan,
-      required this.stopScan});
+  const _DeviceList({
+    required this.scannerState,
+    required this.startScan,
+    required this.stopScan,
+    required this.onSight,
+  });
 
   final BleScannerState scannerState;
   final void Function(List<Uuid>) startScan;
   final VoidCallback stopScan;
+  final OnSight onSight;
 
   @override
   _DeviceListState createState() => _DeviceListState();
@@ -152,8 +159,10 @@ class _DeviceListState extends State<_DeviceList> {
                           await Navigator.push<void>(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) =>
-                                      DeviceDetailScreen(device: device)));
+                                  builder: (_) => DeviceDetailScreen(
+                                        onSight: widget.onSight,
+                                        device: device,
+                                      )));
                         },
                       ),
                     )

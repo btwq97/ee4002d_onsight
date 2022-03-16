@@ -134,7 +134,7 @@ class Localisation {
     } else {
       throw NoPossibleSolution(
           errMsg:
-              "[_retrieveHeadingAngleRange]: Unable to retrieve heading angle");
+              "[_retrieveHeadingAngleRange]: Estimated position is unknown");
     }
   }
 
