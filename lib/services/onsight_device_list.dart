@@ -93,14 +93,18 @@ class _DeviceListState extends State<_DeviceList> {
     });
   }
 
-  String display() {
+  String _display() {
     if (!widget.sensorScannerState.scanIsInProgress) {
-      return 'Tap start to begin localisation. Tap Cane to connect to cane.';
+      if (!widget.onSight.connectionState) {
+        return 'Tap "Localise" to begin localisation.\n\nTap "Cane" to connect to cane.\n';
+      } else {
+        return 'Tap "Localise" to begin localisation.';
+      }
     } else {
       if (isCane) {
-        return 'Searching for cane...';
+        return 'Searching for cane...\n';
       } else {
-        return 'Performing localisation...';
+        return 'Performing localisation...\n';
       }
     }
   }
@@ -148,7 +152,7 @@ class _DeviceListState extends State<_DeviceList> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(display()),
+                      child: Text(_display()),
                     ),
                     if (widget.sensorScannerState.scanIsInProgress)
                       Padding(
@@ -164,27 +168,30 @@ class _DeviceListState extends State<_DeviceList> {
 
           // For discovery
           Flexible(
-            child: ListView(
-              children: widget.sensorScannerState.connectDiscoveredDevices
-                  .map(
-                    (device) => ListTile(
-                      title: Text(device.name),
-                      subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
-                      leading: const BluetoothIcon(),
-                      onTap: () async {
-                        widget.stopScan();
-                        await Navigator.push<void>(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => DeviceDetailScreen(
-                                      onSight: widget.onSight,
-                                      device: device,
-                                    )));
-                      },
-                    ),
+            child: isCane
+                ? ListView(
+                    children: widget.sensorScannerState.connectDiscoveredDevices
+                        .map(
+                          (device) => ListTile(
+                            title: Text(device.name),
+                            subtitle:
+                                Text("${device.id}\nRSSI: ${device.rssi}"),
+                            leading: const BluetoothIcon(),
+                            onTap: () async {
+                              widget.stopScan();
+                              await Navigator.push<void>(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => DeviceDetailScreen(
+                                            onSight: widget.onSight,
+                                            device: device,
+                                          )));
+                            },
+                          ),
+                        )
+                        .toList(),
                   )
-                  .toList(),
-            ),
+                : ListView(),
           ),
 
           // For magnetometer
@@ -197,16 +204,18 @@ class _DeviceListState extends State<_DeviceList> {
             ],
           ),
           Flexible(
-            child: ListView(
-              children: widget.sensorScannerState.magnetometer
-                  .map(
-                    (sensorValue) => ListTile(
-                      title: Text(sensorValue.name),
-                      subtitle: Text(sensorValue.value.toString()),
-                    ),
+            child: !isCane
+                ? ListView(
+                    children: widget.sensorScannerState.magnetometer
+                        .map(
+                          (sensorValue) => ListTile(
+                            title: Text(sensorValue.name),
+                            subtitle: Text(sensorValue.value.toString()),
+                          ),
+                        )
+                        .toList(),
                   )
-                  .toList(),
-            ),
+                : ListView(),
           ),
 
           // For results
@@ -224,16 +233,18 @@ class _DeviceListState extends State<_DeviceList> {
             ],
           ),
           Flexible(
-            child: ListView(
-              children: widget.sensorScannerState.result
-                  .map(
-                    (result) => ListTile(
-                      title: Text(result.name),
-                      subtitle: Text(result.value.toString()),
-                    ),
+            child: !isCane
+                ? ListView(
+                    children: widget.sensorScannerState.result
+                        .map(
+                          (result) => ListTile(
+                            title: Text(result.name),
+                            subtitle: Text(result.value.toString()),
+                          ),
+                        )
+                        .toList(),
                   )
-                  .toList(),
-            ),
+                : ListView(),
           ),
         ],
       ),

@@ -209,8 +209,6 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   /// Input:
   /// 1) direction [String]
   Future<void> _writeWithResponse(String direction) async {
-    print(direction);
-
     if (_onSight.connectionState) {
       final characteristic = QualifiedCharacteristic(
           serviceId: _onSight.serviceId,

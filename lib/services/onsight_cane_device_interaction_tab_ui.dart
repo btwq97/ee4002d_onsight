@@ -154,20 +154,9 @@ class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
                             : null,
                         child: const Text("Disconnect"),
                       ),
-                      // ElevatedButton(
-                      //   onPressed: widget.viewModel.deviceConnected
-                      //       ? discoverServices
-                      //       : null,
-                      //   child: const Text("Discover Services"),
-                      // ),
                     ],
                   ),
                 ),
-                // if (widget.viewModel.deviceConnected)
-                //   _ServiceDiscoveryList(
-                //     deviceId: widget.viewModel.deviceId,
-                //     discoveredServices: discoveredServices,
-                //   ),
                 GestureDetector(
                   onTap: () {
                     if (widget.viewModel.deviceConnected) {
