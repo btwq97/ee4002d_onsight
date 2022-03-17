@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
-import 'package:on_sight/services/onsight_cane.dart';
-import 'package:on_sight/uipagecustomer/connecttocane.dart';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
 import 'package:on_sight/uipagecustomer/customer_preferences_setup.dart'; //for UI improvement purposes, not to be used for demo
 import 'package:on_sight/setuppages/Vegetarianism.dart';
@@ -89,73 +87,30 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
 
-          //Set up your Cane after initial setup
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ConnectToCane(
-                        onSight: this.onSight,
-                      )));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'SET UP YOUR CANE',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
-
-          // Connect to ESP32
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => OnsightCaneScreen()));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  '(Testing) CONNECT TO ESP32',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
 
           // System Characteristics Testing
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => OnsightSystemTestScreen(
-                            onSight: this.onSight,
-                          )));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  '(Testing) CHARACTERISTICS',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => OnsightSystemTestScreen(
+          //                   onSight: this.onSight,
+          //                 )));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text(
+          //         '(Testing) CHARACTERISTICS',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kBottomContainerColour,
+          //     margin: EdgeInsets.only(top: 10.0),
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ),
 
           // Localisation Screen
           GestureDetector(
@@ -170,7 +125,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  '(Testing) LOCALISATION',
+                  'GET DIRECTIONS',
                   style: kBottomButtonTextStyle,
                 ),
               ),

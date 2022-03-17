@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'device_interaction_tab.dart';
+part of 'onsight_cane_device_interaction_tab_ui.dart';
 
 // **************************************************************************
 // FunctionalDataGenerator

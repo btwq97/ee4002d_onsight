@@ -35,6 +35,8 @@ class Localisation {
       'NO INTERCEPT': 3,
       'EXACT': 4,
     };
+
+    reset();
   }
 
   final MyNumDart _nd = MyNumDart();
@@ -83,10 +85,14 @@ class Localisation {
     num currY = estPosition[1];
 
     if (!hasTurned) {
-      if (currY >= 1200 && currX <= 900) {
+      if (currY >= 1500 && currX <= 900) {
         return Zone.corner;
       } else {
-        return Zone.start;
+        if (!hasTurned) {
+          return Zone.start;
+        } else {
+          return Zone.end;
+        }
       }
     } else {
       return Zone.end;
@@ -107,6 +113,8 @@ class Localisation {
   }
 
   void reset() {
+    hasTurned = false;
+    currZone = Zone.start;
     prev_x = double.negativeInfinity;
     prev_y = double.negativeInfinity;
   }
@@ -134,7 +142,7 @@ class Localisation {
     } else {
       throw NoPossibleSolution(
           errMsg:
-              "[_retrieveHeadingAngleRange]: Unable to retrieve heading angle");
+              "[_retrieveHeadingAngleRange]: Estimated position is unknown");
     }
   }
 
@@ -149,9 +157,9 @@ class Localisation {
   String determineDirection(Zone userZone, Bearing userBearing) {
     // TODO: Placeholder values for now. Change headings to actual headings.
     Map<Zone, Heading> FIXED_ROUTES_HEADING = {
-      Zone.start: Heading.NW,
-      Zone.corner: Heading.NE,
-      Zone.end: Heading.NE,
+      Zone.start: Heading.W,
+      Zone.corner: Heading.N,
+      Zone.end: Heading.N,
     };
 
     Heading? intendedHeading = FIXED_ROUTES_HEADING[userZone];
@@ -180,6 +188,9 @@ class Localisation {
     }
     // indicates correct orientation
     else {
+      if (userZone == Zone.corner) {
+        hasTurned = true;
+      }
       return 'Forward';
     }
   }

@@ -6,7 +6,7 @@ import 'package:on_sight/components/iconcontent.dart';
 import 'package:on_sight/components/reuseablecard.dart';
 import 'package:on_sight/setuppages/Allergy.dart';
 import 'package:on_sight/setuppages/Vegetarianism.dart';
-import 'package:on_sight/uipagecustomer/connecttocane.dart';
+//import 'package:on_sight/uipagecustomer/connecttocane.dart';
 import 'package:on_sight/keypages/customerhomepage.dart';
 
 enum CaneChoice {
@@ -50,23 +50,23 @@ class _CaneChoicePageState extends State<CaneChoicePage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ConnectToCane(
-                            onSight: onSight,
-                          )));
-            },
-            child: ReusableCard(
-              cardChild: IconContent(
-                icon: FontAwesomeIcons.candyCane,
-                label: 'HAVE',
-              ),
-              colour: Color(0xFF301934),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => ConnectToCane(
+          //                   onSight: onSight,
+          //                 )));
+          //   },
+          //   child: ReusableCard(
+          //     cardChild: IconContent(
+          //       icon: FontAwesomeIcons.candyCane,
+          //       label: 'HAVE',
+          //     ),
+          //     colour: Color(0xFF301934),
+          //   ),
+          // ),
           GestureDetector(
             onTap: () {
               Navigator.push(

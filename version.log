@@ -9,5 +9,16 @@ Version 0.2.0
 1. Phased out [double] and used [num] instead.
 2. Localisation now stores previous values and display them in the event of ZeroDivisionError.
 3. _bleDevices now clears itself after each localisation --> this is to ensure that the beacons received are the closest beacons.
-4. Navigatino based on compass heading is integrated but algorithm is still buggy.
+4. Navigation based on compass heading is integrated but algorithm is still buggy.
  
+Version 0.9.0
+1. Navigation direction is updated with the correct general direciton.
+2. Localisation algorithm now waits for average before performing localisation.
+3. Connection to cane is fully integrated.
+
+Version 1.0.0
+1. Customer UI and Storeowner UI has been finalised
+2. Preferences have been added, to be stored in cache memory
+3. Heading issues have been fixed.
+4. Correctly guides us to end point
+5. Correctly sends direction to cane
