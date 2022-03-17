@@ -302,7 +302,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
 
-          // index of 'suggested_direction' is 5
+          // index of 'suggested_direction' is 0
           await _writeWithResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
@@ -413,7 +413,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           _results = _formatResult(tmpResult);
           result.addEntries(tmpResult.entries);
 
-          // index of 'suggested_direction' is 5
+          // index of 'suggested_direction' is 0
           await _writeWithResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
