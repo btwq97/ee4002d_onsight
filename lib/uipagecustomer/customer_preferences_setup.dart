@@ -51,63 +51,47 @@ class _CustomerPreferencesSetupState extends State<CustomerPreferencesSetup> {
     body: Padding(
       padding: const EdgeInsets.all(8),
       child: Center(
-        child: ListView(
-          //mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            buildHeader(
-              title: 'VEGETARIAN?',
-              child: //Text("INSERT VEGETARIAN TOGGLE HERE"),
+        child: Container(
+          child: ListView(
+            shrinkWrap: true,
+            //mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Vegetarian"),
               VegetarianToggle(),
-            ),
-            const SizedBox(height: 32),
-            buildHeader(
-              title: 'HALAL OPTION?',
-              child: //Text("INSERT HALAL TOGGLE HERE"),
+              Text("Halal Option Needed?"),
               HalalOrNotToggle(),
-            ),
-            const SizedBox(height: 32),
-            buildHeader(
-              title: 'SPICINESS LEVEL?',
-              child: Text("INSERT SPICINESS TOGGLE HERE"),
-              //HalalOrNotToggle(),
-            ),
-            const SizedBox(height: 32),
-            buildHeader(
-              title: 'ANY ALLERGIES?',
-              child: Text("INSERT ALLERGY TOGGLE HERE"),
-              //HalalOrNotToggle(),
-            ),
-            const SizedBox(height: 32),
-            buildHeader(
-              title: 'CUISINE PREFERENCES?',
-              child: Text("INSERT CUISINE TOGGLE HERE"),
-              //HalalOrNotToggle(),
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CustomerHomePage(
-                          onSight: onSight,
-                        )));
-              },
-              child: Container(
-                child: Center(
-                  child: Text(
-                    'SAVE',
-                    style: kBottomButtonTextStyle,
+              Text("Spice Level?"),
+              SpicePreferenceToggle(),
+              Text("Any Allergies?"),
+              AllergyToggle(),
+              Text("Cuisine Preferences?"),
+              CuisineToggle(),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CustomerHomePage(
+                            onSight: onSight,
+                          )));
+                },
+                child: Container(
+                  child: Center(
+                    child: Text(
+                      'SAVE',
+                      style: kBottomButtonTextStyle,
+                    ),
                   ),
+                  color: kBottomContainerColour,
+                  margin: EdgeInsets.only(top: 10.0),
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  width: double.infinity,
+                  height: kBottomContainerHeight,
                 ),
-                color: kBottomContainerColour,
-                margin: EdgeInsets.only(top: 10.0),
-                padding: EdgeInsets.only(bottom: 10.0),
-                width: double.infinity,
-                height: kBottomContainerHeight,
               ),
-            ),
 
-          ],
+            ],
+          ),
         ),
       ),
     ),
@@ -136,3 +120,28 @@ class _CustomerPreferencesSetupState extends State<CustomerPreferencesSetup> {
       //   VegetarianToggle(),
       // ]));
 }
+
+// buildHeader(
+// title: 'VEGETARIAN?',
+// child: //Text("INSERT VEGETARIAN TOGGLE HERE"),
+// VegetarianToggle(),
+// ),
+// const SizedBox(height: 32),
+// buildHeader(
+// title: 'HALAL OPTION?',
+// child: //Text("INSERT HALAL TOGGLE HERE"),
+// HalalOrNotToggle(),
+// ),
+// const SizedBox(height: 32),
+// buildHeader(
+// title: 'SPICINESS LEVEL?',
+// child: //Text("INSERT SPICINESS TOGGLE HERE"),
+// SpicePreferenceToggle(),
+// ),
+// const SizedBox(height: 32),
+// buildHeader(
+// title: 'ANY ALLERGIES?',
+// child: Text("INSERT ALLERGY TOGGLE HERE"),
+// //HalalOrNotToggle(),
+// ),
+// const SizedBox(height: 32),
