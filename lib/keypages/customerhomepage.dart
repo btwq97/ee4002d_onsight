@@ -74,7 +74,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
                   MaterialPageRoute(builder: (context) => CanteenTestPage()));
             },
 
-            // Set up your preferences
+            // Set up your preferences new
             child: Container(
               child: Center(
                 child: Text(
