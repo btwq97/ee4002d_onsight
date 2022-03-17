@@ -40,8 +40,9 @@ class _SpiceLevelPageState extends State<SpiceLevelPage> {
       appBar: AppBar(
         title: Text(
           'SPICE LEVEL?',
-          style: TextStyle(fontSize: 40),
+          style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),
         ),
+        backgroundColor: Color(0xFF702963),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

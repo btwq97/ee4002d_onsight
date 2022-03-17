@@ -69,8 +69,9 @@ class _AllergyPageState extends State<AllergyPage> {
       appBar: AppBar(
         title: Text(
           'ALLERGIES',
-          style: TextStyle(fontSize: 40),
+          style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),
         ),
+        backgroundColor: Color(0xFF702963),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
