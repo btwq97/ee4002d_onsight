@@ -39,8 +39,9 @@ class _VegetarianPageState extends State<VegetarianPage> {
       appBar: AppBar(
         title: Text(
           'VEGETARIAN?',
-          style: TextStyle(fontSize: 40),
+          style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),
         ),
+        backgroundColor: Color(0xFF702963),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

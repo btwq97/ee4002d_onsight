@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:on_sight/constants.dart';
 import 'package:on_sight/services/onsight.dart';
-// import 'package:on_sight/services/onsight_cane.txt';
 import 'package:on_sight/uipagecustomer/canteen_map.dart';
+import 'package:on_sight/uipagecustomer/customer_preferences_setup.dart'; //for UI improvement purposes, not to be used for demo
+import 'package:on_sight/setuppages/Vegetarianism.dart';
 import 'package:on_sight/services/onsight_device_list.dart';
 import 'package:on_sight/services/onsight_system_test_device_list.dart';
 
@@ -33,24 +34,49 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
       appBar: AppBar(
         title: Text(
           'HOME PAGE',
-          style: TextStyle(fontSize: 40),
+          style: TextStyle(fontSize: 40, color: Color(0xFFFFFF00),),
         ),
+        backgroundColor: Color(0xFF702963),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          //Set up your preferences
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => VegetarianPage(onSight: onSight,)));
+            },
+
+            // Set up your preferences
+            child: Container(
+              child: Center(
+                child: Text(
+                  'SET UP YOUR PREFERENCES',
+                  style: kBottomButtonTextStyle,
+                ),
+              ),
+              color: kBottomContainerColour,
+              margin: EdgeInsets.only(top: 10.0),
+              width: double.infinity,
+              height: kBottomContainerHeight,
+            ),
+          ),
+
+          //View the Map of the location
+
           GestureDetector(
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => CanteenTestPage()));
             },
 
-            // Location map
+            // Set up your preferences new
             child: Container(
               child: Center(
                 child: Text(
-                  'LOCATION MAP',
+                  'VIEW THE MAP',
                   style: kBottomButtonTextStyle,
                 ),
               ),
@@ -61,29 +87,30 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             ),
           ),
 
+
           // System Characteristics Testing
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => OnsightSystemTestScreen(
-                            onSight: this.onSight,
-                          )));
-            },
-            child: Container(
-              child: Center(
-                child: Text(
-                  'CHARACTERISTICS TESTING',
-                  style: kBottomButtonTextStyle,
-                ),
-              ),
-              color: kBottomContainerColour,
-              margin: EdgeInsets.only(top: 10.0),
-              width: double.infinity,
-              height: kBottomContainerHeight,
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //             builder: (context) => OnsightSystemTestScreen(
+          //                   onSight: this.onSight,
+          //                 )));
+          //   },
+          //   child: Container(
+          //     child: Center(
+          //       child: Text(
+          //         '(Testing) CHARACTERISTICS',
+          //         style: kBottomButtonTextStyle,
+          //       ),
+          //     ),
+          //     color: kBottomContainerColour,
+          //     margin: EdgeInsets.only(top: 10.0),
+          //     width: double.infinity,
+          //     height: kBottomContainerHeight,
+          //   ),
+          // ),
 
           // Localisation Screen
           GestureDetector(
@@ -98,7 +125,7 @@ class _CustomerHomePageState extends State<CustomerHomePage> {
             child: Container(
               child: Center(
                 child: Text(
-                  'LOCALISATION',
+                  'GET DIRECTIONS',
                   style: kBottomButtonTextStyle,
                 ),
               ),
