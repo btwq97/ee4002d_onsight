@@ -81,16 +81,12 @@ class _DeviceListState extends State<_DeviceList> {
 
   void _startLocalising() {
     widget.startLocalisation(_knownUuid);
-    setState(() {
-      isCane = false;
-    });
+    isCane = false;
   }
 
   void _connect() {
     widget.connect(_knownUuid);
-    setState(() {
-      isCane = true;
-    });
+    isCane = true;
   }
 
   String _display() {
@@ -107,6 +103,15 @@ class _DeviceListState extends State<_DeviceList> {
         return 'Performing localisation...\n';
       }
     }
+  }
+
+  List<DiscoveredDevice> _displayBluetoothDevice() {
+    List<DiscoveredDevice> result = [];
+    widget.sensorScannerState.discoveredDevices.forEach((mac, data) {
+      result.add(data.last);
+    });
+    result.sort((prev, next) => next.rssi.compareTo(prev.rssi));
+    return result;
   }
 
   @override
@@ -191,32 +196,43 @@ class _DeviceListState extends State<_DeviceList> {
                         )
                         .toList(),
                   )
-                : ListView(),
-          ),
-
-          // For magnetometer
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text('Magnetometer'),
-              ),
-            ],
-          ),
-          Flexible(
-            child: !isCane
-                ? ListView(
-                    children: widget.sensorScannerState.magnetometer
+                : ListView(
+                    children: _displayBluetoothDevice()
                         .map(
-                          (sensorValue) => ListTile(
-                            title: Text(sensorValue.name),
-                            subtitle: Text(sensorValue.value.toString()),
+                          (device) => ListTile(
+                            title: Text(device.name),
+                            subtitle:
+                                Text("${device.id}\nRSSI: ${device.rssi}"),
+                            leading: const BluetoothIcon(),
                           ),
                         )
                         .toList(),
-                  )
-                : ListView(),
+                  ),
           ),
+
+          // For magnetometer
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Expanded(
+          //       child: Text('Magnetometer'),
+          //     ),
+          //   ],
+          // ),
+          // Flexible(
+          //   child: !isCane
+          //       ? ListView(
+          //           children: widget.sensorScannerState.magnetometer
+          //               .map(
+          //                 (sensorValue) => ListTile(
+          //                   title: Text(sensorValue.name),
+          //                   subtitle: Text(sensorValue.value.toString()),
+          //                 ),
+          //               )
+          //               .toList(),
+          //         )
+          //       : ListView(),
+          // ),
 
           // For results
           Row(
@@ -233,18 +249,16 @@ class _DeviceListState extends State<_DeviceList> {
             ],
           ),
           Flexible(
-            child: !isCane
-                ? ListView(
-                    children: widget.sensorScannerState.result
-                        .map(
-                          (result) => ListTile(
-                            title: Text(result.name),
-                            subtitle: Text(result.value.toString()),
-                          ),
-                        )
-                        .toList(),
+            child: ListView(
+              children: widget.sensorScannerState.result
+                  .map(
+                    (result) => ListTile(
+                      title: Text(result.name),
+                      subtitle: Text(result.value.toString()),
+                    ),
                   )
-                : ListView(),
+                  .toList(),
+            ),
           ),
         ],
       ),

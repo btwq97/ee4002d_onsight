@@ -163,7 +163,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       performLocalisation(
         hasUpdate: _hasUpdated,
         // TODO: true if in debug mode, false if in actual test mode
-        isDebugMode: true,
+        isDebugMode: false,
         fromBle: fromBle,
         fromMag: fromMag,
       );
@@ -176,10 +176,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     }
     _streamSubscriptions.clear();
     _ble_counter = 0;
-    _bleDevices.clear();
     _mag_counter = 0;
-    _magnetometerValues.clear();
-    _results.clear();
     _onSight.resetLocalisation();
     _pushState(fromBle: false, fromMag: false, isConnect: false);
   }
@@ -270,8 +267,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     // for storing of result of localisation
     LinkedHashMap<String, dynamic> result = LinkedHashMap();
     // to check if system is ready
-    bool isReady =
-        (hasUpdate && (_bleDevices.length >= 3) && (_ble_counter >= _BLE_READ));
+    bool isReady = (hasUpdate && (_ble_counter >= _BLE_READ));
     // update magnetometer
     List<num> currMag = [
       _magnetometerValues[0].value,
@@ -307,7 +303,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           result.addEntries(tmpResult.entries);
 
           // index of 'suggested_direction' is 5
-          await _writeWithResponse(_results[5].value);
+          await _writeWithResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -344,7 +340,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       }
 
       // TODO: uncomment as needed
-      publishMqttPayload(currRawDataAll, result);
+      // publishMqttPayload(currRawDataAll, result);
     }
 
     // In non-debugMode
@@ -400,7 +396,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
         }
 
         // TODO: uncomment as needed
-        publishMqttPayload(currRawDataAll, result);
+        // publishMqttPayload(currRawDataAll, result);
       }
 
       // magneto only
@@ -418,7 +414,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           result.addEntries(tmpResult.entries);
 
           // index of 'suggested_direction' is 5
-          await _writeWithResponse(_results[5].value);
+          await _writeWithResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -433,6 +429,10 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   List<ResultCharactersitics> _formatResult(
       LinkedHashMap<String, dynamic> result) {
     return <ResultCharactersitics>[
+      ResultCharactersitics(
+        name: 'suggested_direction',
+        value: result['direction']['suggested_direction'] ?? 'Error',
+      ),
       ResultCharactersitics(
         name: 'x_coor',
         value: result['x_coordinate'].toString(),
@@ -452,10 +452,6 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       ResultCharactersitics(
         name: 'compass_heading',
         value: result['direction']['compass_heading'] ?? 'Error',
-      ),
-      ResultCharactersitics(
-        name: 'suggested_direction',
-        value: result['direction']['suggested_direction'] ?? 'Error',
       ),
     ];
   }
