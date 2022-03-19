@@ -114,6 +114,52 @@ class _DeviceListState extends State<_DeviceList> {
     return result;
   }
 
+  ListView _displayBleDiscoveryState() {
+    if (isCane) {
+      return ListView(
+        children: widget.sensorScannerState.connectDiscoveredDevices
+            .map(
+              (device) => ListTile(
+                title: Text(device.name),
+                subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                leading: const BluetoothIcon(),
+                onTap: () async {
+                  widget.stopScan();
+                  await Navigator.push<void>(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DeviceDetailScreen(
+                                onSight: widget.onSight,
+                                device: device,
+                              )));
+                },
+              ),
+            )
+            .toList(),
+      );
+    } else {
+      return ListView(
+        children: _displayBluetoothDevice()
+            .map(
+              (device) => ListTile(
+                title: Text(device.name),
+                subtitle: Text("${device.id}\nRSSI: ${device.rssi}"),
+                leading: const BluetoothIcon(),
+              ),
+            )
+            .toList(),
+      );
+    }
+  }
+
+  String _displayDeviceLength() {
+    if (isCane) {
+      return 'Devices found: ${widget.sensorScannerState.connectDiscoveredDevices.length}';
+    } else {
+      return 'Devices found: ${widget.sensorScannerState.discoveredDevices.length}';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,8 +208,7 @@ class _DeviceListState extends State<_DeviceList> {
                     if (widget.sensorScannerState.scanIsInProgress)
                       Padding(
                         padding: const EdgeInsetsDirectional.only(start: 18.0),
-                        child: Text(
-                            'Devices found: ${widget.sensorScannerState.discoveredDevices.length}'),
+                        child: Text(_displayDeviceLength()),
                       ),
                   ],
                 ),
@@ -172,43 +217,7 @@ class _DeviceListState extends State<_DeviceList> {
           ),
 
           // For discovery
-          Flexible(
-            child: isCane
-                ? ListView(
-                    children: widget.sensorScannerState.connectDiscoveredDevices
-                        .map(
-                          (device) => ListTile(
-                            title: Text(device.name),
-                            subtitle:
-                                Text("${device.id}\nRSSI: ${device.rssi}"),
-                            leading: const BluetoothIcon(),
-                            onTap: () async {
-                              widget.stopScan();
-                              await Navigator.push<void>(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => DeviceDetailScreen(
-                                            onSight: widget.onSight,
-                                            device: device,
-                                          )));
-                            },
-                          ),
-                        )
-                        .toList(),
-                  )
-                : ListView(
-                    children: _displayBluetoothDevice()
-                        .map(
-                          (device) => ListTile(
-                            title: Text(device.name),
-                            subtitle:
-                                Text("${device.id}\nRSSI: ${device.rssi}"),
-                            leading: const BluetoothIcon(),
-                          ),
-                        )
-                        .toList(),
-                  ),
-          ),
+          Flexible(child: _displayBleDiscoveryState()),
 
           // For magnetometer
           // Row(

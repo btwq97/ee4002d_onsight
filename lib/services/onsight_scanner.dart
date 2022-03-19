@@ -47,6 +47,9 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
 
   void _hardReset() {
     // reset all subscriptions
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
     _bleDevices.clear();
     _devices.clear();
     _streamSubscriptions.clear();
@@ -56,19 +59,16 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     _magnetometerValues.clear();
     _results.clear();
     _onSight.resetLocalisation();
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
   }
 
   void _softReset() {
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
     _streamSubscriptions.clear();
     _ble_counter = 0;
     _mag_counter = 0;
     _onSight.resetLocalisation();
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
   }
 
   void connect(List<Uuid> serviceIds) {
@@ -154,9 +154,9 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
         discoveredDevices: _bleDevices,
         result: _results,
         magnetometer: _magnetometerValues,
+        connectDiscoveredDevices: _devices,
         // startscan is called in init, resulting in streams being subscribed automatically.
         // thus if _streamSubscriptions.isNotEmpty, it means that scanning is in progress.
-        connectDiscoveredDevices: _devices,
         scanIsInProgress: _streamSubscriptions.isNotEmpty,
       ),
     );
