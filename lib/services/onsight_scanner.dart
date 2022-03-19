@@ -45,7 +45,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   @override
   Stream<SensorScannerState> get state => _bleStreamController.stream;
 
-  void connect(List<Uuid> serviceIds) {
+  void _hardReset() {
     // reset all subscriptions
     _bleDevices.clear();
     _devices.clear();
@@ -59,6 +59,20 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     for (final subscription in _streamSubscriptions) {
       subscription.cancel();
     }
+  }
+
+  void _softReset() {
+    _streamSubscriptions.clear();
+    _ble_counter = 0;
+    _mag_counter = 0;
+    _onSight.resetLocalisation();
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
+    }
+  }
+
+  void connect(List<Uuid> serviceIds) {
+    _hardReset();
 
     // for bluetooth
     _streamSubscriptions.add(_ble
@@ -80,19 +94,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   }
 
   void startLocalisation(List<Uuid> serviceIds) {
-    // reset all subscriptions
-    _bleDevices.clear();
-    _devices.clear();
-    _streamSubscriptions.clear();
-    _ble_counter = 0;
-    _bleDevices.clear();
-    _mag_counter = 0;
-    _magnetometerValues.clear();
-    _results.clear();
-    _onSight.resetLocalisation();
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
+    _hardReset();
 
     // for mag
     _streamSubscriptions.add(
@@ -171,13 +173,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   }
 
   Future<void> stopScan() async {
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
-    _streamSubscriptions.clear();
-    _ble_counter = 0;
-    _mag_counter = 0;
-    _onSight.resetLocalisation();
+    _softReset();
     _pushState(fromBle: false, fromMag: false, isConnect: false);
   }
 
