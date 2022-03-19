@@ -225,10 +225,11 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
               .writeCharacteristicWithResponse(characteristic, value: [0x3]);
           break;
         default:
+          print('[_writeWithResponse] Direction given is incorrect.');
           break;
       }
     } else {
-      print('[_writeWithResponse] Device is not connected!!');
+      print('[_writeWithResponse] Cane device is not connected');
     }
   }
 
