@@ -201,7 +201,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
   ///
   /// Input:
   /// 1) direction [String]
-  Future<void> _writeWithResponse(String direction) async {
+  Future<void> _writeWithoutResponse(String direction) async {
     if (_onSight.connectionState) {
       final characteristic = QualifiedCharacteristic(
           serviceId: _onSight.serviceId,
@@ -210,18 +210,18 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
       switch (direction) {
         case 'Forward':
           await _ble
-              .writeCharacteristicWithResponse(characteristic, value: [0x1]);
+              .writeCharacteristicWithoutResponse(characteristic, value: [0x2]);
           break;
         case 'Left':
           await _ble
-              .writeCharacteristicWithResponse(characteristic, value: [0x2]);
+              .writeCharacteristicWithoutResponse(characteristic, value: [0x1]);
           break;
         case 'Right':
           await _ble
-              .writeCharacteristicWithResponse(characteristic, value: [0x3]);
+              .writeCharacteristicWithoutResponse(characteristic, value: [0x3]);
           break;
         default:
-          print('[_writeWithResponse] Direction given is incorrect.');
+          print('[_writeWithoutResponse] Direction given is incorrect.');
           break;
       }
     } else {
@@ -258,7 +258,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
     // TODO: duty cycle for ble devices (zero based counting)
     final num _BLE_READ = 29;
     // TODO: duty cycle for magnetometer (zero based counting)
-    final num _MAG_READ = 4;
+    final num _MAG_READ = 6;
 
     LinkedHashMap<String, dynamic> currRawDataAll = LinkedHashMap();
     // for storing of result of localisation
@@ -300,7 +300,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           result.addEntries(tmpResult.entries);
 
           // index of 'suggested_direction' is 0
-          await _writeWithResponse(_results[0].value);
+          await _writeWithoutResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container
@@ -411,7 +411,7 @@ class OnsightLocalisationScanner implements ReactiveState<SensorScannerState> {
           result.addEntries(tmpResult.entries);
 
           // index of 'suggested_direction' is 0
-          await _writeWithResponse(_results[0].value);
+          await _writeWithoutResponse(_results[0].value);
 
           _mag_counter = 0; // reset counter
           _magnetometerValues.clear(); // reset container

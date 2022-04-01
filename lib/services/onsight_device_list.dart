@@ -164,8 +164,16 @@ class _DeviceListState extends State<_DeviceList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Localisation'),
+        title: Text(
+          'Localisation',
+          style: TextStyle(
+            fontSize: 40,
+            color: Color(0xFFFFFF00),
+          ),
+        ),
+        backgroundColor: Color(0xFF702963),
       ),
+      backgroundColor: Color(0xFF301934),
       body: Column(
         children: [
           // bluetooth start and stop

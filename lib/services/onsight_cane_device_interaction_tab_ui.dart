@@ -99,9 +99,14 @@ class _DeviceInteractionTabState extends State<_DeviceInteractionTab> {
       discoveredServices = result;
     });
 
+    // print(result[0]);
+    // print(result[1]);
+    // print(result[2]);
+
+    // TODO: change here for ble hotfix
     widget.onSight.connectionState = widget.viewModel.deviceConnected;
     widget.onSight.serviceId = result[2].serviceId;
-    widget.onSight.characteristicId = result[2].characteristicIds[1];
+    widget.onSight.characteristicId = result[2].characteristicIds[0];
     widget.onSight.deviceId = widget.viewModel.deviceId;
 
     // final characteristic = QualifiedCharacteristic(
